@@ -1,5 +1,5 @@
 #include "common.h"
-#include <vdr/libsi/si.h>
+#include <libsi/si.h>
 
 #define BUFFSIZE_INPUT 4096 * 16
 #define SENDPATPMT_PACKETINTERVAL 500
