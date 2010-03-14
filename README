@@ -117,9 +117,15 @@ And it's better to tell vdr the type of video (H.264 has a stream type of 27).
 If you use the digital input of the box, you must switch the audio encoding to AAC even
 if it gets AC3, for the RCA inputs you should set the encoding to AC3, since the vdr seems
 to have diffibulties with handling AAC audio.
+The SID must be 1, since this is the program number in the PMT the device generates.
+For the frequency you can enter any value you want as long as it's distinct.
+It will be passed to the externchannelswitch-sh script.
 
-for example:
-HD PVR:1:PVRINPUT|COMPONENT:P:0:4113+4097=27:0;4352:0:0:2919:1:0:0
+for example (>= vdr 1.7.13):
+HD PVR:1:COMPONENT:P:0:4113+4097=27:0;4352:0:0:1:1:0:0
+
+for example (<= vdr 1.7.12):
+HD PVR:1:PVRINPUT|COMPONENT:P:0:4113+4097=27:0;4352:0:0:1:1:0:0
 
 
 NID and TID can be 0. The following method is used by wirbelscan and w_scan
@@ -380,7 +386,7 @@ externchannelswitch
 You may want to use a Digital Receiver connected to the external inputs of the
 PVR device. 
 You can use more than one channels.conf entries for the same input, as long as the
-SID (Service-ID) is unique:
+combination of frequency, NID, TID and SID (Service-ID) is unique:
 
 Digibox Channel 1:1:PVRINPUT|SVIDEO1:P:0:301=2:300:305:0:9001:0:0:0
 Digibox Channel 10:1:PVRINPUT|SVIDEO1:P:0:301=2:300:305:0:9010:0:0:0
@@ -392,6 +398,7 @@ an external input, pvrinput will call this script with three arguments:
 -SID
 -vdr channel number
 -card number (/dev/videoX) of the choosen PVR device
+-frequency
 
 It is up to you what you want to do in this script. For example, you could
 use the lirc irsend command. The scripts contains an exampe for usage of dct6200.  

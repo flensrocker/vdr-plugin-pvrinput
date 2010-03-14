@@ -8,6 +8,7 @@ DEBUG="true"
 declare SID="$1"
 declare VDRCHANNEL="$2"
 declare VIDEONUMBER="$3"
+declare FREQUENCY="$4"
 declare EXTERNCHANNEL
 let "EXTERNCHANNEL = SID % 1000" #last three digits from SID without leading 0
 
@@ -17,5 +18,6 @@ if test "$DEBUG" == "true"; then
  logger -s  "DEBUG pvrinput externchannelswitch: Variable SID has value \"$SID\""
  logger -s  "DEBUG pvrinput externchannelswitch: Variable VDRCHANNEL has value \"$VDRCHANNEL\""
  logger -s  "DEBUG pvrinput externchannelswitch: Variable VIDEONUMBER has value \"$VIDEONUMBER\""
+ logger -s  "DEBUG pvrinput externchannelswitch: Variable FREQUENCY has value \"$FREQUENCY\""
  logger -s  "DEBUG pvrinput externchannelswitch: Variable EXTERNCHANNEL has value \"$EXTERNCHANNEL\""
 fi

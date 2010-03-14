@@ -1051,7 +1051,9 @@ bool cPvrDevice::OpenDvr(void) {
                  }
 
                if (PvrSetup.UseExternChannelSwitchScript) {
-                 cString cmd = cString::sprintf("%s %d %d %d", *externChannelSwitchScript, currentChannel.Sid(), currentChannel.Number(), number);
+                 cString cmd = cString::sprintf("%s %d %d %d %d",
+                                 *externChannelSwitchScript, currentChannel.Sid(), currentChannel.Number(),
+                                 number, currentChannel.Frequency());
                  log(pvrDEBUG1, "OpenDvr: calling %s", *cmd);
                  if (system(*cmd) < 0) {
                    log(pvrERROR, "OpenDvr: executing %s failed", *cmd);
