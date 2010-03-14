@@ -1,5 +1,5 @@
 #include "common.h"
-#include <libsi/si.h>
+#include <vdr/libsi/si.h>
 
 #define BUFFSIZE_INPUT 4096 * 16
 #define SENDPATPMT_PACKETINTERVAL 500
@@ -46,6 +46,34 @@ const unsigned char kPMT[TS_SIZE] =
   0x2c, 0xf0, 0x06, 0x0a, 0x04, 0x00, 0x00, 0x00,
   0x01, 0x06, 0xe1, 0x31, 0xf0, 0x00, 0xcc, 0x32,
   0xcc, 0x32, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff
+};
+
+const unsigned char kPMTRadio[TS_SIZE] =
+{
+  0x47, 0x40, 0x84, 0x10, 0x00, 0x02, 0xb0, 0x22,
+  0x00, 0x01, 0xc1, 0x00, 0x00, 0xe0, 0x65, 0xf0,
+  0x00, 0x04, 0xe1, 0x2c, 0xf0, 0x06, 0x0a, 0x04,
+  0x00, 0x00, 0x00, 0x01, 0xcc, 0x32, 0xcc, 0x32,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -156,7 +184,7 @@ void cPvrReadThread::PesToTs(uint8_t * Data, uint32_t Length) {
   uint32_t i;
   const short *pid = &kVideoPid;
   uint8_t *counter = &video_counter;
-  const short PayloadSize = TS_SIZE - 4;    
+  const short PayloadSize = TS_SIZE - 4;
   uint32_t Payload_Count  = Length / PayloadSize;
   uint32_t Payload_Rest   = Length % PayloadSize;
   stream_id = Data[3];
@@ -197,6 +225,8 @@ void cPvrReadThread::PesToTs(uint8_t * Data, uint32_t Length) {
         pid = &kAudioPid;
         counter = &audio_counter;
         }
+      else if (parent->EncoderInput == eRadio)
+        return;
       for (i = 0; i < Payload_Count; i++) {
         ts_buffer[0] = TS_SYNC_BYTE;
         ts_buffer[1] = (first ? 0x40 : 0x00) | (*pid >> 8);
@@ -360,7 +390,7 @@ void cPvrReadThread::ParseProgramStream(uint8_t * Data, uint32_t Length) {
                   }
                 else
                   pes_offset = 0;
-                break;              
+                break;
               }
             break;
           case 0xBB:
@@ -381,8 +411,8 @@ void cPvrReadThread::ParseProgramStream(uint8_t * Data, uint32_t Length) {
                   else {
                     pes_offset = 0;
                     }
-                break; 
-              } // end: switch (pes_offset) 
+                break;
+              } // end: switch (pes_offset)
             break; // end: case 0xBB
           case 0xBD ... 0xEF:
             switch (pes_offset) {
@@ -434,7 +464,7 @@ void cPvrReadThread::Action(void) {
   unsigned char buffer[BUFFSIZE_INPUT];
   int r;
   int retries = 3;
-  log(pvrDEBUG1,"cPvrReadThread::Action(): Entering Action()"); 
+  log(pvrDEBUG1,"cPvrReadThread::Action(): Entering Action()");
   // A derived cThread class must check Running()
   // repeatedly to see whether it's time to stop.
   // see VDR/thread.h
@@ -442,7 +472,6 @@ void cPvrReadThread::Action(void) {
   // prepare PAT and PMT
   if (parent->streamType != V4L2_MPEG_STREAM_TYPE_MPEG2_TS) {
     memcpy(pat_buffer, kPAT, TS_SIZE);
-    memcpy(pmt_buffer, kPMT, TS_SIZE);
     int sid = parent->currentChannel.Sid();
     int tid = parent->currentChannel.Tid();
     pat_buffer[8] = (tid >> 8) & 0xFF;
@@ -454,13 +483,27 @@ void cPvrReadThread::Action(void) {
     pat_buffer[18] = crc >> 16;
     pat_buffer[19] = crc >> 8;
     pat_buffer[20] = crc;
-    pmt_buffer[8] = (sid >> 8) & 0xFF;
-    pmt_buffer[9] = sid & 0xFF;
-    crc = SI::CRC32::crc32((const char *)(pmt_buffer + 5), 33, 0xFFFFFFFF);
-    pmt_buffer[38] = crc >> 24;
-    pmt_buffer[39] = crc >> 16;
-    pmt_buffer[40] = crc >> 8;
-    pmt_buffer[41] = crc;
+
+    if (parent->EncoderInput == eRadio) {
+      memcpy(pmt_buffer, kPMTRadio, TS_SIZE);
+      pmt_buffer[8] = (sid >> 8) & 0xFF;
+      pmt_buffer[9] = sid & 0xFF;
+      crc = SI::CRC32::crc32((const char *)(pmt_buffer + 5), 23, 0xFFFFFFFF);
+      pmt_buffer[28] = crc >> 24;
+      pmt_buffer[29] = crc >> 16;
+      pmt_buffer[30] = crc >> 8;
+      pmt_buffer[31] = crc;
+      }
+    else {
+      memcpy(pmt_buffer, kPMT, TS_SIZE);
+      pmt_buffer[8] = (sid >> 8) & 0xFF;
+      pmt_buffer[9] = sid & 0xFF;
+      crc = SI::CRC32::crc32((const char *)(pmt_buffer + 5), 33, 0xFFFFFFFF);
+      pmt_buffer[38] = crc >> 24;
+      pmt_buffer[39] = crc >> 16;
+      pmt_buffer[40] = crc >> 8;
+      pmt_buffer[41] = crc;
+      }
     }
   retry:
   while (Running() && parent->readThreadRunning) {
