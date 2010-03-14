@@ -1,0 +1,388 @@
+VDR Plugin 'pvrinput' Revision History
+--------------------------------------
+
+1.7.0-rc9 (Dr. Seltsam)
+- remove PvrSetup.Pvrusb2StopOnChange as there is a
+  driver solution now available
+- fix exception handling for PVR500 (volume, useOnlyCard)
+- don't write INVALID_VALUE in setup.conf.
+  This fixes zero values if no device is present
+- update README
+- fix initial Video Size setting by using driver default
+- fix handling of PAL_60 
+- fix ProvidesChannel: no longer switch between pvr devices
+  when zapping while osdteletxt is running
+
+1.7.0-rc8 (mini73)
+- add support for the Hauppauge HD PVR
+
+1.7.0-rc7 (mini73)
+- embed PAT, PMT and PCR into the transport stream
+
+1.7.0-rc6 (Dr. Seltsam)
+- fix ProvidesChannel()  (thanks to Wirbel)
+- add possibility to use an externchannelswitch.sh script
+  (see README). 
+
+1.7.0-rc4+rc5: only for selected testers with additional debug stuff
+
+1.7.0-rc3 (Dr. Seltsam)
+- improve error log messages
+- fix possible race condition in OpenDvr
+
+1.7.0-rc2 (Dr. Seltsam)
+- remove bool isTuning, because it seems to result in problems in few cases.
+  As tuning is done in OpenDvr, it is no more necessary anyway.
+- remove outcommented code in reader.c, was a leftover from tests
+
+1.7.0-rc1 (Dr. Seltsam)
+- add support for cx18-based devices
+- various small bugfixes
+- restruct OpenDvr/CloseDvr. We stop and start
+  the encoder now here and also execute the driver commands for channel
+  switching.
+- start readThread not at plugin start, but at first OpenDvr() call
+- fix initialize value of v4l2_fd in Probe()
+- also log error number in Tune()
+- remove check for driver name IVTV, as it is "ivtv" since a long time
+- improve detecting if read thread exists by using the new bool
+  readThreadRunning
+- remove unused bool stop in reader.c
+- reader.c: use parent->v4l2_fd instead of int video_fd and int VideoDevice
+- extend logging - now also write into syslog
+- add NumProvidedSystems for vdr 1.7.x
+- common.c: fix checking if device is open. If not, log an error
+- fix translation of "pvr picture settings" and plugin description
+- Fix a bug in PesToTS which wrote a wrong Pid in the header. This was a major
+  bug which prevented  vdr 1.7 from working with pvrinput
+- repeat read access in Action() three times before abort
+- remove support for old channels syntax (CAID A1). Show an OSD error message
+  in case the old syntax is found
+- allow V4L2_MPEG_STREAM_TYPE_MPEG2_DVD for DVD-compatible streams (see README)
+- rename plugin.c/h to pvrinput.c/h
+- check vbi capabilities
+- PesToTs cannot handle all vbi data, only Teletext. Therefore only embedd
+  V4L2_SLICED_TELETEXT_B into the mpeg stream. This makes channel switching
+  faster
+- allow usage of different video sub standards like SECAM-D/K, PAL-D/K etc.
+  by using more parameters in channels.conf
+- when using a PVR350, automatically stop the decoder before switching the
+  video standard. This avoids EBUSY errors in case of a race condition
+  (pvrinput may be faster than the pvr350-plugin)
+- An exception audio level can be set for certain cards (see README)
+- fix gcc 4.3 compiler warnings
+- change default log level to 2, as to much debug messages
+  increase channel switching time
+- mute audio for pvrusb2 devices while switching channels in case
+  "PVRUSB2 Stop on Change" is set to no.
+- remove setting of separate video bitrate for radio recordings. (With new
+  version of pvr350-plugin it is no longer necessary to use VPID 301
+  (video stream) for radio)
+
+2009-01-24 (Dr. Seltsam)
+- fix frequency of k09 in channels.conf examples
+  (thanks to panik105 from vdrportal)
+
+
+2008-12-24 (Dr. Seltsam)
+- The previous fix in cPluginPvrInput::MainMenuAction must depend on
+  PLUGINPARAMPATCHVERSNUM. Oherwise it does not compile with a vdr version
+  that is not patched with the pluginparam-patch
+- fix frequency of S30 in channels.conf examples, add S29 and S35
+
+2008-10-26 (Dr. Seltsam)
+- fix usage of PvrMenuMain on channels with iptv-syntax
+- fix permission of directories
+- remove executable flag from patches and conf files
+- fix Makefile
+
+
+2008-10-03 (Dr. Seltsam)
+- add possibility to force the plugin to use only a certain card by using the 
+  new value PvrSetup.UseOnlyCard. (see README)
+- update README
+- add vdr-1.7.0-pluginparam.patch
+
+2008-09-14 (Dr. Seltsam)
+- remove usage of vbi device, as it is not needed for sliced vbi
+- remove unused bool dvrOpen
+
+2008-09-13 (Wirbel)
+- further work on future support of HVR 1300
+- fix radio detecting
+- remove PvrSetup.UseDeviceType
+
+2008-09-04 (Dr. Seltsam)
+- move and simplify the check for radio presence from SetChannelDevice to
+  ProvidesChannel.
+- updated italian language file (thanks to Diego Pierotto)
+- Stop VBI sliced mode when plugin stops. This avoids full ivtv vbi buffers.
+- implement a new method to detect the matching radio device
+
+2008-06-23 (Wirbel)
+- moved sysfx fix to patches - we need a better solution here, not using /sys at all.
+- moved channel validity checks to ProvidesChannel
+- ParseChannel now also gets Pointer to card
+- ParseChannel (old syntax): if no input was given -> default to TV input
+- ParseChannel change *only* vars given by pointer, don't access global vars directly.
+- ParseChannel log output now only for pvrinput channels.  
+- ProvidesChannel now calls ParseChannel to check wether a channel can be switched to
+- changed debug output of tune (readability)
+- updated README (description of new channel syntax)
+
+2008-07-05 (Dr. Seltsam)
+- fix handling of CARD-parameter (thanks to mgoeben from vdrportal for reporting
+  the problem, and to Wirbel for telling me how to solve it :-) )
+- extend log info for SetChannelDevice and ProvidesChannel (add number of device)
+- don't allow tuning to a radio channel if device has no radio
+  (avoids endless "Can start transfer mode" loop)
+- increase number of kMaxPvrDevices to 8 (vdr also increased the maximum number
+  of DVB devices to 8 in vdr 1.5.1)
+
+2008-06-19 (Dr. Seltsam)
+- fix setting of Tuner Audio Mode 
+
+2008-06-01 (Dr. Seltsam)
+- added a patch from <christian.jarczyk@freenet.de> for improved autodetection
+  of ivtv radio devices. As it is only rarely tested, the patch is optional.
+  Uncomment "#define SYSFS_FIX" in device.c if you want to try it.
+- update README and HISTORY
+- update example channels.conf files
+- add patches for pvrusb2 driver
+- start with a FAQ
+
+2008-05-28 (Dr. Seltsam)
+- fixed a bug in ParseChannel. Now the external inputs work also with the 
+  new channelssyntax.
+
+2008-05-24 (Dr. Seltsam)
+- added a lot of patches from Wirbel (improve log messages, simplify code,
+  prepare for further support of cx88-blackbird devices)
+- fix errors in *.po files
+
+
+2008-05-14 (Dr. Seltsam)
+- Starting with this version, the plugin now supports devices using the
+  pvrusb2 driver. It has been successfully tested with a Hauppauge PVRUSB2
+  Model 29034 Rev. C547. For details see README
+- all include files are now in common.h
+- separate reader.c/h files for cPvrReadThread
+- Delete the readThread for every device now in cPvrDevice::Stop() instead of
+  deleting it later in the destructor.
+  This avoids full ivtv buffer and hopefully improves the shutdown handling.
+- GetTSPacket(): check if tsBuffer and readThread are existing
+- Fix "race condition" while deleting threads which could cause a segfault
+  (patch by andreas_schaefers@gmx.de)
+- additional and extended log messages
+- allow setting of Tuner Audio Mode to be able to record bilingual recordings
+  with both languages
+- improve Tune() using same code as in v4l2-ctl
+- using -fPic in Makefile
+- change test method in Makefile whether VDR has locale support
+- fix enless loop "Can start transfer mode" when switching to a not
+  existing input. The message still appears, but it is now possible to switch
+  to another channel. (vdr will automatically return to the last channel
+  after 2 minutes)
+- update README
+- update channels.conf.sample, includes now radio
+
+
+2007-11-01 (Wirbel + Dr.Seltsam):
+- Makefile changed, i18n.{c,h} removed, now gettext internationalization
+- TEST: new function ParseChannel and adapted SetChannelDevice for testing
+  pluginparampatch Syntax
+- removed cPvrReadThread::ResetCounters(void),
+  cPvrReadThread::SetPaused (int set), PvrSetup.DelayAfterTune and
+  PvrSetup.Force_Encoder_Stop_Start. They are no longer needed, because we now
+  always delete the readThread and stop/start the encoder when switching
+  channels.
+- removed unused ePause and eResume in SetEncoderState.
+- introduced PvrSetup.SliceVBI which allows to turn off embedding VBI
+  (Teletext) data into the mpeg.
+  This could improve stability if you don`t use the osdteletxt-Plugin and have
+  problems with full ivtv buffers.
+  Changing the setting will take effect after a restart.
+- Newer ivtv drivers don`t allow changing some settings 
+        V4L2_CID_MPEG_AUDIO_SAMPLING_FREQ
+        V4L2_CID_MPEG_AUDIO_L2_BITRATE
+        V4L2_CID_MPEG_VIDEO_BITRATE_MODE
+        V4L2_CID_MPEG_VIDEO_BITRATE
+        V4L2_CID_MPEG_VIDEO_BITRATE_PEAK
+  while the encoder is running. Each time you change settings in the plugin
+  setup, we now repeat all settings once after the next encoder stop (= during
+  next channel switch) 
+- introduced PvrSetup.VideoBitrateFM and renamed PvrSetup.VideoBitrate to
+  PvrSetup.VideoBitrateTV.
+  Different bitrates allow us to avoid unnecessary large files when recording
+  from radio (see also README).
+- removed unnecessary "typedef enum" in setup.h
+
+
+2007-09-02 (Dr. Seltsam):
+- adapted plugin to recent ivtv driver changes. Changing the VBI format,
+  video norm, input or tuner band requires now an encoder stop/start.
+  Basically this is nothing else than the "AntiFlickering workaround" did
+  before (by closing and re-opening the device), so I also renamed it
+  to "Force encoder stop/start".
+- moved Clearing of tsBuffer from OpenDvr to SetChannelDevice.
+  (If a timer starts while you watch a recording, vdr tunes to the desired
+  channel without calling OpenDvr.)
+- a default value of 20 ms for DelayAfterTune seems to be sufficient
+- added a recommendation in README for PVR350 users to enable
+  "Force encoder stop/start"
+- update README
+
+
+2007-05-10 .. 2007-05-23 (Wirbel):
+
+- tried to simplify controls (QueryAllControls, SetControlValue)
+- SetControlValue is now overloaded function
+- separate valSet for FM radio Audio Volume instead of int type
+- added cPlugin::Stop() which stops all threads, see <vdr>/PLUGINS.html
+- added preliminary Patch for vdr-1.5.2 (later 1.5 Versions may need 
+  some small adaptions inside channels.conf and plugins source code)
+- new function SetVBImode()
+- fixed internationalization for setup page and mainpage
+- cPvrReadThread::Action() is now checking Running as needed
+  (see <vdr>/threads.h)
+- added cPvrReadThread::ResetCounters(void)
+- cPvrReadThread::PesToTs and cPvrReadThread::ParseProgramStream
+  sligthly changed
+- FM Radio now initialized in cPvrDevice::cPvrDevice
+- new property IVTV_apiversion gives ivtv version number
+- cPvrDevice::Probe rewritten
+- cPvrDevice::OpenDvr now resets all counters: audio, video, text
+- several other improvements
+- fix: 'Channel no available' during records from ext inputs
+- channels with frequency 87500 .. 108000 (87.5MHz .. 108MHz) are now
+  considered as FM radio, regardless of their VPID.
+- thanks to DrSeltsam for excessive testing
+
+
+2007:
+
+- added a first version of romanian i18n (Lucian Muresan
+<lucianm AT users DOT sourceforge DOT net>)
+- re-added main menu control, because it's useful and yet
+optional (Lucian Muresan <lucianm AT users DOT sourceforge DOT net>)
+-removed 3.2 pulldown stuff because it was removed in driver
+-Code Cleanup by Andreas Schaefers
+-fix and improve radio (thanx to Jose Alberto Reguero
+ <jareguero@telefonica.net> )
+-smoother channel switching: use encoder pause before tuning and resume after
+ tuner has fully locked. Thererfore the time between tuning and encoder resume
+ can be set in the menu (WaitAfterTuning). Default value is 50ms.
+
+2006-11-21:
+-added "Anti-Flickering workaround" in the plugin menu. If set to "yes", it
+ will close and re-open the device at each channel switch. This has been tested
+ as being a reliably workaround for the flickering problem that some people
+ have been reported. (see also
+ http://www.vdr-portal.de/board/thread.php?threadid=52013 and
+ http://www.gossamer-threads.com/lists/ivtv/devel/33101 ). Default is "no"
+ The Flickering is solved in newer drivers for cx23416-based cards, but still
+ exist for cx23415 (PVR350 and older revisions of PVR250) 
+
+2006-10-08 (Wirbel):
+
+- removed all old ivtv API calls and switched to v4l2 (some of them already
+  were v4l2 api)
+- removed ivtv.h and videodev2.h
+- removed the main menu entry, because it was easier to realize
+- added internationalization (english and german are done, other
+  languages not done but prepared)
+- improved video filter settings
+
+2006-02-09: Version 0.1.1
+
+- fixed detection of pvr card to work with ivtv version 0.4.1 or later with
+kernel 2.4.
+
+
+2005-11-27: Version 0.1.0
+
+- fixed detection of pvr card to work with ivtv version 0.4.1 or later.
+
+
+2005-11-27: Version 0.0.9
+
+- adapted setting of VBI mode to new API used in driver version 0.4.0.
+- removed dynamic setting of VBI embedded mode as this doesn't work when the
+video device is opened.
+
+
+2005-09-04: Version 0.0.8
+
+- Fixed setting of vbi modes.
+
+
+2005-09-04: Version 0.0.7
+
+- It is possible to hide the main menu entry through a setting in setup menu.
+- The time to wait for the ringbuffer to fill with data is now adjustable in
+  setup menu.
+- Now using embedded vbi mode only when the channel has a valid teletext PID.
+  If the PID is 0 then embedded vbi mode is disabled.
+
+
+2005-08-28: Version 0.0.6
+
+- Added setting of vbi teletext mode. Now it should work again with 0.2 and
+  0.3 drivers.
+- Removed dependency from libdvb from makefile.
+- Added a small OSD window for setting up the picture parameters (brightness,
+  contrast, saturation, hue). It can be reached from the main menu.
+
+
+2005-08-27: Version 0.0.5
+
+- Fixed: memcpy length in last TS packet was wrong (thanks to Christian
+  Cier-Zniewski for reporting).
+- Made PES to TS conversion MPEG compliant, stuffing in last TS packet is now
+  done with adaptaion field. (thanks to Christian Cier-Zniewski for reporting).
+- Static variables of PET to TS conversion are now non-static members of
+  cPvrReadThread. This is needed for multiple card support.
+- Fixed: not switching to new channel when recording starts during watching
+  another analogue channel.
+
+
+2005-08-26: Version 0.0.4
+
+- Switched to a self-written PES to TS conversion. libdvb is no longer needed.
+- Now using vbi embedded mode for reading the teletext data.
+- fixed closing the radio device when switching to a non-tuner input (thanks
+  to Jose Alberto Reguero).
+- Waiting for buffer to fill in GetTsPacket. This speeds up the "hopping" over
+  channels. You can change the kTimeToWaitAfterChannelSwitch value to change
+  the time to wait. 1000 works good for me and slows down things not too much.
+- renewed ivtv.h to be compatible with ivtv 0.3 versions.
+
+
+2005-07-23: Version 0.0.3
+
+- Settings taken in setup menu are now applied after leaving it with OK
+- Now reading video and vbi data in one and the same thread. I hope
+  this improves things a bit.
+- Now immediately returns in SetChannelDevice when the channel is already set.
+- Only reading from vbi device if opening was successful (thanks to steffx
+  for reporting this one).
+
+
+2005-06-13: Version 0.0.2
+
+- The tuner input is now auto-detected (I hope this works for non
+  PVR-250 cards).
+- Added support for other inputs than the tuner, using the "C" parameter
+  of the channel entry. I did not test this here, it should work.
+- Fixed VIDIOC_G_FMT ioctl.
+- Added support for the video norms NTSC, SECAM and PAL, using the "I"
+  parameter of the channel entry.
+- Added support for radio channels, the video PID must be set to zero.
+  I can't test this here, I hope it works.
+- Added setup menu for setting up encoding parameters.
+- Added videodev2.h file from the ivtv driver archive.
+
+
+2005-05-31: Version 0.0.1
+
+- Initial revision.

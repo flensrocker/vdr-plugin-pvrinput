@@ -1,0 +1,5 @@
+-add service interface
+-setting the aspect ratio by reading the vbi data
+-directly read TS stream (V4L2_MPEG_STREAM_TYPE_MPEG2_TS) from cx18-based cards instead of using ParseprogramStream
+-generate PCR data to allow using streamdev with TS (currently only PES works)
+

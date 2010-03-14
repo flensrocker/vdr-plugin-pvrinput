@@ -1,0 +1,397 @@
+This is a "plugin" for the Video Disk Recorder (VDR).
+
+originally written by: Andreas <andreas.regel@powarman.de>
+(Some parts of the plugin's source are based on the analogtv plugin by
+Andreas Kool.)
+
+Since the ivtv driver API changed in ivtv >= 0.8 a lot of API calls are no
+longer existent/working. Unfortunally the author does no longer maintain this
+plugin (see http://www.vdr-portal.de/board/thread.php?threadid=48772).
+
+This INOFFICIAL version allows to use the plugin with newer ivtv versions,
+but it is completely without any warranty and still very experimental:
+
+-Adapted to ivtv driver 0.8 by "Wirbel" Winfried Koehler 
+ <w_koehl@gmx.de>
+-Further development since 2006/2007 by Winfried Koehler and
+ "Dr. Seltsam" Martin Dauskardt (martin.dauskardt@gmx.de).
+-in 2010 "mini73" Lars Hanisch (dvb@flensrocker.de) joined the team
+
+See the file HISTORY for changes.
+See the file COPYING for license information.
+
+
+Description:
+------------
+
+This plugin uses a Hauppauge PVR card as an input device. All cards
+supported by the ivtv or pvrusb2 driver should work. This version of the plugin
+requires ivtv driver version 1.0 or higher. You need very current versions of
+videodev.h and videodev2.h in /usr/include/linux to get the plugin compiled 
+
+Supported devices
+-----------------
+All analogue devices supported by the ivtv or pvrusb2-driver should work. This
+means:
+Hauppauge PVR 150, PVR 250, PVR 350, PVR 500
+Hauppauge PVRUSB2, HVR 1900, HVR 1950
+
+The HVR 1900 and HVR 1950 are hybrid devices. Their analogue device can only be
+used when their digital device is not opened. To prevent vdr from opening the
+digital device, there are three possibilities:
+-load pvrusb2 by using the adapter_nr parameter. If you have two other DVB
+ cards (/dev/dvb/adapter0 and /dev/dvb/adapter1) use adapter_nr=3.
+ example: modprobe pvrusb2 adapter_nr=3
+ vdr detects adapter0 and adapter1 and stops searching when there is no device
+ found on adapter2. This way adapter3 will not be opened and pvrinput can use
+ the analogue device.  
+-specify the DVB devices vdr shall use by using  vdr's -D parameter
+-compile the pvrusb2 driver without DVB support
+
+Altough the HVR 1300 is listed in menu entries, it is not really supported yet.
+
+Support for the HVR 1600 (cx18-driver) is included. Other cx18-based devices could
+be added later.
+ 
+There is support for the Hauppauge HD PVR (beta-stage).
+
+Patching vdr
+------------
+Starting with this version, pvrinput does no longer support the old channel 
+syntax. It now uses only the new channel syntax which is similar like the
+one from iptv. If your vdr version is already patched for the iptv-plugin, you 
+don't need the vdr-1.x.x-pluginparam.patch. Otherwise you must apply it,
+no matter if you are using vdr version 1.4, 1.6 or 1.7.x (x < 13).
+
+channels.conf (vdr >= 1.7.13)
+-----------------------------
+With vdr version 1.7.13 the pluginparam-patch was integrated into vdr. With this
+change there has to be some adjustments to the channels.conf.
+The Source ID is now 'V' and the string "PVRINPUT|" must be omitted.
+
+for example:
+RTL:217250:TV:V:0:301+101:300:305:0:12003:1:1089:0
+
+For a description of the possible parameters read the next section.
+
+channels.conf (vdr < 1.7.13)
+----------------------------
+pvrinput now supports a new syntax using the Source Identifier 'P', similar to
+the one from the iptv-plugin. Take the channels.conf_newsyntax.example in
+example dir as a reference for your own channels.conf.
+
+ Source ID: 'P'
+ Video PID: 301 for TV, 0 for Radio
+ Audio PID: 300
+ Teletext PID: 305 (or 0 if not needed)
+ PCR PID: 101
+
+for example:
+RTL:217250:PVRINPUT|TV:P:0:301+101:300:305:0:12003:1:1089:0
+|      |   |           |    |   |   |   |  |    |  |   |
+|      |   |           |    |   |   |   |  |    |  |   --> Transport Stream ID
+|      |   |           |    |   |   |   |  |    |  |       (TID)
+|      |   |           |    |   |   |   |  |    |   --> Network ID (NID)
+|      |   |           |    |   |   |   |  |    --> Service ID (SID), the
+|      |   |           |    |   |   |   |  |        combination of SID, NID,
+|      |   |           |    |   |   |   |  |        TID has to be unique.
+|      |   |           |    |   |   |   |  --> CA identifier, should be 0
+|      |   |           |    |   |   |   --> Teletext PID
+|      |   |           |    |   |   --> Audio PID
+|      |   |           |    |   --> PCR PID
+|      |   |           |     --> Video PID (set to 0 for radio stations)
+|      |   |           --> Source 'P'
+|      |   --> Parameters (see below)
+|      --> Frequency (1 for external inputs)
+--> Channel Name (your choice..)
+
+cx18:
+cx18-driven cards are capable of delivering a TS. At the moment the stream type
+is forced to TS, the setting in the menu does only effect ivtv-based cards.
+The PIDs in the TS are the same as used by the plugin's PS-to-TS-repacker, so one
+channel-entry should work for both types of cards.
+
+HD PVR:
+This box sets the PIDs to 4352 for audio, 4113 for video and 4097 for the PCR.
+And it's better to tell vdr the type of video (H.264 has a stream type of 27).
+If you use the digital input of the box, you must switch the audio encoding to AAC even
+if it gets AC3, for the RCA inputs you should set the encoding to AC3, since the vdr seems
+to have diffibulties with handling AAC audio.
+
+for example:
+HD PVR:1:PVRINPUT|COMPONENT:P:0:4113+4097=27:0;4352:0:0:2919:1:0:0
+
+
+NID and TID can be 0. The following method is used by wirbelscan and w_scan
+to create a unique SID:
+
+- for TV/radio: Frequency in MHz * 16 = SID
+  example: 112250 = 112,25 MHz. 112,25 * 16 = 1796
+
+- for external inputs: start numbering with 9001
+
+
+Parameter Description:
+Each Parameter is separated with "|" (vertical bar)
+
+* First Parameter: always "PVRINPUT" (uppercase!). Otherwise pvrinput will
+  ignore this channel.
+* Second Parameter: always one of the following identifiers (uppercase!):
+  *   "TV"               -> a normal tv channel
+  *   "RADIO"            -> a radio channel. frequency should be in this case
+                            87500..108000 and vpid = 0
+  *   "COMPOSITE0"       -> external input, composite in number 0
+  *   "COMPOSITE1"
+  *   "COMPOSITE2"
+  *   "COMPOSITE3"
+  *   "COMPOSITE4"
+  *   "SVIDEO0"          -> external input, S-Video input number 0
+  *   "SVIDEO1"
+  *   "SVIDEO2"
+  *   "SVIDEO3"
+  *   "COMPONENT"        -> external input, Component input of HD PVR
+
+NOTE: * Some cards will have SVIDEO0 and COMPOSITE0 as first external input,
+      * while other cards may start with SVIDEO1 and COMPOSITE1. This depends
+      * on driver and hardware (ivtv, pvrusb2).
+      * For all channels with external video inputs, frequency should be 1.
+
+* Third and Fourth Parameters: THESE PARAMETERS ARE *OPTIONAL*.
+  One of the following identifiers, uppercase:
+  *   "PAL"              -> specify PAL channel, this is default.
+                            (The ivtv driver sets 
+                            V4L2_STD_PAL_BG | V4L2_STD_PAL_H)
+  *   "SECAM"            -> specify Secam channel
+                            (the ivtv drivers sets V4L2_STD_SECAM_L).
+                            default is PAL
+  *   "NTSC"             -> specify NTSC channel
+                            (the ivtv driver sets V4L2_STD_NTSC_M).
+                            default is PAL
+  *   "CARD0"            -> specify one video device (here: /dev/video0)
+                            which should receive this channel.
+  *   "CARD1"               All other devices will not switch to this channel. 
+  *   "CARD2"               (useful for external video inputs.) 
+  *   "CARD3"               CARD0 is /dev/video0, CARD1 is /dev/video1 and 
+  *   "CARD4"               so on. Be aware, that a full-featured DVB card
+  *   "CARD5"               or other video devices might also have a 
+  *   "CARD6"               /dev/videoXX. NOTE: if not specified *all* pvrinput
+  *   "CARD7"               devices will try to receive this channel.
+
+NOTE: You can specify other video standards like PAL_DK, SECAM_DK or NTSC_M_JP.
+      Have a look at cPvrDevice::ParseChannel in device.c 
+
+NOTE: /dev/video0../dev/video7 supported only.
+
+OSD main menu
+-------------
+There is a small OSD window for setting up the picture parameters (brightness,
+contrast, saturation, hue). It can be reached from the main menu (if enabled in
+the plugin settings). Use the Up/Down keys to switch between the parameters
+and Left/Right to change a value. Press Ok to save the settings and close the
+window. Menu/Back just closes the window without saving the values.
+
+Radio
+-----
+The PVR150 (some revisions), PVR350, PVR500(first device only),
+PVRUSB2 and obviously some versions of PVR250 have a built-in radio tuner
+which can be used with pvrinput. (The radio tuner of the HVR 1900
+is up to now not supported by the pvrusb2 driver.)
+Use the RADIO parameter in channels.conf to specify a radio channel.
+VPID should be set to 0.
+
+If you use a PVR350 as output device with an older version of the
+pvr350-plugin (prior to version 1.7.0 from 11-2009), you need VPID=301 for
+pvrinput radio channels.
+
+Because the radio audio volume level is much lower, you can set radio and TV
+audio volume separately for TV and FM radio.
+
+vdr-1.6.x
+---------
+There is a bug in vdr 1.6.0 and 1.6.0-1 which leads to segfaults when stopping
+vdr. This is fixed in the VDR maintenance patch 1.6.0-2, so it is highly
+recommended to use both maintenance patches (1.6.0-1 and 1.6.0-2). 
+
+vdr-1.7.x
+---------
+For now the 1.7-tree is only supported up to 1.7.12. In 1.7.13 the "plugin-param-
+patch" was integrated into the plain vdr, so there have to be made some adjustments
+in the plugin.
+
+pvrusb2 & channel switching
+----------------------------
+To make channel switching smoother, we need to clear the encoder by stopping it
+and restart it after tuning is done. This allows to start exactly on an i-frame
+of the new channel, without audio/video interferences.
+
+Unlike the ivtv driver, the pvrusb2 driver has no ioctls (driver commands) to do
+this. We can only close and reopen the device, which also stops the encoder.
+Unfortunately it happens randomly that we get a blank screen on the new
+channel. This will only happen on old models (PVRUSB2 model
+29xxx) with saa7115 digitizer chip. The newer models (PVRUSB2 model 24xxx and
+HVR 1900) have a different digitizer.
+
+A newer driver which fixes this problem is available: 
+http://www.isely.net/pipermail/pvrusb2/2010-February/002734.html
+
+This patches are in the main v4l-dvb hg and hopefully they make it into 2.6.34.
+
+You could also patch and recompile your pvrusb2 driver in
+a simpler way: 
+
+--- v4l-dvb-309f16461cf4-orig/linux/drivers/media/video/pvrusb2/pvrusb2-hdw.c	
+2009-12-05 13:34:21.000000000 +0100
++++ v4l-dvb-309f16461cf4-patched/linux/drivers/media/video/pvrusb2/pvrusb2-
+hdw.c	2009-12-24 22:42:49.746899065 +0100
+@@ -4689,6 +4689,7 @@
+ 		del_timer_sync(&hdw->quiescent_timer);
+ 		if (hdw->flag_decoder_missed) return 0;
+ 		if (pvr2_decoder_enable(hdw,!0) < 0) return 0;
++		msleep(300);
+ 		hdw->state_decoder_quiescent = 0;
+ 		hdw->state_decoder_run = !0;
+ 	}
+
+
+pvrusb2 & osdteletext
+----------------------
+The pvrusb2 driver does not support sliced vbi, so the osdteletext-plugin
+won't work.
+
+bilingual broadcastings
+-----------------------
+The driver default audio mode is stereo. According to 
+http://v4l2spec.bytesex.org/spec/r12342.htm#TUNER-AUDMODE
+it is now necessary to set the audio mode to  V4L2_TUNER_MODE_LANG1_LANG2,
+otherwise you will only get the first language.
+The default mode of the plugin is V4L2_TUNER_MODE_LANG1_LANG2
+(bilingual), which should be well for all broadcastings.
+MythTV also uses this mode.
+
+If you use a PVR350 for playback with the pvr350-plugin, you need version
+2008-05-17 or higher to be able to select the languages. Starting with that
+version, the pvr350-plugin supports SetAudioChannel() and GetAudioChannel().
+
+switching between different PVR devices
+---------------------------------------
+At least with vdr 1.6.0, you can use the femon plugin and switch with 
+the "Left" and "Right" keys between the cards. This is useful if you want
+to start a recording from an extern input. With femon you can choose the
+card that is actually connected to an extern video source.
+(Note: you can also configure the card in the channels.conf)
+
+plugin settings
+----------------
+The plugin calls the driver for its default values and sets them. Due to a
+driver bug, this can lead to wrong values. It was fixed for ivtv in v4l-dvb hg in
+July 2008. Have a look at  http://www.gossamer-threads.com/lists/ivtv/devel/38637.
+A similar in the pvrusb2 driver was fixed in April 2009.
+
+Therefore it is recommended to check the plugin settings and adjust them if necessary.
+It is especially important to set the Audio sampling rate to 48 KHz.
+
+These are the default values as they should appear in a setup.conf which had no
+pvrinput-entries before:
+
+pvrinput.AspectRatio = 1			 //4:3
+pvrinput.AudioBitrate = 10			 //224 kBit/s
+pvrinput.AudioSampling = 1			 //48 KHz
+pvrinput.AudioVolumeFM = 62535			 //100%
+pvrinput.AudioVolumeTVCommon = 62258		 //95%
+pvrinput.AudioVolumeTVException = 62258		 //95%
+pvrinput.AudioVolumeTVExceptionCard = 8		 //AudioVolumeTVCommon for all cards
+pvrinput.BitrateMode = 0			 //VBR
+pvrinput.Brightness = 128			 //50%
+pvrinput.Contrast = 64				 //50%
+pvrinput.FilterChromaMedianBottom = 0		 //Chroma Median Filter Bottom = 0
+pvrinput.FilterChromaMedianTop = 255		 //Chroma Median Filter Top = 255
+pvrinput.FilterChromaSpatialType = 1		 //Chroma Spatial Filter Type = 1D horizontal
+pvrinput.FilterLumaMedianBottom = 0		 //Luma Median Filter Bottom = 0
+pvrinput.FilterLumaMedianTop = 255		 //Luma Median Filter Top = 255
+pvrinput.FilterLumaSpatialType = 1		 //Luma Spatial Filter Type = 1D horizontal
+pvrinput.FilterMedianType = 0			 //Median Filter Type = off
+pvrinput.FilterSpatial = 0			 //Strength Spatial Filter = 0
+pvrinput.FilterSpatialMode = 0			 //Mode Spatial Video Filter = manual
+pvrinput.FilterTemporal = 8			 //Strength Temporal Video Filter = 8
+pvrinput.FilterTemporalMode = 0			 //Mode Temporal Video Filter = manual
+pvrinput.HDPVR_AudioEncoding = 0		 // AAC = 0, AC3 = 1
+pvrinput.HDPVR_AudioInput = 0			 // RCA back = 0, RCA front = 1, SPDIF = 2 (needs audio encoding = 0)
+pvrinput.HideMainMenuEntry = 1			 //yes (hide main menu entry)
+pvrinput.Hue = 0				 //50%
+pvrinput.LogLevel = 2				 //errors and info messages
+pvrinput.Saturation = 64			 //50%
+pvrinput.SliceVBI = 1				 //only for ivtv-based cards: yes (slice VBI teletext)
+pvrinput.StreamType = 0				 //V4L2_MPEG_STREAM_TYPE_MPEG2_PS
+pvrinput.TunerAudioMode = 4			 //bilingual
+pvrinput.UseOnlyCard = 8			 //use all cards
+pvrinput.UseExternChannelSwitchScript = 0	 //don't call externchannelswitch.sh
+pvrinput.VideoBitrateTV = 6000			 //6 MBit/s
+
+Using filters may increase the picture quality, but the default value of 8
+for the temporal filter may cause ghosting effects. If this is the case,
+try smaller values.
+
+Force the plugin to use a certain card
+--------------------------------------
+By default the plugin will detect and use all supported cards. For testing
+purposes it may be useful to test the behaviour of a certain card. This could
+be done by using the CARD parameter in the channels.conf, but there is
+also an easier way by using the PvrSetup.UseOnlyCard value. A value of 0 to 7
+will force the plugin to use only /dev/videoX, while x is the value of 
+PvrSetup.UseOnlyCard. "PvrSetup.UseOnlyCard = 8" means that all detected
+devices will be used.
+Note: Don`t change vdr`s setup.conf while vdr is running, it won`t take effect
+and will be overwritten by vdr when vdr terminates.
+There is also an OSD menu entry to allow setting PvrSetup.UseOnlyCard while
+vdr is running. By default it is not visible to avoid confusion of a common
+user. To use this feature just uncomment "//#define PVR_DEBUG" in the top of
+menu.c before compiling the plugin.
+
+Using Stream type V4L2_MPEG_STREAM_TYPE_MPEG2_DVD (not possible for HD PVR)
+---------------------------------------------------------------------------
+Some users have reported that recordings which were done using this stream type
+work better with the burn plugin or mplex. 
+If you want to use this stream, you can use PvrSetup.StreamType=1 by editing
+the setup.conf. There is also a menu entry when compiling as described above.
+
+Adjust different Audio volume levels (not possible for HD PVR)
+--------------------------------------------------------------
+Different cards may have different tuners. As a result the audio volume
+on some cards may be much lower than on others. 
+You can specify a common audio volume level which will be used for all cards
+by default.
+An exception audio level can be set for certain cards. You can choose the card
+which shall use the exception audio level by its /dev/videoX number, or by its
+card name.
+(Note: A PVR500 consists of two PVR150) 
+
+Using pvrinput and streamdev
+----------------------------
+The TS stream produced by pvrinput does have a PCR now, but only fixed
+PAT/PMT tables if you use a vdr version < 1.7.1. So don't fool around with
+the PIDs...
+VLC won't accept a TS stream without PCR, PAT and PMT. Use PES streaming instead.
+It has been reported that Konqueror and dragonplayer can play a TS stream from
+streamdev even if it has no PCR and no PAT/PMT.
+This problem is still "under investigation"... :-)
+
+externchannelswitch
+-------------------
+You may want to use a Digital Receiver connected to the external inputs of the
+PVR device. 
+You can use more than one channels.conf entries for the same input, as long as the
+SID (Service-ID) is unique:
+
+Digibox Channel 1:1:PVRINPUT|SVIDEO1:P:0:301=2:300:305:0:9001:0:0:0
+Digibox Channel 10:1:PVRINPUT|SVIDEO1:P:0:301=2:300:305:0:9010:0:0:0
+Digibox Channel 101:1:PVRINPUT|SVIDEO1:P:0:301=2:300:305:0:9101:0:0:0 
+
+Copy the externchannelswitch.sh.example script as externchannelswitch.sh into
+your CONFDIR/pvrinput (e.g. /etc/vdr/pvrinput). When switching to a channel with
+an external input, pvrinput will call this script with three arguments:
+-SID
+-vdr channel number
+-card number (/dev/videoX) of the choosen PVR device
+
+It is up to you what you want to do in this script. For example, you could
+use the lirc irsend command. The scripts contains an exampe for usage of dct6200.  

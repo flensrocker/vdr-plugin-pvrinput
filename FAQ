@@ -1,0 +1,25 @@
+Q:
+what about the SID-parameter in channels.conf?
+A:
+It has to be a unique number.
+w_scan and wirbelscan use the following method:
+
+- for TV/radio: Frequency in MHz * 16 = SID
+  example: 112250 = 112,25 MHz. 112,25 * 16 = 1796
+
+-for external inputs: start numbering with 9001
+
+
+Q:
+Why don`t you use regular version numbers instead of 
+YYYY-MM-DD ?
+A:
+wait and see :-)
+
+
+Q:
+What about the HVR 1300?
+A:
+support is not finished yet.
+
+

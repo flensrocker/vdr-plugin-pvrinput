@@ -1,0 +1,203 @@
+# translation of de_DE.po to
+# pvrinput
+# Copyright (C) 2007 Andreas Regel, Martin Dauskardt, Winfried Köhler
+# This file is distributed under the same license as the PACKAGE package.
+#
+#
+# Andreas Regel, Martin Dauskardt, Winfried Köhler <see README>, 2007.
+# Martin Dauskardt <martin.dauskardt@gmx.de>, 2008.
+msgid ""
+msgstr ""
+"Project-Id-Version: de_DE\n"
+"Report-Msgid-Bugs-To: <see README>\n"
+"POT-Creation-Date: 2010-03-07 11:36+0100\n"
+"PO-Revision-Date: 2009-10-11 22:39+0200\n"
+"Last-Translator: root\n"
+"Language-Team:  <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-15\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+
+msgid "SourceParam.pvrinput$Input"
+msgstr "Eingang"
+
+msgid "SourceParam.pvrinput$Card"
+msgstr "Karte"
+
+msgid "SourceParam.pvrinput$Standard"
+msgstr "Standard"
+
+msgid "pvrinput no longer supports old channel syntax!"
+msgstr "pvrinput unterstützt alte Kanalsyntax nicht mehr!"
+
+msgid "Setup.pvrinput$manual"
+msgstr "manuell"
+
+msgid "Setup.pvrinput$auto"
+msgstr "auto"
+
+msgid "Setup.pvrinput$off"
+msgstr "aus"
+
+msgid "Setup.pvrinput$1D horizontal"
+msgstr "1D horizontal"
+
+msgid "Setup.pvrinput$1D vertical"
+msgstr "1D vertikal"
+
+msgid "Setup.pvrinput$2D hv separable"
+msgstr "2D hv separat"
+
+msgid "Setup.pvrinput$2D sym non separable"
+msgstr "2D sym kombiniert"
+
+msgid "Setup.pvrinput$horizontal"
+msgstr "horizontal"
+
+msgid "Setup.pvrinput$vertical"
+msgstr "vertikal"
+
+msgid "Setup.pvrinput$horizontal + vertical"
+msgstr "horizontal + vertikal"
+
+msgid "Setup.pvrinput$diagonal"
+msgstr "diagonal"
+
+msgid "Setup.pvrinput$44.1 kHz"
+msgstr "44,1 kHz"
+
+msgid "Setup.pvrinput$48 kHz"
+msgstr "48 kHz"
+
+msgid "Setup.pvrinput$32 kHz"
+msgstr "32 kHz"
+
+msgid "Setup.pvrinput$AAC"
+msgstr "AAC"
+
+msgid "Setup.pvrinput$AC3"
+msgstr "AC3"
+
+msgid "Setup.pvrinput$RCA back"
+msgstr "Cinch (hinten)"
+
+msgid "Setup.pvrinput$RCA front"
+msgstr "Cinch (vorne)"
+
+msgid "Setup.pvrinput$SPDIF"
+msgstr "S/PDIF"
+
+msgid "Setup.pvrinput$Hide main menu entry"
+msgstr "Hauptmenü-Eintrag verstecken"
+
+msgid "Setup.pvrinput$Use only card"
+msgstr "verwende nur Karte"
+
+msgid "Setup.pvrinput$Log level"
+msgstr "Umfang log"
+
+msgid "Setup.pvrinput$Slice VBI Teletext"
+msgstr "Teletext durchschleifen"
+
+msgid "Setup.pvrinput$Tuner Audio Mode"
+msgstr "Tuner Audio Mode"
+
+msgid "Setup.pvrinput$Brightness"
+msgstr "Helligkeit"
+
+msgid "Setup.pvrinput$Contrast"
+msgstr "Kontrast"
+
+msgid "Setup.pvrinput$Saturation"
+msgstr "Sättigung"
+
+msgid "Setup.pvrinput$Hue"
+msgstr "Farbton"
+
+msgid "Setup.pvrinput$Common Audio volume (TV)"
+msgstr "allg. TV-Lautstärke"
+
+msgid "Setup.pvrinput$Exception Audio volume (TV)"
+msgstr "abw. TV Lautstärke"
+
+msgid "Setup.pvrinput$Exception TV Volume for Card"
+msgstr "abw. TV-Lautstärke für Karte"
+
+msgid "Setup.pvrinput$Audio radio volume"
+msgstr "FM Radio Lautstärke"
+
+msgid "Setup.pvrinput$Audio bitrate (kbit/s)"
+msgstr "Audio Bitrate (kbit/s)"
+
+msgid "Setup.pvrinput$Audio sampling rate"
+msgstr "Audio Abtastrate"
+
+msgid "Setup.pvrinput$HDPVR audio encoding"
+msgstr "HDPVR Audio Encoding"
+
+msgid "Setup.pvrinput$HDPVR audio input"
+msgstr "HDPVR Audioeingang"
+
+msgid "Setup.pvrinput$Video bitrate TV (kbit/s)"
+msgstr "Video Bitrate TV (kbit/s)"
+
+msgid "Setup.pvrinput$Bitrate mode"
+msgstr "Bitraten Modus"
+
+msgid "Setup.pvrinput$Aspect ratio"
+msgstr "Seitenverhältnis"
+
+msgid "Setup.pvrinput$Stream type"
+msgstr "Stream Typ"
+
+msgid "Setup.pvrinput$Mode Spatial Video Filter"
+msgstr "Modus Spatial Video Filter"
+
+msgid "Setup.pvrinput$Strength Spatial Video Filter"
+msgstr "Stärke Spatial Video Filter"
+
+msgid "Setup.pvrinput$Luma Spatial Filter Type"
+msgstr "Helligkeit Spatial Filter Typ"
+
+msgid "Setup.pvrinput$Chroma Spatial Filter Type"
+msgstr "Farben Spatial Filter Typ"
+
+msgid "Setup.pvrinput$Mode Temporal Video Filter"
+msgstr "Modus Temporal Video Filter"
+
+msgid "Setup.pvrinput$Strength Temporal Video Filter"
+msgstr "Stärke Temporal Video Filter"
+
+msgid "Setup.pvrinput$Median Filter Type"
+msgstr "Median Filter Typ"
+
+msgid "Setup.pvrinput$Luma Median Filter Bottom"
+msgstr "Luma Median Filter Unten"
+
+msgid "Setup.pvrinput$Luma Median Filter Top"
+msgstr "Luma Median Filter Oben"
+
+msgid "Setup.pvrinput$Chroma Median Filter Bottom"
+msgstr "Chroma Median Filter Unten"
+
+msgid "Setup.pvrinput$Chroma Median Filter Top"
+msgstr "Chroma Median Filter Oben"
+
+msgid "Setup.pvrinput$use externchannelswitch.sh"
+msgstr "benutze externchannelswitch.sh"
+
+msgid "use Hauppauge PVR as input device"
+msgstr "Hauppauge PVR als Eingabegerät "
+
+msgid "PVR picture settings"
+msgstr "PVR Bildeinstellungen "
+
+msgid "Setup.pvrinput$Not on an analogue channel!"
+msgstr "Kein analog empfangener Sender!"
+
+#~ msgid "Setup.pvrinput$PVRUSB2 Stop on Change"
+#~ msgstr "PVRUSB2 Stop bei Kanalwechsel"
+
+#~ msgid "Setup.pvrinput$Video bitrate Radio (kbit/s)"
+#~ msgstr "Video Bitrate Radio (kbit/s)"

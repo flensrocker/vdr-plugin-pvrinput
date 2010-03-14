@@ -1,0 +1,13 @@
+Converting your existing channels.conf to the new pvrinput syntax is very
+simple. (The following example assumes that your channels.conf is in /etc/vdr and
+that you have copied channel-conv.sh into that directory)
+
+First you need to stop vdr of course.
+
+cd /etc/vdr
+mv channels.conf channels.conf.old
+./channel-conv.sh channels.conf.old channels.conf
+
+If you have timers on pvrinput channels, you have to adjust
+the timers.conf before restarting vdr. The easiest way is to delete all
+entries for pvrinput channels and set new timers after restarting vdr.

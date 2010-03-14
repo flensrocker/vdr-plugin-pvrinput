@@ -1,0 +1,211 @@
+# translation of it_IT.po to
+# translation of pvrinput.po to
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: it_IT\n"
+"Report-Msgid-Bugs-To: <see README>\n"
+"POT-Creation-Date: 2010-03-07 11:36+0100\n"
+"PO-Revision-Date: 2009-10-11 22:40+0200\n"
+"Last-Translator: root\n"
+"Language-Team:  <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#, fuzzy
+msgid "SourceParam.pvrinput$Input"
+msgstr "Input"
+
+#, fuzzy
+msgid "SourceParam.pvrinput$Card"
+msgstr "Card"
+
+#, fuzzy
+msgid "SourceParam.pvrinput$Standard"
+msgstr "Standard"
+
+msgid "pvrinput no longer supports old channel syntax!"
+msgstr "Sintassi vecchi canali non supportata"
+
+msgid "Setup.pvrinput$manual"
+msgstr "manuale"
+
+msgid "Setup.pvrinput$auto"
+msgstr "automatico"
+
+msgid "Setup.pvrinput$off"
+msgstr "disattivo"
+
+msgid "Setup.pvrinput$1D horizontal"
+msgstr "1D orizzontale"
+
+msgid "Setup.pvrinput$1D vertical"
+msgstr "1D verticale"
+
+msgid "Setup.pvrinput$2D hv separable"
+msgstr "2D hv separabile"
+
+msgid "Setup.pvrinput$2D sym non separable"
+msgstr "2D sym non separabile"
+
+msgid "Setup.pvrinput$horizontal"
+msgstr "orizzontale"
+
+msgid "Setup.pvrinput$vertical"
+msgstr "verticale"
+
+msgid "Setup.pvrinput$horizontal + vertical"
+msgstr "orizzontale e verticale"
+
+msgid "Setup.pvrinput$diagonal"
+msgstr "diagonale"
+
+msgid "Setup.pvrinput$44.1 kHz"
+msgstr "44.1 kHz"
+
+msgid "Setup.pvrinput$48 kHz"
+msgstr "48 kHz"
+
+msgid "Setup.pvrinput$32 kHz"
+msgstr "32 kHz"
+
+#, fuzzy
+msgid "Setup.pvrinput$AAC"
+msgstr "AAC"
+
+#, fuzzy
+msgid "Setup.pvrinput$AC3"
+msgstr "AC3"
+
+#, fuzzy
+msgid "Setup.pvrinput$RCA back"
+msgstr "RCA (back)"
+
+#, fuzzy
+msgid "Setup.pvrinput$RCA front"
+msgstr "RCA (front)"
+
+#, fuzzy
+msgid "Setup.pvrinput$SPDIF"
+msgstr "S/PDIF"
+
+msgid "Setup.pvrinput$Hide main menu entry"
+msgstr "Nascondi voce menu principale"
+
+msgid "Setup.pvrinput$Use only card"
+msgstr "Utilizza solo scheda"
+
+msgid "Setup.pvrinput$Log level"
+msgstr "Livello log"
+
+msgid "Setup.pvrinput$Slice VBI Teletext"
+msgstr "Sezione televideo VBI"
+
+msgid "Setup.pvrinput$Tuner Audio Mode"
+msgstr "Modalità sintonizzatore audio"
+
+msgid "Setup.pvrinput$Brightness"
+msgstr "Luminosità"
+
+msgid "Setup.pvrinput$Contrast"
+msgstr "Contrasto"
+
+msgid "Setup.pvrinput$Saturation"
+msgstr "Saturazione"
+
+msgid "Setup.pvrinput$Hue"
+msgstr "Tonalità"
+
+msgid "Setup.pvrinput$Common Audio volume (TV)"
+msgstr "Volume audio TV generale"
+
+msgid "Setup.pvrinput$Exception Audio volume (TV)"
+msgstr "Volume audio TV specifico"
+
+msgid "Setup.pvrinput$Exception TV Volume for Card"
+msgstr "Volume audio TV specifico per scheda"
+
+msgid "Setup.pvrinput$Audio radio volume"
+msgstr "Volume audio radio"
+
+msgid "Setup.pvrinput$Audio bitrate (kbit/s)"
+msgstr "Codifica audio (kbit/s)"
+
+msgid "Setup.pvrinput$Audio sampling rate"
+msgstr "Codifica campione audio"
+
+#, fuzzy
+msgid "Setup.pvrinput$HDPVR audio encoding"
+msgstr "HDPVR audio encoding"
+
+#, fuzzy
+msgid "Setup.pvrinput$HDPVR audio input"
+msgstr "HDPVR audio input"
+
+msgid "Setup.pvrinput$Video bitrate TV (kbit/s)"
+msgstr "Codifica video TV (kbit/s)"
+
+msgid "Setup.pvrinput$Bitrate mode"
+msgstr "Modalità codifica"
+
+msgid "Setup.pvrinput$Aspect ratio"
+msgstr "Formato video"
+
+msgid "Setup.pvrinput$Stream type"
+msgstr "Stream Tipo"
+
+msgid "Setup.pvrinput$Mode Spatial Video Filter"
+msgstr "Filtro video modalità spaziale"
+
+msgid "Setup.pvrinput$Strength Spatial Video Filter"
+msgstr "Filtro video resistenza spaziale"
+
+msgid "Setup.pvrinput$Luma Spatial Filter Type"
+msgstr "Tipo filtro luma spaziale"
+
+msgid "Setup.pvrinput$Chroma Spatial Filter Type"
+msgstr "Tipo filtro croma spaziale"
+
+msgid "Setup.pvrinput$Mode Temporal Video Filter"
+msgstr "Filtro video modalità temporale"
+
+msgid "Setup.pvrinput$Strength Temporal Video Filter"
+msgstr "Filtro video resistenza temporale"
+
+msgid "Setup.pvrinput$Median Filter Type"
+msgstr "Tipo filtro mediano"
+
+msgid "Setup.pvrinput$Luma Median Filter Bottom"
+msgstr "Filtro inferiore luma mediana"
+
+msgid "Setup.pvrinput$Luma Median Filter Top"
+msgstr "Filtro superiore luma mediana"
+
+msgid "Setup.pvrinput$Chroma Median Filter Bottom"
+msgstr "Filtro inferiore croma mediana"
+
+msgid "Setup.pvrinput$Chroma Median Filter Top"
+msgstr "Filtro superiore croma mediana"
+
+msgid "Setup.pvrinput$use externchannelswitch.sh"
+msgstr ""
+
+msgid "use Hauppauge PVR as input device"
+msgstr "utilizza Hauppauge PVR come periferica ingresso"
+
+msgid "PVR picture settings"
+msgstr "Impostazioni immagine PVR"
+
+msgid "Setup.pvrinput$Not on an analogue channel!"
+msgstr "Non è un canale analogico!"
+
+#~ msgid "Setup.pvrinput$PVRUSB2 Stop on Change"
+#~ msgstr "Ferma PVRUSB2 al cambio"
+
+#~ msgid "Setup.pvrinput$Video bitrate Radio (kbit/s)"
+#~ msgstr "Codifica video radio (kbit/s)"
