@@ -1,6 +1,18 @@
 VDR Plugin 'pvrinput' Revision History
 --------------------------------------
 
+1.7.1-rc1-9 (mini73)
+- send no video packets for radio channels
+- fix teletext descriptor in PMT
+- add setup value TsBufferSizeMB for size of ringbuffer
+- add setup value TsBufferPrefillRatio: the ringbuffer
+  can be filled before the plugin deliveres the data to vdr
+- set the right SID and TID at the PAT/PMT
+- add sectionhandler for filters
+- add new source-parameter handler for 'V' (analog video)
+- frequency will be passed to externchannelswitch.sh since
+  the SID should be 1
+
 1.7.0-rc9 (Dr. Seltsam)
 - remove PvrSetup.Pvrusb2StopOnChange as there is a
   driver solution now available
