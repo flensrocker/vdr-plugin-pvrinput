@@ -1064,6 +1064,11 @@ bool cPvrDevice::OpenDvr(void) {
                    log(pvrERROR, "OpenDvr: executing %s failed", *cmd);
                    }
                  log(pvrDEBUG1, "OpenDvr: returned from %s", *cmd);
+                 if (PvrSetup.ExternChannelSwitchSleep > 0) {
+                   log(pvrDEBUG2, "OpenDvr: sleeping for %d seconds...", PvrSetup.ExternChannelSwitchSleep);
+                   usleep(PvrSetup.ExternChannelSwitchSleep * 1000000);
+                   log(pvrDEBUG2, "OpenDvr: waking up");
+                   }
                  }
 
                if (! SetInput(newInput))    return false;

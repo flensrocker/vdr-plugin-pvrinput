@@ -121,6 +121,7 @@ bool cPluginPvrInput::SetupParse(const char * Name, const char * Value) {
   else if (!strcasecmp(Name, "TsBufferSizeMB"))             PvrSetup.TsBufferSizeMB                 = atoi(Value);
   else if (!strcasecmp(Name, "TsBufferPrefillRatio"))       PvrSetup.TsBufferPrefillRatio           = atoi(Value);
   else if (!strcasecmp(Name, "UseExternChannelSwitchScript")) PvrSetup.UseExternChannelSwitchScript = atoi(Value);
+  else if (!strcasecmp(Name, "ExternChannelSwitchSleep"))   PvrSetup.ExternChannelSwitchSleep       = atoi(Value);
   else if (!strcasecmp(Name, "HDPVR_AudioEncoding"))        PvrSetup.HDPVR_AudioEncoding.value      = atoi(Value) + 3;
   else if (!strcasecmp(Name, "HDPVR_AudioInput"))           PvrSetup.HDPVR_AudioInput               = atoi(Value);
   else

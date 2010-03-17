@@ -331,6 +331,7 @@ pvrinput.StreamType = 0				 //V4L2_MPEG_STREAM_TYPE_MPEG2_PS
 pvrinput.TunerAudioMode = 4			 //bilingual
 pvrinput.UseOnlyCard = 8			 //use all cards
 pvrinput.UseExternChannelSwitchScript = 0	 //don't call externchannelswitch.sh
+pvrinput.ExternChannelSwitchSleep = 0		 //sleep x seconds after call of externchannelswitch.sh
 pvrinput.VideoBitrateTV = 6000			 //6 MBit/s
 
 Using filters may increase the picture quality, but the default value of 8

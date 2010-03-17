@@ -19,6 +19,7 @@ public:
   int SliceVBI;
   int AudioVolumeTVExceptionCard;
   int UseExternChannelSwitchScript;
+  int ExternChannelSwitchSleep;
   int TsBufferSizeMB;
   int TsBufferPrefillRatio;
   valSet Brightness;
