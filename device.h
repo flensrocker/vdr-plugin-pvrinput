@@ -87,7 +87,7 @@ private:
   int newInput;
   uint64_t newNorm;
   int newLinesPerFrame;
-  int newEncoderInput;
+  eVideoInputs newEncoderInput;
   cString BusID;
   eEncState    EncoderState;
   eVideoInputs EncoderInput;
@@ -132,12 +132,12 @@ public:
                                bool *NeedsDetachReceivers = NULL) const;
   virtual int NumProvidedSystems(void) const;
   bool ParseChannel(const cChannel *Channel, int *input, uint64_t *norm, int *LinesPerFrame, int *card,
-                    eVideoInputs *EncoderInput, int *apid, int *vpid, int *tpid) const;
+                    eVideoInputs *encoderInput, int *apid, int *vpid, int *tpid) const;
   void ReInit(void);
   void StopReadThread(void);
   void GetStandard(void);
   void TurnOffSlicedVBI(void);
-  bool Tune(int frequency);
+  bool Tune(eVideoInputs encoderInput, int frequency);
   bool SetInput(int input);
   bool SetAudioInput(int input);
   bool SetVideoNorm(uint64_t norm);

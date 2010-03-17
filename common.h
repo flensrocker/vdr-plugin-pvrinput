@@ -1,7 +1,7 @@
 #ifndef _PVR_COMMON_H_
 #define _PVR_COMMON_H_
 
-enum eLogLevel { pvrUNUSED, pvrERROR, pvrINFO, pvrDEBUG1, pvrDEBUG2 };
+enum eLogLevel { pvrUNUSED, pvrERROR, pvrINFO, pvrDEBUG1, pvrDEBUG2, pvrDEBUG3 };
 
 #include <string>
 #include <strings.h>
