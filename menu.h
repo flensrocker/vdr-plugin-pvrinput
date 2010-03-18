@@ -1,5 +1,5 @@
 /**
- *  pvrinput plugin for the Video Disk Recorder 
+ *  pvrinput plugin for the Video Disk Recorder
  *
  *  menu.h  -  setup menu class
  *
@@ -49,8 +49,8 @@ public:
 
 class cPvrMenuMain : public cOsdObject {
 private:
-  cOsd * osd;
-  const cFont * font;
+  cOsd *osd;
+  const cFont *font;
   int border;
   int margin;
   int width;

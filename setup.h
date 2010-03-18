@@ -1,5 +1,5 @@
-#ifndef _PVR_SETUP_H_
-#define _PVR_SETUP_H_
+#ifndef _PVRINPUT_SETUP_H_
+#define _PVRINPUT_SETUP_H_
 
 #include "common.h"
 

@@ -1,6 +1,7 @@
 #include "common.h"
 
-cPvrSetup::cPvrSetup(void) {
+cPvrSetup::cPvrSetup(void)
+{
   HideMainMenuEntry              = 1;            // hide main menu entry
   UseOnlyCard                    = 8;            // Use all cards
   LogLevel                       = 2;            // errors and info messages
@@ -45,8 +46,8 @@ cPvrSetup::cPvrSetup(void) {
   FilterChromaMedianBottom.value = INVALID_VALUE; // default value in QueryAllControls
   FilterChromaMedianTop.value    = INVALID_VALUE; // default value in QueryAllControls
 
-  HDPVR_AudioEncoding.value = INVALID_VALUE;
-  HDPVR_AudioInput = 0;
+  HDPVR_AudioEncoding.value      = INVALID_VALUE;
+  HDPVR_AudioInput               = 0;
 }
 
 cPvrSetup PvrSetup;

@@ -10,8 +10,7 @@ const short kAudioPid    = 300;
 const short kTeletextPid = 305;
 const short kPCRPid      = 101;
 
-const unsigned char kPAT[TS_SIZE] =
-{
+const unsigned char kPAT[TS_SIZE] = {
   0x47, 0x40, 0x00, 0x10, 0x00, 0x00, 0xb0, 0x0d,
   0x00, 0x00, 0xc1, 0x00, 0x00, 0x00, 0x01, 0xe0,
   0x84, 0xcc, 0x32, 0xcc, 0x32, 0xff, 0xff, 0xff,
@@ -38,8 +37,7 @@ const unsigned char kPAT[TS_SIZE] =
   0xff, 0xff, 0xff, 0xff
 };
 
-const unsigned char kPMT[TS_SIZE] =
-{
+const unsigned char kPMT[TS_SIZE] = {
   0x47, 0x40, 0x84, 0x10, 0x00, 0x02, 0xb0, 0x24,
   0x00, 0x01, 0xc1, 0x00, 0x00, 0xe0, 0x65, 0xf0,
   0x00, 0x02, 0xe1, 0x2d, 0xf0, 0x00, 0x04, 0xe1,
@@ -66,8 +64,7 @@ const unsigned char kPMT[TS_SIZE] =
   0xff, 0xff, 0xff, 0xff
 };
 
-const unsigned char kPMTRadio[TS_SIZE] =
-{
+const unsigned char kPMTRadio[TS_SIZE] = {
   0x47, 0x40, 0x84, 0x10, 0x00, 0x02, 0xb0, 0x18,
   0x00, 0x01, 0xc1, 0x00, 0x00, 0xe0, 0x65, 0xf0,
   0x00, 0x04, 0xe1, 0x2c, 0xf0, 0x06, 0x0a, 0x04,
@@ -94,8 +91,7 @@ const unsigned char kPMTRadio[TS_SIZE] =
   0xff, 0xff, 0xff, 0xff
 };
 
-const unsigned char kInvTab[256] =
-{
+const unsigned char kInvTab[256] = {
   0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
   0x10, 0x90, 0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0,
   0x08, 0x88, 0x48, 0xc8, 0x28, 0xa8, 0x68, 0xe8,
@@ -130,7 +126,7 @@ const unsigned char kInvTab[256] =
   0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff,
 };
 
-cPvrReadThread::cPvrReadThread(cRingBufferLinear * TsBuffer, cPvrDevice* _parent)
+cPvrReadThread::cPvrReadThread(cRingBufferLinear *TsBuffer, cPvrDevice *_parent)
 : tsBuffer(TsBuffer),
   video_counter(0),
   audio_counter(0),
@@ -144,41 +140,44 @@ cPvrReadThread::cPvrReadThread(cRingBufferLinear * TsBuffer, cPvrDevice* _parent
   pes_scr_isvalid(false),
   pes_scr(0),
   pes_scr_ext(0)
-{ log(pvrDEBUG1,"cPvrReadThread");
-  parent=_parent;
+{
+  log(pvrDEBUG1, "cPvrReadThread");
+  parent = _parent;
   parent->readThreadRunning = true;
   SetDescription("PvrReadThread of /dev/video%d", _parent->number);
   Start();
 }
 
-cPvrReadThread::~cPvrReadThread(void) {
-  log(pvrDEBUG2,"~cPvrReadThread");
+cPvrReadThread::~cPvrReadThread(void)
+{
+  log(pvrDEBUG2, "~cPvrReadThread");
   parent->readThreadRunning = false;
   if (Running())
      Cancel(3);
 }
 
-int cPvrReadThread::PutData(const unsigned char *Data, int Count) {
+int cPvrReadThread::PutData(const unsigned char *Data, int Count)
+{
   if (!tsBuffer) {
-    log(pvrINFO,"cPvrReadThread::PutData():Unable to put data into RingBuffer");
-    return 0;
-    }
+     log(pvrINFO,"cPvrReadThread::PutData():Unable to put data into RingBuffer");
+     return 0;
+     }
   int bytesFree = tsBuffer->Free();
   if (bytesFree < Count) {
-    log(pvrERROR,"cPvrReadThread::PutData():Unable to put data into RingBuffer, only %d bytes free, need %d", bytesFree, Count);
-    return 0;
-    }
+     log(pvrERROR,"cPvrReadThread::PutData():Unable to put data into RingBuffer, only %d bytes free, need %d", bytesFree, Count);
+     return 0;
+     }
   int written = tsBuffer->Put(Data, Count);
   if (written != Count) {
-    log(pvrERROR,"cPvrReadThread::PutData():put incomplete data into RingBuffer, only %d bytes written, wanted %d", written, Count);
-    tsBuffer->ReportOverflow(Count - written);
-    }
-  //log(pvrDEBUG2, "cPvrReadThread::PutData():packet written");
+     log(pvrERROR,"cPvrReadThread::PutData():put incomplete data into RingBuffer, only %d bytes written, wanted %d", written, Count);
+     tsBuffer->ReportOverflow(Count - written);
+     }
   return written;
 }
 
 
-void cPvrReadThread::PesToTs(uint8_t * Data, uint32_t Length) {
+void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
+{
   uint8_t stream_id;
   bool first = true;
   uint32_t i;
@@ -190,43 +189,43 @@ void cPvrReadThread::PesToTs(uint8_t * Data, uint32_t Length) {
   stream_id = Data[3];
 
   if (packet_counter <= 0) { // time to send PAT and PMT
-    // increase continuity counter
-    pat_buffer[ 3]= (pat_buffer[ 3] & 0xF0) | (((pat_buffer[ 3] & 0x0F) + 1) & 0x0F);
-    pmt_buffer[ 3]= (pmt_buffer[ 3] & 0xF0) | (((pmt_buffer[ 3] & 0x0F) + 1) & 0x0F);
-    PutData(pat_buffer, TS_SIZE);
-    PutData(pmt_buffer, TS_SIZE);
-    packet_counter = SENDPATPMT_PACKETINTERVAL;
-    }
+     // increase continuity counter
+     pat_buffer[ 3] = (pat_buffer[ 3] & 0xF0) | (((pat_buffer[ 3] & 0x0F) + 1) & 0x0F);
+     pmt_buffer[ 3] = (pmt_buffer[ 3] & 0xF0) | (((pmt_buffer[ 3] & 0x0F) + 1) & 0x0F);
+     PutData(pat_buffer, TS_SIZE);
+     PutData(pmt_buffer, TS_SIZE);
+     packet_counter = SENDPATPMT_PACKETINTERVAL;
+     }
 
   if (pes_scr_isvalid) { // send PCR packet
-    ts_buffer[0] = TS_SYNC_BYTE;
-    ts_buffer[1] = kPCRPid >> 8;
-    ts_buffer[2] = kPCRPid & 0xFF;
-    ts_buffer[3] = 0x20 | pcr_counter;
-    ts_buffer[4] = 0xB7;
-    ts_buffer[5] = 0x10;
-    ts_buffer[6] = (pes_scr & 0x01FE000000ull) >> 25; // 33 bits SCR base
-    ts_buffer[7] = (pes_scr & 0x01FE0000) >> 17;
-    ts_buffer[8] = (pes_scr & 0x01FE00) >> 9;
-    ts_buffer[9] = (pes_scr & 0x01FE) >> 1;
-    ts_buffer[10] = (pes_scr & 0x01) << 7;
-    ts_buffer[10] |= 0x7E; // 6 bits between SCR and SCR extension
-    ts_buffer[10] |= (pes_scr_ext & 0x0100) >> 8; // 9 bits SCR extension
-    ts_buffer[11] = (pes_scr_ext & 0xFF);
-    memset(ts_buffer + 12, 0xFF, TS_SIZE - 12);
-    PutData(ts_buffer, TS_SIZE);
-    pcr_counter = (pcr_counter + 1) & 15;
-    pes_scr_isvalid = false;
-    }
+     ts_buffer[0] = TS_SYNC_BYTE;
+     ts_buffer[1] = kPCRPid >> 8;
+     ts_buffer[2] = kPCRPid & 0xFF;
+     ts_buffer[3] = 0x20 | pcr_counter;
+     ts_buffer[4] = 0xB7;
+     ts_buffer[5] = 0x10;
+     ts_buffer[6] = (pes_scr & 0x01FE000000ull) >> 25; // 33 bits SCR base
+     ts_buffer[7] = (pes_scr & 0x01FE0000) >> 17;
+     ts_buffer[8] = (pes_scr & 0x01FE00) >> 9;
+     ts_buffer[9] = (pes_scr & 0x01FE) >> 1;
+     ts_buffer[10] = (pes_scr & 0x01) << 7;
+     ts_buffer[10] |= 0x7E; // 6 bits between SCR and SCR extension
+     ts_buffer[10] |= (pes_scr_ext & 0x0100) >> 8; // 9 bits SCR extension
+     ts_buffer[11] = (pes_scr_ext & 0xFF);
+     memset(ts_buffer + 12, 0xFF, TS_SIZE - 12);
+     PutData(ts_buffer, TS_SIZE);
+     pcr_counter = (pcr_counter + 1) & 15;
+     pes_scr_isvalid = false;
+     }
 
   switch (stream_id) {
     case 0xC0 ... 0xEF:
       if (stream_id < 0xE0) {
-        pid = &kAudioPid;
-        counter = &audio_counter;
-        }
+         pid = &kAudioPid;
+         counter = &audio_counter;
+         }
       else if (parent->EncoderInput == eRadio)
-        return;
+         return;
       for (i = 0; i < Payload_Count; i++) {
         ts_buffer[0] = TS_SYNC_BYTE;
         ts_buffer[1] = (first ? 0x40 : 0x00) | (*pid >> 8);
@@ -239,11 +238,11 @@ void cPvrReadThread::PesToTs(uint8_t * Data, uint32_t Length) {
         first = false;
         } // end: for (i = 0; i < Payload_Count; i++)
       if (Payload_Rest > 0) {
-        ts_buffer[0]  = TS_SYNC_BYTE;
-        ts_buffer[1]  = (first ? 0x40 : 0x00) | (*pid >> 8);
-        ts_buffer[2]  = *pid & 0xFF;
-        ts_buffer[3]  = 0x30 | *counter;
-        ts_buffer[4]  = PayloadSize - Payload_Rest - 1;
+        ts_buffer[0] = TS_SYNC_BYTE;
+        ts_buffer[1] = (first ? 0x40 : 0x00) | (*pid >> 8);
+        ts_buffer[2] = *pid & 0xFF;
+        ts_buffer[3] = 0x30 | *counter;
+        ts_buffer[4] = PayloadSize - Payload_Rest - 1;
         if (ts_buffer[4] > 0) {
           ts_buffer[5] = 0x00;
           memset(ts_buffer + 6, 0xFF, ts_buffer[4] - 1);
@@ -256,7 +255,7 @@ void cPvrReadThread::PesToTs(uint8_t * Data, uint32_t Length) {
         } // end: if (Payload_Rest > 0)
       break; // end: case 0xE0..0xEF:
     case 0xBD: {
-      uint8_t * payload_data;
+      uint8_t *payload_data;
       uint16_t payload_length;
       uint32_t pos = 0;
       uint32_t ts_pos = 0;
@@ -270,20 +269,19 @@ void cPvrReadThread::PesToTs(uint8_t * Data, uint32_t Length) {
       payload_data = Data + 9 + Data[8];
       if (memcmp(payload_data, "itv0", 4) == 0)
         pos = 12;
+      else if (memcmp(payload_data, "ITV0", 4) == 0)
+        pos = 4;
       else
-        if (memcmp(payload_data, "ITV0", 4) == 0)
-          pos = 4;
-        else
-          return;
+        return;
+
       while (pos + 43 <= payload_length) {
         if ((payload_data[pos] & 0x0F) == 0x01)  { //VBI_TYPE_TELETEXT
-          ts_buffer[4+ts_pos*46] = 0x02; // data_unit_id
-          ts_buffer[5+ts_pos*46] = 0x2C; // data_unit_length
-          ts_buffer[6+ts_pos*46] = 0x00; // field_parity, line_offset
-          ts_buffer[7+ts_pos*46] = 0xE4; // framing_code
-          for (int j = 0; j < 42; j++) {
+          ts_buffer[4 + ts_pos * 46] = 0x02; // data_unit_id
+          ts_buffer[5 + ts_pos * 46] = 0x2C; // data_unit_length
+          ts_buffer[6 + ts_pos * 46] = 0x00; // field_parity, line_offset
+          ts_buffer[7 + ts_pos * 46] = 0xE4; // framing_code
+          for (int j = 0; j < 42; j++)
             ts_buffer[8 + ts_pos * 46 + j] = kInvTab[payload_data[pos + 1 + j]];
-            }
           ts_pos++;
           if (ts_pos == 4) {
             ts_pos = 0;
@@ -311,7 +309,8 @@ void cPvrReadThread::PesToTs(uint8_t * Data, uint32_t Length) {
     } // end: switch (stream_id)
 }
 
-void cPvrReadThread::ParseProgramStream(uint8_t * Data, uint32_t Length) {
+void cPvrReadThread::ParseProgramStream(uint8_t *Data, uint32_t Length)
+{
   uint32_t pos = 0;
   while (pos < Length) {
     switch(pes_offset)  {
@@ -460,7 +459,8 @@ void cPvrReadThread::ParseProgramStream(uint8_t * Data, uint32_t Length) {
     }  // end: while (pos < Length)
 }
 
-void cPvrReadThread::Action(void) {
+void cPvrReadThread::Action(void)
+{
   unsigned char buffer[BUFFSIZE_INPUT];
   int r;
   int retries = 3;
@@ -510,7 +510,7 @@ void cPvrReadThread::Action(void) {
     r = read(parent->v4l2_fd, buffer, BUFFSIZE_INPUT);
     if (r < 0) {
       log(pvrERROR, "cPvrReadThread::Action():error reading from /dev/video%d: %d:%s %s",
-        parent->number, errno, strerror(errno), (--retries > 0) ? " - retrying" : "");
+          parent->number, errno, strerror(errno), (--retries > 0) ? " - retrying" : "");
       if (retries > 0) {
          usleep(100);
          goto retry;

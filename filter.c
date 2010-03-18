@@ -1,11 +1,5 @@
 #include "common.h"
 
-//#include <unistd.h>
-//#include <fcntl.h>
-//#include <sys/types.h>
-//#include <sys/socket.h>
-
-
 cPvrSectionFilter::cPvrSectionFilter(u_short Pid, u_char Tid, u_char Mask)
 {
   filterData.pid = Pid;
@@ -14,18 +8,18 @@ cPvrSectionFilter::cPvrSectionFilter(u_short Pid, u_char Tid, u_char Mask)
 
   handle[0] = handle[1] = -1;
   if (socketpair(AF_UNIX, SOCK_DGRAM, 0, handle) != 0) {
-    log(pvrERROR, "cPvrSectionFilter(): can't open socketpair");
-    Close();
-    }
+     log(pvrERROR, "cPvrSectionFilter(): can't open socketpair");
+     Close();
+     }
   else if ((fcntl(handle[0], F_SETFL, O_NONBLOCK) != 0) || (fcntl(handle[1], F_SETFL, O_NONBLOCK) != 0)) {
-    log(pvrERROR, "cPvrSectionFilter(): can't switch socketpair to unblocked mode");
-    Close();
-    }
+     log(pvrERROR, "cPvrSectionFilter(): can't switch socketpair to unblocked mode");
+     Close();
+     }
 }
 
 cPvrSectionFilter::~cPvrSectionFilter(void)
 {
- Close();
+  Close();
 }
 
 void cPvrSectionFilter::Close(void)
@@ -59,33 +53,33 @@ int   cPvrSectionHandler::AddFilter(u_short Pid, u_char Tid, u_char Mask)
   cPvrSectionFilter *filter = new cPvrSectionFilter(Pid, Tid, Mask);
   int handle = filter->GetHandle();
   if (handle < 0)
-    delete filter;
+     delete filter;
   else
-    filters.Add(filter);
+     filters.Add(filter);
   return handle;
 }
 
 void  cPvrSectionHandler::RemoveFilter(int Handle)
 {
-  cPvrSectionFilter  *filter = filters.First();
+  cPvrSectionFilter *filter = filters.First();
   while (filter) {
-    if (filter->GetHandle() == Handle) {
-      filters.Del(filter, true);
-      break;
-      }
-    filter = filters.Next(filter);
-  }
+        if (filter->GetHandle() == Handle) {
+           filters.Del(filter, true);
+           break;
+           }
+        filter = filters.Next(filter);
+        }
 }
 
 void  cPvrSectionHandler::ProcessTSPacket(const u_char *Data)
 {
   if ((filters.Count() == 0) || (Data == 0))
-    return;
+     return;
   uint8_t section_len = ((Data[7] & 0x0F) << 8) + Data[7];
   if (section_len == 0)
-    return;
+     return;
   if ((Data[1] & 0x40) == 0)
-    return;
+     return;
   u_short pid = ((Data[1] & 0x1F) << 8) + Data[2];
   u_char  tid = Data[5];
   size_t  written = 0;
@@ -93,13 +87,11 @@ void  cPvrSectionHandler::ProcessTSPacket(const u_char *Data)
   section_len += 3;
   cPvrSectionFilter  *filter = filters.First();
   while (filter) {
-    if (filter->filterData.Matches(pid, tid)) {
-      //log(pvrDEBUG2, "cPvrSectionHandler::ProcessTSPacket(): pid = %d, tid = %d, len = %d, start = %d",
-      //    pid, tid, section_len, section_start);
-      written = write(filter->handle[1], Data + section_start, section_len);
-      if (written != section_len)
-        log(pvrERROR, "cPvrSectionHandler::ProcessTSPacket(): written only %d instead of %d", written, section_len);
-      }
-    filter = filters.Next(filter);
-  }
+        if (filter->filterData.Matches(pid, tid)) {
+           written = write(filter->handle[1], Data + section_start, section_len);
+           if (written != section_len)
+              log(pvrERROR, "cPvrSectionHandler::ProcessTSPacket(): written only %d instead of %d", written, section_len);
+           }
+        filter = filters.Next(filter);
+        }
 }

@@ -1,5 +1,5 @@
-#ifndef _PVR_FILTER_H_
-#define _PVR_FILTER_H_
+#ifndef _PVRINPUT_FILTER_H_
+#define _PVRINPUT_FILTER_H_
 
 #include <vdr/filter.h>
 

@@ -1,12 +1,12 @@
-#ifndef _PVR_READER_H_
-#define _PVR_READER_H_
+#ifndef _PVRINPUT_READER_H_
+#define _PVRINPUT_READER_H_
 
 #include "common.h"
 
 class cPvrReadThread : public cThread {
 private:
-  cPvrDevice* parent;
-  cRingBufferLinear * tsBuffer;
+  cPvrDevice *parent;
+  cRingBufferLinear *tsBuffer;
   uint8_t  pat_buffer[TS_SIZE];
   uint8_t  pmt_buffer[TS_SIZE];
   uint8_t  ts_buffer[TS_SIZE];
@@ -24,13 +24,13 @@ private:
   uint64_t pes_scr;
   uint32_t pes_scr_ext;
 
-  void ParseProgramStream(uint8_t * Data, uint32_t Length);
-  void PesToTs(uint8_t * Data, uint32_t Length);
-  int  PutData(const unsigned char * Data, int Count);
+  void ParseProgramStream(uint8_t *Data, uint32_t Length);
+  void PesToTs(uint8_t *Data, uint32_t Length);
+  int  PutData(const unsigned char *Data, int Count);
 protected:
   virtual void Action(void);
 public:
-  cPvrReadThread(cRingBufferLinear * TsBuffer, cPvrDevice* _parent);
+  cPvrReadThread(cRingBufferLinear *TsBuffer, cPvrDevice *_parent);
   virtual ~cPvrReadThread(void);
 };
 

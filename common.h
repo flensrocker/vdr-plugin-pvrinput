@@ -1,5 +1,5 @@
-#ifndef _PVR_COMMON_H_
-#define _PVR_COMMON_H_
+#ifndef _PVRINPUT_COMMON_H_
+#define _PVRINPUT_COMMON_H_
 
 enum eLogLevel { pvrUNUSED, pvrERROR, pvrINFO, pvrDEBUG1, pvrDEBUG2, pvrDEBUG3 };
 
@@ -37,7 +37,7 @@ enum eLogLevel { pvrUNUSED, pvrERROR, pvrINFO, pvrDEBUG1, pvrDEBUG2, pvrDEBUG3 }
 #endif //VDRVERSNUM < 10507
 
 
-void log(int level, const char * fmt, ...);
+void log(int level, const char *fmt, ...);
 
 int IOCTL(int fd, int cmd, void *data);
 

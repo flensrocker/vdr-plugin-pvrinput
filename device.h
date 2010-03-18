@@ -1,5 +1,5 @@
-#ifndef _PVR_DEVICE_H_
-#define _PVR_DEVICE_H_
+#ifndef _PVRINPUT_DEVICE_H_
+#define _PVRINPUT_DEVICE_H_
 
 #include "common.h"
 
@@ -50,13 +50,10 @@ typedef enum {
 
 class cPvrReadThread;
 
-class cPvrDevice :
-public cDevice
-{
-friend class cPvrReadThread;
+class cPvrDevice : public cDevice {
+  friend class cPvrReadThread;
 private:
   static bool Probe(int DeviceNumber);
-
   static cString externChannelSwitchScript;
 
 public:
@@ -89,7 +86,7 @@ private:
   int newLinesPerFrame;
   eVideoInputs newEncoderInput;
   cString BusID;
-  eEncState    EncoderState;
+  eEncState EncoderState;
   eVideoInputs EncoderInput;
   int driver_apiversion;
   bool SupportsSlicedVBI;
@@ -105,11 +102,11 @@ private:
   bool pvrusb2_ready;
   eV4l2Driver driver;
   eV4l2CardName cardname;
-  cRingBufferLinear * tsBuffer;
+  cRingBufferLinear *tsBuffer;
   int tsBufferPrefill;
-  cPvrReadThread    * readThread;
+  cPvrReadThread *readThread;
   cChannel currentChannel;
-  cPvrSectionHandler  sectionHandler;
+  cPvrSectionHandler sectionHandler;
 
 protected:
   virtual bool SetChannelDevice(const cChannel *Channel, bool LiveView);
@@ -128,8 +125,7 @@ public:
   virtual ~cPvrDevice(void);
   virtual bool ProvidesSource(int Source) const;
   virtual bool ProvidesTransponder(const cChannel *Channel) const;
-  virtual bool ProvidesChannel(const cChannel *Channel, int Priority = -1,
-                               bool *NeedsDetachReceivers = NULL) const;
+  virtual bool ProvidesChannel(const cChannel *Channel, int Priority = -1, bool *NeedsDetachReceivers = NULL) const;
   virtual int NumProvidedSystems(void) const;
   bool ParseChannel(const cChannel *Channel, int *input, uint64_t *norm, int *LinesPerFrame, int *card,
                     eVideoInputs *encoderInput, int *apid, int *vpid, int *tpid) const;
@@ -149,12 +145,10 @@ public:
   bool ControlIdIsValid(__u32 ctrlid);
   // overloaded function SetControlValue
   int  SetControlValue(__u32 control, __s32 Val);
-  int  SetControlValue(struct valSet * vs, __s32 Val);
-  int  SetControlValue(__u32 control_class, __u32 control,
-                       __s32 Val, struct v4l2_queryctrl queryctrl);
-  int  QueryControl(struct valSet * vs);
+  int  SetControlValue(struct valSet *vs, __s32 Val);
+  int  SetControlValue(__u32 control_class, __u32 control, __s32 Val, struct v4l2_queryctrl queryctrl);
+  int  QueryControl(struct valSet *vs);
   bool QueryAllControls(void);
-  int  PutData(const unsigned char * Data, int Count);
 };
 
 #endif
