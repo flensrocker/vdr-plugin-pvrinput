@@ -487,13 +487,13 @@ void cPvrDevice::GetStandard(void)
 void cPvrDevice::StopReadThread(void)
 {
   if (readThreadRunning) {
-    log(pvrDEBUG2,"cPvrDevice::StopReadThread on /dev/video%d (%s): read thread exists, delete it", number, CARDNAME[cardname]);
-    cPvrReadThread *readThread_tmp = readThread;
-    readThread = NULL;
-    delete readThread_tmp;
-    }
+     log(pvrDEBUG2, "cPvrDevice::StopReadThread on /dev/video%d (%s): read thread exists, delete it", number, CARDNAME[cardname]);
+     cPvrReadThread *readThread_tmp = readThread;
+     readThread = NULL;
+     delete readThread_tmp;
+     }
   else
-    log(pvrDEBUG2,"cPvrDevice::StopReadThread: no read thread running on /dev/video%d (%s)", number, CARDNAME[cardname]);
+     log(pvrDEBUG2, "cPvrDevice::StopReadThread: no read thread running on /dev/video%d (%s)", number, CARDNAME[cardname]);
 }
 
 void cPvrDevice::ReInitAll(void)
