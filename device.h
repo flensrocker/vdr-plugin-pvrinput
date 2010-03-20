@@ -73,7 +73,7 @@ private:
   int radio_dev;
   int inputs[12];
   int numInputs;
-  int CurrentFrequency;
+  int frequency;
   int vpid;
   int apid;
   int tpid;
@@ -87,6 +87,7 @@ private:
   eVideoInputs newEncoderInput;
   cString BusID;
   eEncState EncoderState;
+  eVideoInputs EncoderInput;
   int driver_apiversion;
   bool SupportsSlicedVBI;
   bool hasDecoder;
@@ -132,7 +133,7 @@ public:
   void StopReadThread(void);
   void GetStandard(void);
   void TurnOffSlicedVBI(void);
-  bool Tune(int frequency);
+  bool Tune(eVideoInputs encoderInput, int frequency);
   bool SetInput(int input);
   bool SetAudioInput(int input);
   bool SetVideoNorm(uint64_t norm);
