@@ -205,9 +205,9 @@ static void cPvrSourceParam_Initialize()
 
 cPvrDevice::cPvrDevice(int DeviceNumber)
 : number(DeviceNumber),
-  frequency(-1),
   CurrentNorm(0), //uint64_t can't be negative
   CurrentLinesPerFrame(-1),
+  CurrentFrequency(-1),
   CurrentInput(-1),
   SupportsSlicedVBI(false),
   hasDecoder(false),
@@ -578,34 +578,31 @@ void cPvrDevice::ReInit(void)
     }
 }
 
-bool cPvrDevice::Tune(eVideoInputs encoderInput, int freq)
+bool cPvrDevice::Tune(int freq)
 {
   double fac = 16;
   int freqaux = freq;
   struct v4l2_frequency vf;
-  if ((frequency == freq) && (EncoderInput == encoderInput))
+  if (CurrentFrequency == freq)
     return true;
-  if ((encoderInput == eRadio) || (encoderInput == eTelevision)) {
-    memset(&vf, 0, sizeof(vf));
-    struct v4l2_tuner tuner;
-    memset(&tuner, 0, sizeof(tuner));
-    if (IOCTL(v4l2_fd, VIDIOC_G_TUNER,&tuner) == 0)
-      fac = (tuner.capability & V4L2_TUNER_CAP_LOW) ? 16000 : 16;
-    vf.tuner = 0;
-    vf.type = tuner.type;
-    vf.frequency = (int)((double)freqaux * fac / 1000.0);
-    if (IOCTL(v4l2_fd, VIDIOC_S_FREQUENCY, &vf) == 0) {
-      log(pvrDEBUG1, "cPvrDevice::Tune(): set Frequency on /dev/video%d (%s) to %.2f MHz (%d)",
-          number, CARDNAME[cardname], vf.frequency / fac, vf.frequency);
-      }
-    else {
-      log(pvrERROR, "cPvrDevice::Tune(): error on /dev/video%d (%s) tuning to %.2f MHz (%d): %d:%s",
-          number, CARDNAME[cardname], vf.frequency / fac, vf.frequency, errno, strerror(errno));
-      return false;
-      }
+  memset(&vf, 0, sizeof(vf));
+  struct v4l2_tuner tuner;
+  memset(&tuner, 0, sizeof(tuner));
+  if (IOCTL(v4l2_fd, VIDIOC_G_TUNER, &tuner) == 0)
+     fac = (tuner.capability & V4L2_TUNER_CAP_LOW) ? 16000 : 16;
+  vf.tuner = 0;
+  vf.type = tuner.type;
+  vf.frequency = (int)((double)freqaux * fac / 1000.0);
+  if (IOCTL(v4l2_fd, VIDIOC_S_FREQUENCY, &vf) == 0) {
+    log(pvrDEBUG1, "cPvrDevice::Tune(): set Frequency on /dev/video%d (%s) to %.2f MHz (%d)",
+        number, CARDNAME[cardname], vf.frequency / fac, vf.frequency);
     }
-  frequency = freq;
-  EncoderInput = encoderInput;
+  else {
+    log(pvrERROR, "cPvrDevice::Tune(): error on /dev/video%d (%s) tuning to %.2f MHz (%d): %d:%s",
+        number, CARDNAME[cardname], vf.frequency / fac, vf.frequency, errno, strerror(errno));
+    return false;
+    }
+  CurrentFrequency = freq;
   return true;
 }
 
@@ -827,7 +824,7 @@ bool cPvrDevice::SetVBImode(int vbiLinesPerFrame, int vbistatus)
 }
 
 bool cPvrDevice::ParseChannel(const cChannel *Channel, int *input, uint64_t *norm, int *LinesPerFrame,
-                              int *card, eVideoInputs *encoderInput, int *apid, int *vpid, int *tpid) const
+                              int *card, eInputType *inputType, int *apid, int *vpid, int *tpid) const
 {
   *card = 999;
   *norm = CurrentNorm; //make sure we have a value if channels.conf has no optArg for norm
@@ -862,11 +859,11 @@ bool cPvrDevice::ParseChannel(const cChannel *Channel, int *input, uint64_t *nor
       *vpid = Channel->Vpid();
       *apid = Channel->Apid(0);
       *tpid = Channel->Tpid();
-      if      (!strcasecmp (Input, "RADIO"))           *encoderInput=eRadio;
-      else if (!strcasecmp (Input, "TV"))              *encoderInput=eTelevision;
-      else if (!strncasecmp(Input, "COMPOSITE",9))     *encoderInput=eExternalInput;
-      else if (!strncasecmp(Input, "SVIDEO",6))        *encoderInput=eExternalInput;
-      else if (!strncasecmp(Input, "COMPONENT",9))     *encoderInput=eExternalInput;
+      if      (!strcasecmp (Input, "RADIO"))           *inputType = eRadio;
+      else if (!strcasecmp (Input, "TV"))              *inputType = eTelevision;
+      else if (!strncasecmp(Input, "COMPOSITE",9))     *inputType = eExternalInput;
+      else if (!strncasecmp(Input, "SVIDEO",6))        *inputType = eExternalInput;
+      else if (!strncasecmp(Input, "COMPONENT",9))     *inputType = eExternalInput;
       else return false;
       if      (!strcasecmp (Input, "TV"))              *input = inputs[eTelevision];
       else if (!strcasecmp (Input, "RADIO"))           *input = inputs[eRadio];
@@ -964,7 +961,7 @@ bool cPvrDevice::ParseChannel(const cChannel *Channel, int *input, uint64_t *nor
         else if (!strcasecmp  (optArg2, "CARD7"))      *card = 7;
         }
       log(pvrDEBUG2, "ParseChannel %s input %d, norm=0x%08llx, card %d",
-          (*encoderInput == eRadio) ? "Radio" : (*encoderInput == eTelevision) ? "TV" : "Ext", *input, *norm, *card);
+          (*inputType == eRadio) ? "Radio" : (*inputType == eTelevision) ? "TV" : "Ext", *input, *norm, *card);
       return true;
       }
     }
@@ -977,11 +974,11 @@ bool cPvrDevice::SetChannelDevice(const cChannel * Channel, bool LiveView)
       Channel->Number(), Channel->Name(), (double)Channel->Frequency() / 1000,  number, CARDNAME[cardname]);
   int input, LinesPerFrame, card;
   uint64_t norm;
-  eVideoInputs encoderInput;
-  if (!ParseChannel(Channel, &input, &norm, &LinesPerFrame, &card, &encoderInput, &apid, &vpid, &tpid))
+  eInputType inputType;
+  if (!ParseChannel(Channel, &input, &norm, &LinesPerFrame, &card, &inputType, &apid, &vpid, &tpid))
      return false;
 
-  if ((Channel->Number() == currentChannel.Number()) && (Channel->Frequency() == frequency) && (input == CurrentInput) && (norm == CurrentNorm))
+  if ((Channel->Number() == CurrentChannel.Number()) && (Channel->Frequency() == CurrentFrequency) && (input == CurrentInput) && (norm == CurrentNorm))
     return true;
   log(pvrDEBUG1, "cPvrDevice::SetChannelDevice prepare switch to %d (%s) %3.2fMHz (/dev/video%d = %s)",
     Channel->Number(), Channel->Name(), (double)Channel->Frequency() / 1000,  number, CARDNAME[cardname]);
@@ -989,9 +986,9 @@ bool cPvrDevice::SetChannelDevice(const cChannel * Channel, bool LiveView)
   newInput = input;
   newNorm = norm;
   newLinesPerFrame = LinesPerFrame;
-  newEncoderInput = encoderInput;
+  newInputType = inputType;
   ChannelSettingsDone = false;
-  currentChannel = *Channel;
+  CurrentChannel = *Channel;
   return true;
 }
 
@@ -1044,7 +1041,7 @@ bool cPvrDevice::OpenDvr(void)
             log(pvrDEBUG1, "OpenDvr: wait until /dev/video%d (%s) is ready", number, CARDNAME[cardname]);
             }
           } 
-       switch (newEncoderInput) {
+       switch (newInputType) {
          case eComposite0 ... eComposite4:   //no break here, continuing at next case item
          case eSVideo0 ... eSVideo3:         //no break here, continuing at next case item
          case eComponent:                    //no break here, continuing at next case item
@@ -1061,8 +1058,8 @@ bool cPvrDevice::OpenDvr(void)
 
                if (PvrSetup.UseExternChannelSwitchScript) {
                  cString cmd = cString::sprintf("%s %d %d %d %d",
-                                 *externChannelSwitchScript, currentChannel.Sid(), currentChannel.Number(),
-                                 number, currentChannel.Frequency());
+                                 *externChannelSwitchScript, CurrentChannel.Sid(), CurrentChannel.Number(),
+                                 number, CurrentChannel.Frequency());
                  log(pvrDEBUG1, "OpenDvr: calling %s", *cmd);
                  if (system(*cmd) < 0)
                     log(pvrERROR, "OpenDvr: executing %s failed", *cmd);
@@ -1078,8 +1075,7 @@ bool cPvrDevice::OpenDvr(void)
                   return false;
                if (!SetVideoNorm(newNorm))
                   return false;
-               frequency = newFrequency; // since we don't tune: set it here          
-               EncoderInput = newEncoderInput;
+               CurrentFrequency = newFrequency; // since we don't tune: set it here          
                break;
                }
          case eRadio:
@@ -1113,7 +1109,7 @@ bool cPvrDevice::OpenDvr(void)
                    log(pvrERROR, "driver is unknown!!");
                    return false;
                  }
-               if (!Tune(newEncoderInput, newFrequency))
+               if (!Tune(newFrequency))
                   return false;
                break;
                }
@@ -1133,10 +1129,11 @@ bool cPvrDevice::OpenDvr(void)
                   return false;
                if (!SetVBImode(newLinesPerFrame, PvrSetup.SliceVBI))
                   return false;
-               if (!Tune(newEncoderInput, newFrequency))
+               if (!Tune(newFrequency))
                   return false;
                }
-         } //end: switch (newEncoderInput)
+         } //end: switch (newInputType)
+       CurrentInputType = newInputType;
        ChannelSettingsDone = true;
        FirstChannelSwitch = false;
        } //end: if ((!ChannelSettingsDone)
@@ -1256,9 +1253,9 @@ bool cPvrDevice::ProvidesChannel(const cChannel *Channel, int Priority, bool *Ne
   bool needsDetachReceivers = true;
   int input, LinesPerFrame, dev;
   uint64_t norm;
-  eVideoInputs encoderInput;            //only dummy
-  int audioPid, videoPid, teletextPid;  //only dummy
-  if (!ParseChannel(Channel, &input, &norm, &LinesPerFrame, &dev, &encoderInput, &audioPid, &videoPid, &teletextPid))
+  eInputType inputType; //only dummy
+  int audioPid, videoPid, teletextPid; //only dummy
+  if (!ParseChannel(Channel, &input, &norm, &LinesPerFrame, &dev, &inputType, &audioPid, &videoPid, &teletextPid))
     return false; // non-pvrinput channel or wrong syntax used, silently ignore this one
   if ((dev < 999) && (number != dev)) {
     log(pvrDEBUG1, "cPvrDevice::ProvidesChannel %s -> false (this is /dev/video%d, but CARD parameter says /dev/video%d only)",
@@ -1310,7 +1307,7 @@ bool cPvrDevice::ProvidesChannel(const cChannel *Channel, int Priority, bool *Ne
     return false;
     }
   if ((Priority >= 0) && Receiving(true)) {
-    if ((Channel->Number() == currentChannel.Number()) && (frequency == Channel->Frequency()) && (CurrentInput == input) && (CurrentNorm == norm)) {
+    if ((Channel->Number() == CurrentChannel.Number()) && (CurrentFrequency == Channel->Frequency()) && (CurrentInput == input) && (CurrentNorm == norm)) {
       needsDetachReceivers = false;
       result = true;
       log(pvrDEBUG1, "cPvrDevice::ProvidesChannel: %s already set -> true.", Channel->Name());

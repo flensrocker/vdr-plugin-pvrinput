@@ -22,7 +22,7 @@ typedef enum {
   eComposite4,
   eComponent,
   eExternalInput
-} eVideoInputs;
+} eInputType;
 
 typedef enum {
   undef,
@@ -73,21 +73,25 @@ private:
   int radio_dev;
   int inputs[12];
   int numInputs;
-  int frequency;
   int vpid;
   int apid;
   int tpid;
+
+  cChannel CurrentChannel;
   uint64_t CurrentNorm;
   int CurrentLinesPerFrame;
+  int CurrentFrequency;
   int CurrentInput;
-  int newFrequency;
-  int newInput;
+  eInputType CurrentInputType; // can only be eTelevision, eRadio or eExternalInput
+
   uint64_t newNorm;
   int newLinesPerFrame;
-  eVideoInputs newEncoderInput;
+  int newFrequency;
+  int newInput;
+  eInputType newInputType;
+
   cString BusID;
   eEncState EncoderState;
-  eVideoInputs EncoderInput;
   int driver_apiversion;
   bool SupportsSlicedVBI;
   bool hasDecoder;
@@ -105,7 +109,6 @@ private:
   cRingBufferLinear *tsBuffer;
   int tsBufferPrefill;
   cPvrReadThread *readThread;
-  cChannel currentChannel;
   cPvrSectionHandler sectionHandler;
 
 protected:
@@ -128,12 +131,12 @@ public:
   virtual bool ProvidesChannel(const cChannel *Channel, int Priority = -1, bool *NeedsDetachReceivers = NULL) const;
   virtual int NumProvidedSystems(void) const;
   bool ParseChannel(const cChannel *Channel, int *input, uint64_t *norm, int *LinesPerFrame, int *card,
-                    eVideoInputs *encoderInput, int *apid, int *vpid, int *tpid) const;
+                    eInputType *inputType, int *apid, int *vpid, int *tpid) const;
   void ReInit(void);
   void StopReadThread(void);
   void GetStandard(void);
   void TurnOffSlicedVBI(void);
-  bool Tune(eVideoInputs encoderInput, int frequency);
+  bool Tune(int frequency);
   bool SetInput(int input);
   bool SetAudioInput(int input);
   bool SetVideoNorm(uint64_t norm);

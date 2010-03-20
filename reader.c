@@ -224,7 +224,7 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
          pid = &kAudioPid;
          counter = &audio_counter;
          }
-      else if (parent->EncoderInput == eRadio)
+      else if (parent->CurrentInputType == eRadio)
          return;
       for (i = 0; i < Payload_Count; i++) {
         ts_buffer[0] = TS_SYNC_BYTE;
@@ -472,8 +472,8 @@ void cPvrReadThread::Action(void)
   // prepare PAT and PMT
   if (parent->streamType != V4L2_MPEG_STREAM_TYPE_MPEG2_TS) {
     memcpy(pat_buffer, kPAT, TS_SIZE);
-    int sid = parent->currentChannel.Sid();
-    int tid = parent->currentChannel.Tid();
+    int sid = parent->CurrentChannel.Sid();
+    int tid = parent->CurrentChannel.Tid();
     pat_buffer[8] = (tid >> 8) & 0xFF;
     pat_buffer[9] = tid & 0xFF;
     pat_buffer[13] = (sid >> 8) & 0xFF;
@@ -484,7 +484,7 @@ void cPvrReadThread::Action(void)
     pat_buffer[19] = crc >> 8;
     pat_buffer[20] = crc;
 
-    if (parent->EncoderInput == eRadio) {
+    if (parent->CurrentInputType == eRadio) {
       memcpy(pmt_buffer, kPMTRadio, TS_SIZE);
       pmt_buffer[8] = (sid >> 8) & 0xFF;
       pmt_buffer[9] = sid & 0xFF;
