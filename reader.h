@@ -9,6 +9,7 @@ private:
   cRingBufferLinear *tsBuffer;
   uint8_t  pat_buffer[TS_SIZE];
   uint8_t  pmt_buffer[TS_SIZE];
+  bool     pmt_has_teletext;
   uint8_t  ts_buffer[TS_SIZE];
   uint8_t  video_counter;
   uint8_t  audio_counter;
