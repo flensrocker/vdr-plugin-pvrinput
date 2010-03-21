@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pvrinput\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2010-03-07 11:36+0100\n"
+"POT-Creation-Date: 2010-03-21 21:18+0100\n"
 "PO-Revision-Date: 2008-05-24 13:33+0200\n"
 "Last-Translator: root\n"
 "Language-Team:  <de@li.org>\n"
@@ -15,15 +15,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
-
-msgid "SourceParam.pvrinput$Input"
-msgstr ""
-
-msgid "SourceParam.pvrinput$Card"
-msgstr ""
-
-msgid "SourceParam.pvrinput$Standard"
-msgstr ""
 
 msgid "pvrinput no longer supports old channel syntax!"
 msgstr ""
@@ -191,4 +182,13 @@ msgid "PVR picture settings"
 msgstr ""
 
 msgid "Setup.pvrinput$Not on an analogue channel!"
+msgstr ""
+
+msgid "SourceParam.pvrinput$Input"
+msgstr ""
+
+msgid "SourceParam.pvrinput$Card"
+msgstr ""
+
+msgid "SourceParam.pvrinput$Standard"
 msgstr ""

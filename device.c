@@ -19,188 +19,6 @@ cPvrDevice *PvrDevices[kMaxPvrDevices];
 
 cString cPvrDevice::externChannelSwitchScript;
 
-#ifdef PVR_SOURCEPARAMS
-class cPvrSourceParam : public cSourceParam {
-private:
-  int param;
-  int input;
-  int standard;
-  int card;
-
-public:
-  cPvrSourceParam();
-  cString ParametersToString(void) const;
-  void    ParseParameters(const char *Parameters);
-  virtual void SetData(cChannel *Channel);
-  virtual void GetData(cChannel *Channel);
-  virtual cOsdItem *GetOsdItem(void);
-
-  static bool IsPvr(int Code);
-  
-  static const char  sSourceID = 'V';
-  static const uint  stPvr = (sSourceID << 24);
-  static const int   sNumInputs = 12;
-  static const char *sInputs[];
-  static const int   sNumCards = 9;
-  static const char *sCards[];
-  static const int   sNumStandards = 31;
-  static const char *sStandards[];
-};
-
-const char *cPvrSourceParam::sInputs[] = {
- "TV",
- "RADIO",
- "COMPOSITE0",
- "COMPOSITE1",
- "COMPOSITE2",
- "COMPOSITE3",
- "COMPOSITE4",
- "SVIDEO0",
- "SVIDEO1",
- "SVIDEO2",
- "SVIDEO3",
- "COMPONENT"
-};
-
-const char *cPvrSourceParam::sCards[] = {
- "",
- "CARD0",
- "CARD1",
- "CARD2",
- "CARD3",
- "CARD4",
- "CARD5",
- "CARD6",
- "CARD7"
-};
-
-const char *cPvrSourceParam::sStandards[] = {
-  "",
-  "PAL",
-  "NTSC",
-  "SECAM",
-  "NTSC_M",
-  "NTSC_M_JP",
-  "NTSC_443",
-  "NTSC_M_KR",
-  "PAL_M",
-  "PAL_N",
-  "PAL_NC",
-  "PAL_B",
-  "PAL_B1",
-  "PAL_G",
-  "PAL_BG",
-  "PAL_D",
-  "PAL_D1",
-  "PAL_K",
-  "PAL_DK",
-  "PAL_H",
-  "PAL_I",
-  "PAL_60",
-  "SECAM_B",
-  "SECAM_D",
-  "SECAM_G",
-  "SECAM_H",
-  "SECAM_K",
-  "SECAM_K1",
-  "SECAM_DK",
-  "SECAM_L",
-  "SECAM_LC"
-};
-
-cPvrSourceParam::cPvrSourceParam()
-:cSourceParam(sSourceID, "analog (pvrinput)")
-{
-  param = 0;
-  input = 0;
-  standard = 0;
-  card = 0;
-}
-
-cString cPvrSourceParam::ParametersToString(void) const
-{
-  if ((standard == 0) && (card == 0))
-     return cString::sprintf("%s", sInputs[input]);
-  if ((standard == 0) && (card != 0))
-     return cString::sprintf("%s|%s", sInputs[input], sCards[card]);
-  if ((standard != 0) && (card == 0))
-     return cString::sprintf("%s|%s", sInputs[input], sStandards[standard]);
-  return cString::sprintf("%s|%s|%s", sInputs[input], sCards[card], sStandards[standard]);
-}
-
-void    cPvrSourceParam::ParseParameters(const char *Parameters)
-{
-  char *Input     = NULL;
-  char *optArg[2] = { NULL, NULL };
-  int NumArgs = sscanf(Parameters, "%a[^|]|%a[^|]|%a[^:\n]", &Input, &optArg[0], &optArg[1]);
-  input = 0;
-  card = 0;
-  standard = 0;
-  if (NumArgs >= 1) {
-    for (int i = 0; i < sNumInputs; i++) {
-      if (!strcasecmp(Input, sInputs[i])) {
-        input = i;
-        break;
-      }
-    }
-  }
-  for (int opt = 0; opt < 2; opt++) {
-    if (NumArgs >= (opt + 2)) {
-      bool parsed = false;
-      for (int c = 1; c < sNumCards; c++) {
-        if (!strcasecmp(optArg[opt], sCards[c])) {
-          card = c;
-          parsed = true;
-          break;
-        }
-      }
-      if (!parsed) {
-        for (int s = 1; s < sNumStandards; s++) {
-          if (!strcasecmp(optArg[opt], sStandards[s])) {
-            standard = s;
-            break;
-          }
-        }
-      }
-    }
-  }
-}
-
-void cPvrSourceParam::SetData(cChannel *Channel)
-{
-  ParseParameters(Channel->Parameters());
-  param = 0;
-}
-
-void cPvrSourceParam::GetData(cChannel *Channel)
-{
-  Channel->SetTransponderData(Channel->Source(), Channel->Frequency(), Channel->Srate(), ParametersToString(), true);
-}
-
-cOsdItem *cPvrSourceParam::GetOsdItem(void)
-{
-  switch (param++) {
-    case 0: return new cMenuEditStraItem(tr("SourceParam.pvrinput$Input"), &input, sNumInputs, sInputs);
-    case 1: return new cMenuEditStraItem(tr("SourceParam.pvrinput$Card"), &card, sNumCards, sCards);
-    case 2: return new cMenuEditStraItem(tr("SourceParam.pvrinput$Standard"), &standard, sNumStandards, sStandards);
-    default: return NULL;
-  }
-  return NULL;
-}
-
-bool cPvrSourceParam::IsPvr(int Code)
-{
-  return (Code & cSource::st_Mask) == stPvr;
-}
-#endif
-
-static void cPvrSourceParam_Initialize()
-{
-#ifdef PVR_SOURCEPARAMS
-  new cPvrSourceParam();
-#endif
-}
-
 cPvrDevice::cPvrDevice(int DeviceNumber)
 : number(DeviceNumber),
   CurrentNorm(0), //uint64_t can't be negative
@@ -434,7 +252,9 @@ bool cPvrDevice::Probe(int DeviceNumber)
 bool cPvrDevice::Initialize(void)
 {
   int found = 0;
-  cPvrSourceParam_Initialize();
+#ifdef PVR_SOURCEPARAMS
+  new cPvrSourceParam();
+#endif
   for (int i = 0; i < kMaxPvrDevices; i++) {
     PvrDevices[i] = NULL;
     if (Probe(i)) {
@@ -829,140 +649,38 @@ bool cPvrDevice::ParseChannel(const cChannel *Channel, int *input, uint64_t *nor
   *LinesPerFrame = CurrentLinesPerFrame; //see above
   *input = -1;
   if (Channel->IsCable() && Channel->Ca() == 0xA1) {
-    Skins.Message(mtError, tr("pvrinput no longer supports old channel syntax!"), 2);
-    log(pvrERROR, "cPvrDevice::pvrinput no longer supports old channel syntax!");
-    }
+     Skins.Message(mtError, tr("pvrinput no longer supports old channel syntax!"), 2);
+     log(pvrERROR, "cPvrDevice::pvrinput no longer supports old channel syntax!");
+     return false;
+     }
 #ifdef PVR_SOURCEPARAMS
   if (cPvrSourceParam::IsPvr(Channel->Source())) {
-    const char *str = Channel->Parameters();
-    const char *PluginId = "PVRINPUT";
-    char *Input    = NULL;
-    char *optArg1  = NULL;
-    char *optArg2  = NULL;
-    int NumArgs = 1 + sscanf(str, "%a[^|]|%a[^|]|%a[^:\n]", &Input, &optArg1, &optArg2);
+     const char *str = Channel->Parameters();
 #else
   if (Channel->IsPlug()) {
-    const char *str = Channel->PluginParam();
-    char *PluginId = NULL;
-    char *Input    = NULL;
-    char *optArg1  = NULL;
-    char *optArg2  = NULL;
-    int NumArgs = sscanf(str, "%a[^|]|%a[^|]|%a[^|]|%a[^:\n]", &PluginId, &Input, &optArg1, &optArg2);
+     const char *str = Channel->PluginParam();
 #endif
 
-    if (NumArgs >= 2) {
-      if (strcasecmp(PluginId, "PVRINPUT"))
-         return false;
-      log(pvrDEBUG1, "cPvrDevice::ParseChannel: using iptv channel syntax.");
-      *vpid = Channel->Vpid();
-      *apid = Channel->Apid(0);
-      *tpid = Channel->Tpid();
-      if      (!strcasecmp (Input, "RADIO"))           *inputType = eRadio;
-      else if (!strcasecmp (Input, "TV"))              *inputType = eTelevision;
-      else if (!strncasecmp(Input, "COMPOSITE", 9))    *inputType = eExternalInput;
-      else if (!strncasecmp(Input, "SVIDEO", 6))       *inputType = eExternalInput;
-      else if (!strncasecmp(Input, "COMPONENT", 9))    *inputType = eExternalInput;
-      else return false;
-      if      (!strcasecmp (Input, "TV"))              *input = inputs[eTelevision];
-      else if (!strcasecmp (Input, "RADIO"))           *input = inputs[eRadio];
-      else if (!strcasecmp (Input, "COMPOSITE0"))      *input = inputs[eComposite0];
-      else if (!strcasecmp (Input, "COMPOSITE1"))      *input = inputs[eComposite1];
-      else if (!strcasecmp (Input, "COMPOSITE2"))      *input = inputs[eComposite2];
-      else if (!strcasecmp (Input, "COMPOSITE3"))      *input = inputs[eComposite3];
-      else if (!strcasecmp (Input, "COMPOSITE4"))      *input = inputs[eComposite4];
-      else if (!strcasecmp (Input, "COMPOSITE"))       *input = inputs[eComposite0];
-      else if (!strcasecmp (Input, "SVIDEO0"))         *input = inputs[eSVideo0];
-      else if (!strcasecmp (Input, "SVIDEO1"))         *input = inputs[eSVideo1];
-      else if (!strcasecmp (Input, "SVIDEO2"))         *input = inputs[eSVideo2];
-      else if (!strcasecmp (Input, "SVIDEO3"))         *input = inputs[eSVideo3];
-      else if (!strcasecmp (Input, "SVIDEO"))          *input = inputs[eSVideo0];
-      else if (!strcasecmp (Input, "COMPONENT"))       *input = inputs[eComponent];
-      else return false; //unknown
-      if (NumArgs > 2) { /* only if optional arg norm or card given */
-        if      (!strcasecmp  (optArg1, "PAL"))        { *norm = V4L2_STD_PAL;       *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "NTSC" ))      { *norm = V4L2_STD_NTSC;      *LinesPerFrame = 525; }
-        else if (!strcasecmp  (optArg1, "SECAM"))      { *norm = V4L2_STD_SECAM;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "NTSC_M"))     { *norm = V4L2_STD_NTSC_M;    *LinesPerFrame = 525; }
-        else if (!strcasecmp  (optArg1, "NTSC_M_JP"))  { *norm = V4L2_STD_NTSC_M_JP; *LinesPerFrame = 525; }
-        else if (!strcasecmp  (optArg1, "NTSC_443"))   { *norm = V4L2_STD_NTSC_443;  *LinesPerFrame = 525; }
-        else if (!strcasecmp  (optArg1, "NTSC_M_KR"))  { *norm = V4L2_STD_NTSC_M_KR; *LinesPerFrame = 525; }
-        else if (!strcasecmp  (optArg1, "PAL_M"))      { *norm = V4L2_STD_PAL_M;     *LinesPerFrame = 525; }
-        else if (!strcasecmp  (optArg1, "PAL_N"))      { *norm = V4L2_STD_PAL_N;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "PAL_NC"))     { *norm = V4L2_STD_PAL_Nc;    *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "PAL_B"))      { *norm = V4L2_STD_PAL_B;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "PAL_B1"))     { *norm = V4L2_STD_PAL_B1;    *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "PAL_G"))      { *norm = V4L2_STD_PAL_G;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "PAL_BG"))     { *norm = V4L2_STD_PAL_BG;    *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "PAL_D"))      { *norm = V4L2_STD_PAL_D;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "PAL_D1"))     { *norm = V4L2_STD_PAL_D1;    *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "PAL_K"))      { *norm = V4L2_STD_PAL_K;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "PAL_DK"))     { *norm = V4L2_STD_PAL_DK;    *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "PAL_H"))      { *norm = V4L2_STD_PAL_H;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "PAL_I"))      { *norm = V4L2_STD_PAL_I;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "PAL_60"))     { *norm = V4L2_STD_PAL_60;    *LinesPerFrame = 525; }
-        else if (!strcasecmp  (optArg1, "SECAM_B"))    { *norm = V4L2_STD_SECAM_B;   *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "SECAM_D"))    { *norm = V4L2_STD_SECAM_D;   *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "SECAM_G"))    { *norm = V4L2_STD_SECAM_G;   *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "SECAM_H"))    { *norm = V4L2_STD_SECAM_H;   *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "SECAM_K"))    { *norm = V4L2_STD_SECAM_K;   *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "SECAM_K1"))   { *norm = V4L2_STD_SECAM_K1;  *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "SECAM_DK"))   { *norm = V4L2_STD_SECAM_DK;  *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "SECAM_L"))    { *norm = V4L2_STD_SECAM_L;   *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg1, "SECAM_LC"))   { *norm = V4L2_STD_SECAM_LC;  *LinesPerFrame = 625; }
-        if      (!strcasecmp  (optArg1, "CARD0"))      *card = 0;
-        else if (!strcasecmp  (optArg1, "CARD1"))      *card = 1;
-        else if (!strcasecmp  (optArg1, "CARD2"))      *card = 2;
-        else if (!strcasecmp  (optArg1, "CARD3"))      *card = 3;
-        else if (!strcasecmp  (optArg1, "CARD4"))      *card = 4;
-        else if (!strcasecmp  (optArg1, "CARD5"))      *card = 5;
-        else if (!strcasecmp  (optArg1, "CARD6"))      *card = 6;
-        else if (!strcasecmp  (optArg1, "CARD7"))      *card = 7;
+     int inputIndex = 0;
+     int standardIndex = 0;
+     int cardIndex = 0;
+     if (!cPvrSourceParam::ParseParameters(str, &inputIndex, &standardIndex, &cardIndex))
+        return false;
+     *input = inputs[cPvrSourceParam::sInputType[inputIndex]];
+     *inputType = cPvrSourceParam::sInputType[inputIndex];
+     if ((*inputType != eTelevision) && (*inputType != eRadio))
+        *inputType = eExternalInput;
+     if (standardIndex > 0) {
+        *norm = cPvrSourceParam::sStandardNorm[standardIndex];
+        *LinesPerFrame = cPvrSourceParam::sStandardLinesPerFrame[standardIndex];
         }
-      if (NumArgs > 3) { /* only if optional arg norm or card given */
-        if      (!strcasecmp  (optArg2, "PAL"))        { *norm = V4L2_STD_PAL;       *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "NTSC" ))      { *norm = V4L2_STD_NTSC;      *LinesPerFrame = 525; }
-        else if (!strcasecmp  (optArg2, "SECAM"))      { *norm = V4L2_STD_SECAM;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "NTSC_M"))     { *norm = V4L2_STD_NTSC_M;    *LinesPerFrame = 525; }
-        else if (!strcasecmp  (optArg2, "NTSC_M_JP"))  { *norm = V4L2_STD_NTSC_M_JP; *LinesPerFrame = 525; }
-        else if (!strcasecmp  (optArg2, "NTSC_443"))   { *norm = V4L2_STD_NTSC_443;  *LinesPerFrame = 525; }
-        else if (!strcasecmp  (optArg2, "NTSC_M_KR"))  { *norm = V4L2_STD_NTSC_M_KR; *LinesPerFrame = 525; }
-        else if (!strcasecmp  (optArg2, "PAL_M"))      { *norm = V4L2_STD_PAL_M;     *LinesPerFrame = 525; }
-        else if (!strcasecmp  (optArg2, "PAL_N"))      { *norm = V4L2_STD_PAL_N;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "PAL_NC"))     { *norm = V4L2_STD_PAL_Nc;    *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "PAL_B"))      { *norm = V4L2_STD_PAL_B;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "PAL_B1"))     { *norm = V4L2_STD_PAL_B1;    *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "PAL_G"))      { *norm = V4L2_STD_PAL_G;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "PAL_BG"))     { *norm = V4L2_STD_PAL_BG;    *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "PAL_D"))      { *norm = V4L2_STD_PAL_D;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "PAL_D1"))     { *norm = V4L2_STD_PAL_D1;    *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "PAL_K"))      { *norm = V4L2_STD_PAL_K;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "PAL_DK"))     { *norm = V4L2_STD_PAL_DK;    *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "PAL_H"))      { *norm = V4L2_STD_PAL_H;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "PAL_I"))      { *norm = V4L2_STD_PAL_I;     *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "PAL_60"))     { *norm = V4L2_STD_PAL_60;    *LinesPerFrame = 525; }
-        else if (!strcasecmp  (optArg2, "SECAM_B"))    { *norm = V4L2_STD_SECAM_B;   *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "SECAM_D"))    { *norm = V4L2_STD_SECAM_D;   *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "SECAM_G"))    { *norm = V4L2_STD_SECAM_G;   *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "SECAM_H"))    { *norm = V4L2_STD_SECAM_H;   *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "SECAM_K"))    { *norm = V4L2_STD_SECAM_K;   *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "SECAM_K1"))   { *norm = V4L2_STD_SECAM_K1;  *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "SECAM_DK"))   { *norm = V4L2_STD_SECAM_DK;  *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "SECAM_L"))    { *norm = V4L2_STD_SECAM_L;   *LinesPerFrame = 625; }
-        else if (!strcasecmp  (optArg2, "SECAM_LC"))   { *norm = V4L2_STD_SECAM_LC;  *LinesPerFrame = 625; }
-        if      (!strcasecmp  (optArg2, "CARD0"))      *card = 0;
-        else if (!strcasecmp  (optArg2, "CARD1"))      *card = 1;
-        else if (!strcasecmp  (optArg2, "CARD2"))      *card = 2;
-        else if (!strcasecmp  (optArg2, "CARD3"))      *card = 3;
-        else if (!strcasecmp  (optArg2, "CARD4"))      *card = 4;
-        else if (!strcasecmp  (optArg2, "CARD5"))      *card = 5;
-        else if (!strcasecmp  (optArg2, "CARD6"))      *card = 6;
-        else if (!strcasecmp  (optArg2, "CARD7"))      *card = 7;
-        }
-      log(pvrDEBUG2, "ParseChannel %s input %d, norm=0x%08llx, card %d",
-          (*inputType == eRadio) ? "Radio" : (*inputType == eTelevision) ? "TV" : "Ext", *input, *norm, *card);
-      return true;
-      }
-    }
+     if (cardIndex > 0)
+        *card = cardIndex - 1;
+
+     log(pvrDEBUG2, "ParseChannel %s input %d, norm=0x%08llx, card %d",
+         (*inputType == eRadio) ? "Radio" : (*inputType == eTelevision) ? "TV" : "Ext", *input, *norm, *card);
+     return true;
+     }
   return false;
 }
 

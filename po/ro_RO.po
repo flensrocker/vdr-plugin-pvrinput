@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ro_RO\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2010-03-07 11:36+0100\n"
+"POT-Creation-Date: 2010-03-21 21:18+0100\n"
 "PO-Revision-Date: 2009-06-02 22:59+0200\n"
 "Last-Translator: root\n"
 "Language-Team:  <de@li.org>\n"
@@ -20,15 +20,6 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-15\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
-
-msgid "SourceParam.pvrinput$Input"
-msgstr ""
-
-msgid "SourceParam.pvrinput$Card"
-msgstr ""
-
-msgid "SourceParam.pvrinput$Standard"
-msgstr ""
 
 msgid "pvrinput no longer supports old channel syntax!"
 msgstr ""
@@ -207,6 +198,15 @@ msgstr "Reglaje imagine PVR"
 
 msgid "Setup.pvrinput$Not on an analogue channel!"
 msgstr "Canalul nu este receptionat cu placa PVR!"
+
+msgid "SourceParam.pvrinput$Input"
+msgstr ""
+
+msgid "SourceParam.pvrinput$Card"
+msgstr ""
+
+msgid "SourceParam.pvrinput$Standard"
+msgstr ""
 
 #, fuzzy
 #~ msgid "Setup.pvrinput$PVRUSB2 Stop on Change"

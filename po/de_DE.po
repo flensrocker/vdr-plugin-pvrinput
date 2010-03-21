@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de_DE\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2010-03-07 11:36+0100\n"
+"POT-Creation-Date: 2010-03-21 21:18+0100\n"
 "PO-Revision-Date: 2009-10-11 22:39+0200\n"
 "Last-Translator: root\n"
 "Language-Team:  <de@li.org>\n"
@@ -18,15 +18,6 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-15\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
-
-msgid "SourceParam.pvrinput$Input"
-msgstr "Eingang"
-
-msgid "SourceParam.pvrinput$Card"
-msgstr "Karte"
-
-msgid "SourceParam.pvrinput$Standard"
-msgstr "Standard"
 
 msgid "pvrinput no longer supports old channel syntax!"
 msgstr "pvrinput unterstützt alte Kanalsyntax nicht mehr!"
@@ -195,6 +186,15 @@ msgstr "PVR Bildeinstellungen "
 
 msgid "Setup.pvrinput$Not on an analogue channel!"
 msgstr "Kein analog empfangener Sender!"
+
+msgid "SourceParam.pvrinput$Input"
+msgstr "Eingang"
+
+msgid "SourceParam.pvrinput$Card"
+msgstr "Karte"
+
+msgid "SourceParam.pvrinput$Standard"
+msgstr "Standard"
 
 #~ msgid "Setup.pvrinput$PVRUSB2 Stop on Change"
 #~ msgstr "PVRUSB2 Stop bei Kanalwechsel"
