@@ -26,7 +26,7 @@ private:
   int input;
   int standard;
   int card;
-  cChannel data;
+
 public:
   cPvrSourceParam();
   cString ParametersToString(void) const;
@@ -137,7 +137,7 @@ void    cPvrSourceParam::ParseParameters(const char *Parameters)
   card = 0;
   standard = 0;
   if (NumArgs >= 1) {
-    for (int i = 0; sInputs[i]; i++) {
+    for (int i = 0; i < sNumInputs; i++) {
       if (!strcasecmp(Input, sInputs[i])) {
         input = i;
         break;
@@ -147,7 +147,7 @@ void    cPvrSourceParam::ParseParameters(const char *Parameters)
   for (int opt = 0; opt < 2; opt++) {
     if (NumArgs >= (opt + 2)) {
       bool parsed = false;
-      for (int c = 1; sCards[c]; c++) {
+      for (int c = 1; c < sNumCards; c++) {
         if (!strcasecmp(optArg[opt], sCards[c])) {
           card = c;
           parsed = true;
@@ -155,7 +155,7 @@ void    cPvrSourceParam::ParseParameters(const char *Parameters)
         }
       }
       if (!parsed) {
-        for (int s = 1; sStandards[s]; s++) {
+        for (int s = 1; s < sNumStandards; s++) {
           if (!strcasecmp(optArg[opt], sStandards[s])) {
             standard = s;
             break;
@@ -168,15 +168,13 @@ void    cPvrSourceParam::ParseParameters(const char *Parameters)
 
 void cPvrSourceParam::SetData(cChannel *Channel)
 {
-  data = *Channel;
-  ParseParameters(data.Parameters());
+  ParseParameters(Channel->Parameters());
   param = 0;
 }
 
 void cPvrSourceParam::GetData(cChannel *Channel)
 {
-  data.SetTransponderData(Channel->Source(), Channel->Frequency(), Channel->Srate(), ParametersToString(), true);
-  *Channel = data;
+  Channel->SetTransponderData(Channel->Source(), Channel->Frequency(), Channel->Srate(), ParametersToString(), true);
 }
 
 cOsdItem *cPvrSourceParam::GetOsdItem(void)
