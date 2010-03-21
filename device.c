@@ -1295,7 +1295,7 @@ bool cPvrDevice::ProvidesChannel(const cChannel *Channel, int Priority, bool *Ne
            return false;
            }
     }
-  if (Channel->Frequency() >= 87500 && Channel->Frequency() <= 108000) {
+  if (inputType == eRadio) {
     if (radio_dev < 0) {
       log(pvrDEBUG1, "cPvrDevice::ProvidesChannel: /dev/video%d (%s) has no radio", number, CARDNAME[cardname]);
       return false;
