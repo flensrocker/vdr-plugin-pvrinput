@@ -859,9 +859,9 @@ bool cPvrDevice::ParseChannel(const cChannel *Channel, int *input, uint64_t *nor
       *tpid = Channel->Tpid();
       if      (!strcasecmp (Input, "RADIO"))           *inputType = eRadio;
       else if (!strcasecmp (Input, "TV"))              *inputType = eTelevision;
-      else if (!strncasecmp(Input, "COMPOSITE",9))     *inputType = eExternalInput;
-      else if (!strncasecmp(Input, "SVIDEO",6))        *inputType = eExternalInput;
-      else if (!strncasecmp(Input, "COMPONENT",9))     *inputType = eExternalInput;
+      else if (!strncasecmp(Input, "COMPOSITE", 9))    *inputType = eExternalInput;
+      else if (!strncasecmp(Input, "SVIDEO", 6))       *inputType = eExternalInput;
+      else if (!strncasecmp(Input, "COMPONENT", 9))    *inputType = eExternalInput;
       else return false;
       if      (!strcasecmp (Input, "TV"))              *input = inputs[eTelevision];
       else if (!strcasecmp (Input, "RADIO"))           *input = inputs[eRadio];
