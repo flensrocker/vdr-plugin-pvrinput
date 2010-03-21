@@ -163,18 +163,18 @@ static bool GetPMT(unsigned char *PMT, int Sid, bool WithTeletext, bool Increase
     }
   int crc_offset = 0;
   if (WithTeletext) {
-    memcpy( PMT, kPMTwithTeletext, TS_SIZE);
+    memcpy(PMT, kPMTwithTeletext, TS_SIZE);
     crc_offset = 40;
     }
   else {
-    memcpy( PMT, kPMTwithoutTeletext, TS_SIZE);
+    memcpy(PMT, kPMTwithoutTeletext, TS_SIZE);
     crc_offset = 33;
     }
   PMT[3] = (PMT[3] & 0xf0) | cont_counter;
   PMT[8] = (Sid >> 8) & 0xFF;
   PMT[9] = Sid & 0xFF;
   PMT[10] = next_version;
-  int crc = SI::CRC32::crc32((const char *)(PMT + 5), crc_offset - 5, 0xFFFFFFFF);
+  int crc = SI::CRC32::crc32((const char*)(PMT + 5), crc_offset - 5, 0xFFFFFFFF);
   PMT[crc_offset] = crc >> 24;
   PMT[crc_offset + 1] = crc >> 16;
   PMT[crc_offset + 2] = crc >> 8;
@@ -539,7 +539,7 @@ void cPvrReadThread::Action(void)
     pat_buffer[9] = tid & 0xFF;
     pat_buffer[13] = (sid >> 8) & 0xFF;
     pat_buffer[14] = sid & 0xFF;
-    int crc = SI::CRC32::crc32((const char *)(pat_buffer + 5), 12, 0xFFFFFFFF);
+    int crc = SI::CRC32::crc32((const char*)(pat_buffer + 5), 12, 0xFFFFFFFF);
     pat_buffer[17] = crc >> 24;
     pat_buffer[18] = crc >> 16;
     pat_buffer[19] = crc >> 8;
@@ -549,7 +549,7 @@ void cPvrReadThread::Action(void)
       memcpy(pmt_buffer, kPMTRadio, TS_SIZE);
       pmt_buffer[8] = (sid >> 8) & 0xFF;
       pmt_buffer[9] = sid & 0xFF;
-      crc = SI::CRC32::crc32((const char *)(pmt_buffer + 5), 23, 0xFFFFFFFF);
+      crc = SI::CRC32::crc32((const char*)(pmt_buffer + 5), 23, 0xFFFFFFFF);
       pmt_buffer[28] = crc >> 24;
       pmt_buffer[29] = crc >> 16;
       pmt_buffer[30] = crc >> 8;
