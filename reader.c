@@ -244,7 +244,7 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
   uint32_t Payload_Rest   = Length % PayloadSize;
   stream_id = Data[3];
 
-  if ((stream_id == 0xBD) && !pmt_has_teletext) {
+  if ((stream_id == 0xBD) && !pmt_has_teletext && (parent->CurrentInputType != eRadio)) {
     pmt_has_teletext = GetPMT(pmt_buffer, parent->CurrentChannel.Sid(), true, true);
     packet_counter = 0;
     }
