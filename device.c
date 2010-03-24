@@ -90,7 +90,7 @@ cPvrDevice::cPvrDevice(int DeviceNumber)
       This was fixed in v4l-dvb hg in 01/2009 and will hopefully be in Kernel 2.6.30*/
     SupportsSlicedVBI = true;
     VBIDeviceCount++;
-    log(pvrDEBUG1, "%s supports sliced VBI Capture, total number of VBI capable devices is now &d", *devName, VBIDeviceCount);
+    log(pvrDEBUG1, "%s supports sliced VBI Capture, total number of VBI capable devices is now %d", *devName, VBIDeviceCount);
     }
   if (video_vcap.capabilities & V4L2_CAP_VIDEO_OUTPUT_OVERLAY)
      hasDecoder = true; //can only be a PVR350
