@@ -153,34 +153,6 @@ const unsigned char kInvTab[256] = {
   0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff,
 };
 
-static bool GetPMT(unsigned char *PMT, int Sid, bool WithTeletext, bool IncreaseVersion)
-{
-  uint8_t cont_counter = 0;
-  uint8_t next_version = 0;
-  if (IncreaseVersion) {
-    cont_counter = PMT[3] & 0x0f;
-    next_version = (PMT[10] + 2) | 0xc1;
-    }
-  int crc_offset = 0;
-  if (WithTeletext) {
-    memcpy(PMT, kPMTwithTeletext, TS_SIZE);
-    crc_offset = 40;
-    }
-  else {
-    memcpy(PMT, kPMTwithoutTeletext, TS_SIZE);
-    crc_offset = 33;
-    }
-  PMT[3] = (PMT[3] & 0xf0) | cont_counter;
-  PMT[8] = (Sid >> 8) & 0xFF;
-  PMT[9] = Sid & 0xFF;
-  PMT[10] = next_version;
-  int crc = SI::CRC32::crc32((const char*)(PMT + 5), crc_offset - 5, 0xFFFFFFFF);
-  PMT[crc_offset] = crc >> 24;
-  PMT[crc_offset + 1] = crc >> 16;
-  PMT[crc_offset + 2] = crc >> 8;
-  PMT[crc_offset + 3] = crc;
-  return WithTeletext;
-}
 
 cPvrReadThread::cPvrReadThread(cRingBufferLinear *TsBuffer, cPvrDevice *_parent)
 : tsBuffer(TsBuffer),
@@ -243,11 +215,6 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
   uint32_t Payload_Count  = Length / PayloadSize;
   uint32_t Payload_Rest   = Length % PayloadSize;
   stream_id = Data[3];
-
-  if ((stream_id == 0xBD) && !pmt_has_teletext && (parent->CurrentInputType != eRadio)) {
-    pmt_has_teletext = GetPMT(pmt_buffer, parent->CurrentChannel.Sid(), true, true);
-    packet_counter = 0;
-    }
 
   if (packet_counter <= 0) { // time to send PAT and PMT
      // increase continuity counter
@@ -545,18 +512,26 @@ void cPvrReadThread::Action(void)
     pat_buffer[19] = crc >> 8;
     pat_buffer[20] = crc;
 
+    int crc_offset = 0;
     if (parent->CurrentInputType == eRadio) {
       memcpy(pmt_buffer, kPMTRadio, TS_SIZE);
-      pmt_buffer[8] = (sid >> 8) & 0xFF;
-      pmt_buffer[9] = sid & 0xFF;
-      crc = SI::CRC32::crc32((const char*)(pmt_buffer + 5), 23, 0xFFFFFFFF);
-      pmt_buffer[28] = crc >> 24;
-      pmt_buffer[29] = crc >> 16;
-      pmt_buffer[30] = crc >> 8;
-      pmt_buffer[31] = crc;
+      crc_offset = 28;
       }
-    else
-      pmt_has_teletext = GetPMT(pmt_buffer, sid, false, false);
+    else if (cPvrDevice::VBIDeviceCount > 0) {
+      memcpy(pmt_buffer, kPMTwithTeletext, TS_SIZE);
+      crc_offset = 40;
+      }
+    else {
+      memcpy(pmt_buffer, kPMTwithoutTeletext, TS_SIZE);
+      crc_offset = 33;
+      }
+    pmt_buffer[8] = (sid >> 8) & 0xFF;
+    pmt_buffer[9] = sid & 0xFF;
+    crc = SI::CRC32::crc32((const char*)(pmt_buffer + 5), crc_offset - 5, 0xFFFFFFFF);
+    pmt_buffer[crc_offset] = crc >> 24;
+    pmt_buffer[crc_offset + 1] = crc >> 16;
+    pmt_buffer[crc_offset + 2] = crc >> 8;
+    pmt_buffer[crc_offset + 3] = crc;
     }
   retry:
   while (Running() && parent->readThreadRunning) {

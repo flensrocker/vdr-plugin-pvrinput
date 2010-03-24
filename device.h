@@ -55,6 +55,7 @@ class cPvrDevice : public cDevice {
 private:
   static bool Probe(int DeviceNumber);
   static cString externChannelSwitchScript;
+  static int VBIDeviceCount;
 
 public:
   static bool Initialize(void);

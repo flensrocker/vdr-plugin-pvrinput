@@ -18,6 +18,7 @@ char CARDNAME[][9] = {
 cPvrDevice *PvrDevices[kMaxPvrDevices];
 
 cString cPvrDevice::externChannelSwitchScript;
+int     cPvrDevice::VBIDeviceCount = 0;
 
 cPvrDevice::cPvrDevice(int DeviceNumber)
 : number(DeviceNumber),
@@ -88,7 +89,8 @@ cPvrDevice::cPvrDevice(int DeviceNumber)
     /*The pvrusb2 driver advertises vbi capability, although it isn't there.
       This was fixed in v4l-dvb hg in 01/2009 and will hopefully be in Kernel 2.6.30*/
     SupportsSlicedVBI = true;
-    log(pvrDEBUG1, "%s supports sliced VBI Capture", *devName);
+    VBIDeviceCount++;
+    log(pvrDEBUG1, "%s supports sliced VBI Capture, total number of VBI capable devices is now &d", *devName, VBIDeviceCount);
     }
   if (video_vcap.capabilities & V4L2_CAP_VIDEO_OUTPUT_OVERLAY)
      hasDecoder = true; //can only be a PVR350
@@ -252,6 +254,7 @@ bool cPvrDevice::Probe(int DeviceNumber)
 bool cPvrDevice::Initialize(void)
 {
   int found = 0;
+  VBIDeviceCount = 0;
 #ifdef PVR_SOURCEPARAMS
   new cPvrSourceParam();
 #endif
