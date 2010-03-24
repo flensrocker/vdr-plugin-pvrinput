@@ -517,7 +517,7 @@ void cPvrReadThread::Action(void)
       memcpy(pmt_buffer, kPMTRadio, TS_SIZE);
       crc_offset = 28;
       }
-    else if (cPvrDevice::VBIDeviceCount > 0) {
+    else if ((PvrSetup.SliceVBI != 0) && (cPvrDevice::VBIDeviceCount > 0)) {
       memcpy(pmt_buffer, kPMTwithTeletext, TS_SIZE);
       crc_offset = 40;
       }
