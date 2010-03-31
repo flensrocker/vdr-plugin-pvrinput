@@ -1,6 +1,12 @@
 VDR Plugin 'pvrinput' Revision History
 --------------------------------------
 
+2010-03-27-rc1 (mini73)
+- rework teletext handling so no retuning is needed
+- add script for conversion of plugin-param-patch-channels to
+  new vdr syntax with source 'V'
+- update README
+
 1.7.1-rc1-9 (mini73)
 - send no video packets for radio channels
 - fix teletext descriptor in PMT
