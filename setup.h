@@ -20,6 +20,7 @@ public:
   int AudioVolumeTVExceptionCard;
   int UseExternChannelSwitchScript;
   int ExternChannelSwitchSleep;
+  int ReadBufferSizeKB;
   int TsBufferSizeMB;
   int TsBufferPrefillRatio;
   valSet Brightness;

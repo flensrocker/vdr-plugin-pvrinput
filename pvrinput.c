@@ -6,7 +6,7 @@
 #endif
 #endif
 
-static const char *VERSION        = "2010-03-27-rc1";
+static const char *VERSION        = "2010-04-01-rc1";
 static const char *DESCRIPTION    = tr("use Hauppauge PVR as input device");
 static const char *MAINMENUENTRY  = tr("PVR picture settings");
 
@@ -130,6 +130,7 @@ bool cPluginPvrInput::SetupParse(const char *Name, const char *Value)
   else if (!strcasecmp(Name, "FilterChromaMedianBottom"))     PvrSetup.FilterChromaMedianBottom.value = atoi(Value);
   else if (!strcasecmp(Name, "FilterChromaMedianTop"))        PvrSetup.FilterChromaMedianTop.value    = atoi(Value);
   else if (!strcasecmp(Name, "HideMainMenuEntry"))            PvrSetup.HideMainMenuEntry              = atoi(Value);
+  else if (!strcasecmp(Name, "ReadBufferSizeKB"))             PvrSetup.ReadBufferSizeKB               = atoi(Value);
   else if (!strcasecmp(Name, "TsBufferSizeMB"))               PvrSetup.TsBufferSizeMB                 = atoi(Value);
   else if (!strcasecmp(Name, "TsBufferPrefillRatio"))         PvrSetup.TsBufferPrefillRatio           = atoi(Value);
   else if (!strcasecmp(Name, "UseExternChannelSwitchScript")) PvrSetup.UseExternChannelSwitchScript   = atoi(Value);

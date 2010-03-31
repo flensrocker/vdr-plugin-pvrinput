@@ -1,7 +1,6 @@
 #include "common.h"
 #include <libsi/si.h>
 
-#define BUFFSIZE_INPUT 4096 * 16
 #define SENDPATPMT_PACKETINTERVAL 500
 
 
@@ -489,7 +488,8 @@ void cPvrReadThread::ParseProgramStream(uint8_t *Data, uint32_t Length)
 
 void cPvrReadThread::Action(void)
 {
-  unsigned char buffer[BUFFSIZE_INPUT];
+  int bufferSize = PvrSetup.ReadBufferSizeKB * 1024;
+  uint8_t *buffer = new uint8_t[bufferSize];
   int r;
   int retries = 3;
   log(pvrDEBUG1,"cPvrReadThread::Action(): Entering Action()");
@@ -535,7 +535,7 @@ void cPvrReadThread::Action(void)
     }
   retry:
   while (Running() && parent->readThreadRunning) {
-    r = read(parent->v4l2_fd, buffer, BUFFSIZE_INPUT);
+    r = read(parent->v4l2_fd, buffer, bufferSize);
     if (r < 0) {
       log(pvrERROR, "cPvrReadThread::Action():error reading from /dev/video%d: %d:%s %s",
           parent->number, errno, strerror(errno), (--retries > 0) ? " - retrying" : "");
@@ -552,6 +552,7 @@ void cPvrReadThread::Action(void)
         ParseProgramStream(buffer, r);
       }
     }
+  delete [] buffer;
   log(errno ? pvrERROR : pvrDEBUG2, "cPvrReadThread::Action() %s on /dev/video%d ",
       errno ? "failed" : "stopped", parent->number);
 }

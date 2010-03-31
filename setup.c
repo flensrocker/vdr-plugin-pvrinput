@@ -11,7 +11,8 @@ cPvrSetup::cPvrSetup(void)
   SliceVBI                       = 1;            // Slice VBI data into mpeg stream
   UseExternChannelSwitchScript   = 0;            // don't call externchannelswitch.sh on external inputs
   ExternChannelSwitchSleep       = 0;            // sleep x seconds after call of externchannelswitch.sh
-  TsBufferSizeMB                 = 3;            // ring buffer size
+  ReadBufferSizeKB               = 64;           // size of buffer for reader in KB
+  TsBufferSizeMB                 = 3;            // ring buffer size in MB
   TsBufferPrefillRatio           = 0;            // wait with delivering packets to vdr till buffer is filled
 /*  first initialization of all v4l2 controls,
   most values will be re-initialized later one

@@ -949,7 +949,7 @@ bool cPvrDevice::ProvidesSource(int Source) const
 #else
   if (cSource::IsPlug(Source)) {
 #endif
-    log(pvrDEBUG1, "cPvrDevice::ProvidesSource Source=%s -> true", (const char*)cSource::ToString(Source));
+    log(pvrDEBUG3, "cPvrDevice::ProvidesSource Source=%s -> true", (const char*)cSource::ToString(Source));
     return true;
     }
   return false;
