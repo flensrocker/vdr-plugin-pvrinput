@@ -68,11 +68,15 @@ channels.conf (vdr >= 1.7.13)
 With vdr version 1.7.13 the pluginparam-patch was integrated into vdr. With this
 change there has to be some adjustments to the channels.conf.
 The Source ID is now 'V' and the string "PVRINPUT|" must be omitted.
+For now wirbelscan and w_pvrscan can only output the "old" format for the
+plugin-param-patch. Use the channel-conv2.sh script at the example dir to convert
+the generated output to the new syntax.
 
 for example:
-RTL:217250:TV:V:0:301+101:300:305:0:12003:1:1089:0
+RTL:217250:TV:V:0:301+101:300:305:0:1:1:12003:0
 
 For a description of the possible parameters read the next section.
+Look at the file channels.conf_vdr-1.7.13-syntax.example in the example dir.
 
 channels.conf (vdr < 1.7.13)
 ----------------------------
@@ -220,12 +224,11 @@ recommended to use both maintenance patches (1.6.0-1 and 1.6.0-2).
 
 vdr-1.7.x
 ---------
-For now the 1.7-tree is only supported up to 1.7.12. In 1.7.13 the "plugin-param-
-patch" was integrated into the plain vdr, so there have to be made some adjustments
-in the plugin.
+With 1.7.13 the "plugin-param-patch" was integrated into the vdr, so check your
+channels.conf when upgrading to this version or up.
 
 pvrusb2 & channel switching
-----------------------------
+---------------------------
 To make channel switching smoother, we need to clear the encoder by stopping it
 and restart it after tuning is done. This allows to start exactly on an i-frame
 of the new channel, without audio/video interferences.
@@ -240,10 +243,9 @@ HVR 1900) have a different digitizer.
 A newer driver which fixes this problem is available: 
 http://www.isely.net/pipermail/pvrusb2/2010-February/002734.html
 
-This patches are in the main v4l-dvb hg and hopefully they make it into 2.6.34.
+These patches are in the main v4l-dvb hg and hopefully they make it into 2.6.34.
 
-You could also patch and recompile your pvrusb2 driver in
-a simpler way: 
+You could also patch and recompile your pvrusb2 driver in a simpler way: 
 
 --- v4l-dvb-309f16461cf4-orig/linux/drivers/media/video/pvrusb2/pvrusb2-hdw.c	
 2009-12-05 13:34:21.000000000 +0100
@@ -260,7 +262,7 @@ hdw.c	2009-12-24 22:42:49.746899065 +0100
 
 
 pvrusb2 & osdteletext
-----------------------
+---------------------
 The pvrusb2 driver does not support sliced vbi, so the osdteletext-plugin
 won't work.
 
@@ -287,7 +289,7 @@ card that is actually connected to an extern video source.
 (Note: you can also configure the card in the channels.conf)
 
 plugin settings
-----------------
+---------------
 The plugin calls the driver for its default values and sets them. Due to a
 driver bug, this can lead to wrong values. It was fixed for ivtv in v4l-dvb hg in
 July 2008. Have a look at  http://www.gossamer-threads.com/lists/ivtv/devel/38637.
@@ -374,13 +376,8 @@ card name.
 
 Using pvrinput and streamdev
 ----------------------------
-The TS stream produced by pvrinput does have a PCR now, but only fixed
-PAT/PMT tables if you use a vdr version < 1.7.1. So don't fool around with
-the PIDs...
-VLC won't accept a TS stream without PCR, PAT and PMT. Use PES streaming instead.
-It has been reported that Konqueror and dragonplayer can play a TS stream from
-streamdev even if it has no PCR and no PAT/PMT.
-This problem is still "under investigation"... :-)
+The TS stream produced by pvrinput does have valid PCR packets now, also the
+generated PAT and PMT are valid, so there should be no problem now.
 
 externchannelswitch
 -------------------
