@@ -31,16 +31,25 @@ do
   newparam=${param#*|}
 
   if [[ "$source" == "P" ]] && [[ "$pluginname" == "PVRINPUT" ]]; then
-    # split vpid in vpid, pcrpid and streamtype
-    vpcrpid=${vpid%%=*}
-    vtype=${vpid#*=}
-    realvpid=${vpcrpid%%+*}
-    pcrpid=${vpcrpid#*+}
-    if [[ -z "$vtype" ]]; then
-      vtype=2
-    fi
-    if [[ -z "$pcrpid" ]]; then
-      pcrpid=101
+    if [[ `expr index "$newparam" "RADIO"` -eq 1 ]]; then
+      newvpid=$vpid
+    else
+      # split vpid in vpid, pcrpid and streamtype
+      if [[ `expr index "$vpid" "="` -gt 0 ]]; then
+        vpcrpid=${vpid%%=*}
+        vtype=${vpid#*=}
+      else
+        vpcrpid=$vpid
+        vtype=2
+      fi
+      if [[ `expr index "$vpcrpid" "\+"` -gt 0 ]]; then
+        realvpid=${vpcrpid%%+*}
+        pcrpid=${vpcrpid#*+}
+      else
+        realvpid=$vpcrpid
+        pcrpid=101
+      fi
+      newvpid=$realvpid+$pcrpid=$vtype
     fi
 
     # if current sid is already 1 keep old tid
@@ -49,7 +58,7 @@ do
     fi
 
     # omit PVRINPUT from parameter, set source to V, set SID to 1 and old SID to TID
-    echo "$name:$freq:$newparam:V:$srate:$realvpid+$pcrpid=$vtype:$apid:$tpid:$caid:1:$nid:$sid:$rid" >> $NEWFILE
+    echo "$name:$freq:$newparam:V:$srate:$newvpid:$apid:$tpid:$caid:1:$nid:$sid:$rid" >> $NEWFILE
   else
     # non-pvrinput channel; copy n paste it
     echo "$name:$freq:$param:$source:$srate:$vpid:$apid:$tpid:$caid:$sid:$nid:$tid:$rid" >> $NEWFILE
