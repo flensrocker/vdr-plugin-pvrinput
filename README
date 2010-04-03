@@ -23,7 +23,6 @@ See the file COPYING for license information.
 
 Description:
 ------------
-
 This plugin uses a Hauppauge PVR card as an input device. All cards
 supported by the ivtv or pvrusb2 driver should work. This version of the plugin
 requires ivtv driver version 1.0 or higher. You need very current versions of
@@ -73,7 +72,7 @@ plugin-param-patch. Use the channel-conv2.sh script at the example dir to conver
 the generated output to the new syntax.
 
 for example:
-RTL:217250:TV:V:0:301+101:300:305:0:1:1:12003:0
+RTL:217250:TV:V:0:301+101=2:300:305:0:1:0:3476:0
 
 For a description of the possible parameters read the next section.
 Look at the file channels.conf_vdr-1.7.13-syntax.example in the example dir.
@@ -91,11 +90,11 @@ example dir as a reference for your own channels.conf.
  PCR PID: 101
 
 for example:
-RTL:217250:PVRINPUT|TV:P:0:301+101:300:305:0:12003:1:1089:0
-|      |   |           |    |   |   |   |  |    |  |   |
-|      |   |           |    |   |   |   |  |    |  |   --> Transport Stream ID
-|      |   |           |    |   |   |   |  |    |  |       (TID)
-|      |   |           |    |   |   |   |  |    |   --> Network ID (NID)
+RTL:217250:PVRINPUT|TV:P:0:301+101:300:305:0:3476:0:0:0
+|      |   |           |    |   |   |   |  |    | | |
+|      |   |           |    |   |   |   |  |    | | --> Transport Stream ID
+|      |   |           |    |   |   |   |  |    | |       (TID)
+|      |   |           |    |   |   |   |  |    | --> Network ID (NID)
 |      |   |           |    |   |   |   |  |    --> Service ID (SID), the
 |      |   |           |    |   |   |   |  |        combination of SID, NID,
 |      |   |           |    |   |   |   |  |        TID has to be unique.
@@ -140,6 +139,7 @@ to create a unique SID:
 
 - for external inputs: start numbering with 9001
 
+Note: for vdr >= 1.7.13 we use this unique value as TID, while SID is 1.
 
 Parameter Description:
 Each Parameter is separated with "|" (vertical bar)
@@ -209,9 +209,10 @@ is up to now not supported by the pvrusb2 driver.)
 Use the RADIO parameter in channels.conf to specify a radio channel.
 VPID should be set to 0.
 
-If you use a PVR350 as output device with an older version of the
-pvr350-plugin (prior to version 1.7.0 from 11-2009), you need VPID=301 for
-pvrinput radio channels.
+If you use a PVR350 as output device, you need pvr350-plugin version 1.7.0
+from 11-2009 or later. Older versions of the pvr 350-plugin needed a video
+stream to play audio (VPID=301), but this pvrinput versions does not generate
+video for pvrinput radio streams.
 
 Because the radio audio volume level is much lower, you can set radio and TV
 audio volume separately for TV and FM radio.
@@ -243,7 +244,7 @@ HVR 1900) have a different digitizer.
 A newer driver which fixes this problem is available: 
 http://www.isely.net/pipermail/pvrusb2/2010-February/002734.html
 
-These patches are in the main v4l-dvb hg and hopefully they make it into 2.6.34.
+This patch is in the main v4l-dvb hg and will be in kernel 2.6.34.
 
 You could also patch and recompile your pvrusb2 driver in a simpler way: 
 
@@ -298,47 +299,64 @@ A similar in the pvrusb2 driver was fixed in April 2009.
 Therefore it is recommended to check the plugin settings and adjust them if necessary.
 It is especially important to set the Audio sampling rate to 48 KHz.
 
-These are the default values as they should appear in a setup.conf which had no
-pvrinput-entries before:
+These are the default values as they should appear in a setup.conf (which had no
+pvrinput-entries before) after storing:
 
-pvrinput.AspectRatio = 1			 //4:3
-pvrinput.AudioBitrate = 10			 //224 kBit/s
-pvrinput.AudioSampling = 1			 //48 KHz
-pvrinput.AudioVolumeFM = 62535			 //100%
-pvrinput.AudioVolumeTVCommon = 62258		 //95%
-pvrinput.AudioVolumeTVException = 62258		 //95%
-pvrinput.AudioVolumeTVExceptionCard = 8		 //AudioVolumeTVCommon for all cards
-pvrinput.BitrateMode = 0			 //VBR
-pvrinput.Brightness = 128			 //50%
-pvrinput.Contrast = 64				 //50%
-pvrinput.FilterChromaMedianBottom = 0		 //Chroma Median Filter Bottom = 0
-pvrinput.FilterChromaMedianTop = 255		 //Chroma Median Filter Top = 255
-pvrinput.FilterChromaSpatialType = 1		 //Chroma Spatial Filter Type = 1D horizontal
-pvrinput.FilterLumaMedianBottom = 0		 //Luma Median Filter Bottom = 0
-pvrinput.FilterLumaMedianTop = 255		 //Luma Median Filter Top = 255
-pvrinput.FilterLumaSpatialType = 1		 //Luma Spatial Filter Type = 1D horizontal
-pvrinput.FilterMedianType = 0			 //Median Filter Type = off
-pvrinput.FilterSpatial = 0			 //Strength Spatial Filter = 0
-pvrinput.FilterSpatialMode = 0			 //Mode Spatial Video Filter = manual
-pvrinput.FilterTemporal = 8			 //Strength Temporal Video Filter = 8
-pvrinput.FilterTemporalMode = 0			 //Mode Temporal Video Filter = manual
-pvrinput.HDPVR_AudioEncoding = 0		 // AAC = 0, AC3 = 1
-pvrinput.HDPVR_AudioInput = 0			 // RCA back = 0, RCA front = 1, SPDIF = 2 (needs audio encoding = 0)
-pvrinput.HideMainMenuEntry = 1			 //yes (hide main menu entry)
-pvrinput.Hue = 0				 //50%
-pvrinput.LogLevel = 2				 //errors and info messages
-pvrinput.Saturation = 64			 //50%
-pvrinput.SliceVBI = 1				 //only for ivtv-based cards: yes (slice VBI teletext)
-pvrinput.StreamType = 0				 //V4L2_MPEG_STREAM_TYPE_MPEG2_PS
-pvrinput.TunerAudioMode = 4			 //bilingual
-pvrinput.UseOnlyCard = 8			 //use all cards
-pvrinput.UseExternChannelSwitchScript = 0	 //don't call externchannelswitch.sh
-pvrinput.ExternChannelSwitchSleep = 0		 //sleep x seconds after call of externchannelswitch.sh
-pvrinput.VideoBitrateTV = 6000			 //6 MBit/s
+pvrinput.AspectRatio = 1                         //4:3
+pvrinput.AudioBitrate = 10                       //224 kBit/s
+pvrinput.AudioSampling = 1                       //48 KHz
+pvrinput.AudioVolumeFM = 62535                   //100%
+pvrinput.AudioVolumeTVCommon = 62258             //95%
+pvrinput.AudioVolumeTVException = 62258          //95%
+pvrinput.AudioVolumeTVExceptionCard = 8          //AudioVolumeTVCommon for all cards
+pvrinput.BitrateMode = 0                         //VBR
+pvrinput.Brightness = 128                        //50%
+pvrinput.Contrast = 64                           //50%
+pvrinput.FilterChromaMedianBottom = 0            //Chroma Median Filter Bottom = 0
+pvrinput.FilterChromaMedianTop = 255             //Chroma Median Filter Top = 255
+pvrinput.FilterChromaSpatialType = 1             //Chroma Spatial Filter Type = 1D horizontal
+pvrinput.FilterLumaMedianBottom = 0              //Luma Median Filter Bottom = 0
+pvrinput.FilterLumaMedianTop = 255               //Luma Median Filter Top = 255
+pvrinput.FilterLumaSpatialType = 1               //Luma Spatial Filter Type = 1D horizontal
+pvrinput.FilterMedianType = 0                    //Median Filter Type = off
+pvrinput.FilterSpatial = 0                       //Strength Spatial Filter = 0
+pvrinput.FilterSpatialMode = 0                   //Mode Spatial Video Filter = manual
+pvrinput.FilterTemporal = 8                      //Strength Temporal Video Filter = 8
+pvrinput.FilterTemporalMode = 0                  //Mode Temporal Video Filter = manual
+pvrinput.HDPVR_AudioEncoding = 0                 // AAC = 0, AC3 = 1
+pvrinput.HDPVR_AudioInput = 0                    // RCA back = 0, RCA front = 1, SPDIF = 2 (needs audio encoding = 0)
+pvrinput.HideMainMenuEntry = 1                   //yes (hide main menu entry)
+pvrinput.Hue = 0                                 //50%
+pvrinput.LogLevel = 2                            //errors and info messages
+pvrinput.Saturation = 64                         //50%
+pvrinput.SliceVBI = 1                            //only for ivtv-based cards: yes (slice VBI teletext)
+pvrinput.StreamType = 0                          //V4L2_MPEG_STREAM_TYPE_MPEG2_PS
+pvrinput.TunerAudioMode = 4                      //bilingual
+pvrinput.UseOnlyCard = 8                         //use all cards
+pvrinput.UseExternChannelSwitchScript = 0        //don't call externchannelswitch.sh
+pvrinput.ExternChannelSwitchSleep = 0            //sleep x seconds after call of externchannelswitch.sh
+pvrinput.VideoBitrateTV = 6000                   //6 MBit/s
 
 Using filters may increase the picture quality, but the default value of 8
 for the temporal filter may cause ghosting effects. If this is the case,
 try smaller values.
+
+These values are "hidden", which means they are not listed in the plugin menu and will
+not appear in setup.conf unless you add them manually:
+
+pvrinput.ExternChannelSwitchSleep = 0            // sleep x seconds after call of externchannelswitch.sh
+pvrinput.ReadBufferSizeKB = 64                   // size of buffer for reader in KB (default: 64 KB)
+pvrinput.TsBufferSizeMB = 3                      // ring buffer size in MB (default: 3 MB)
+pvrinput.TsBufferPrefillRatio = 0                // wait with delivering packets to vdr till buffer is filled
+
+Earlier versions of the plugin used a ReadBufferSize of 256KB. It looks like
+some output devices work better with smaller values. If you experience
+stuttering after channel switching try increasing pvrinput.ReadBufferSizeKB.
+
+You could also try to increase pvrinput.TsBufferSizeMB to e.g. 6 MB
+
+Use for example "pvrinput.TsBufferPrefillRatio = 20" to fill the TSBuffer up to
+20% before delivering packets to vdr.
 
 Force the plugin to use a certain card
 --------------------------------------
@@ -349,12 +367,13 @@ also an easier way by using the PvrSetup.UseOnlyCard value. A value of 0 to 7
 will force the plugin to use only /dev/videoX, while x is the value of 
 PvrSetup.UseOnlyCard. "PvrSetup.UseOnlyCard = 8" means that all detected
 devices will be used.
-Note: Don`t change vdr`s setup.conf while vdr is running, it won`t take effect
+Note: Don't change vdr's setup.conf while vdr is running, it won't take effect
 and will be overwritten by vdr when vdr terminates.
 There is also an OSD menu entry to allow setting PvrSetup.UseOnlyCard while
 vdr is running. By default it is not visible to avoid confusion of a common
 user. To use this feature just uncomment "//#define PVR_DEBUG" in the top of
-menu.c before compiling the plugin.
+menu.c before compiling the plugin. (Note: will be uncommented by default in
+development snapshots)
 
 Using Stream type V4L2_MPEG_STREAM_TYPE_MPEG2_DVD (not possible for HD PVR)
 ---------------------------------------------------------------------------
@@ -373,11 +392,6 @@ An exception audio level can be set for certain cards. You can choose the card
 which shall use the exception audio level by its /dev/videoX number, or by its
 card name.
 (Note: A PVR500 consists of two PVR150) 
-
-Using pvrinput and streamdev
-----------------------------
-The TS stream produced by pvrinput does have valid PCR packets now, also the
-generated PAT and PMT are valid, so there should be no problem now.
 
 externchannelswitch
 -------------------
