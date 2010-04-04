@@ -152,6 +152,14 @@ const unsigned char kInvTab[256] = {
   0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff,
 };
 
+/* helper class for protected crc32-function in libsi */
+class cPvrCRC32 : public SI::CRC32 {
+public:
+  static inline u_int32_t crc32(const char *d, int len, u_int32_t CRCvalue) {
+    return SI::CRC32::crc32(d, len, CRCvalue);
+  }
+};
+
 
 cPvrReadThread::cPvrReadThread(cRingBufferLinear *TsBuffer, cPvrDevice *_parent)
 : tsBuffer(TsBuffer),
@@ -506,7 +514,7 @@ void cPvrReadThread::Action(void)
     pat_buffer[9] = tid & 0xFF;
     pat_buffer[13] = (sid >> 8) & 0xFF;
     pat_buffer[14] = sid & 0xFF;
-    int crc = SI::CRC32::crc32((const char*)(pat_buffer + 5), 12, 0xFFFFFFFF);
+    int crc = cPvrCRC32::crc32((const char*)(pat_buffer + 5), 12, 0xFFFFFFFF);
     pat_buffer[17] = crc >> 24;
     pat_buffer[18] = crc >> 16;
     pat_buffer[19] = crc >> 8;
@@ -527,7 +535,7 @@ void cPvrReadThread::Action(void)
       }
     pmt_buffer[8] = (sid >> 8) & 0xFF;
     pmt_buffer[9] = sid & 0xFF;
-    crc = SI::CRC32::crc32((const char*)(pmt_buffer + 5), crc_offset - 5, 0xFFFFFFFF);
+    crc = cPvrCRC32::crc32((const char*)(pmt_buffer + 5), crc_offset - 5, 0xFFFFFFFF);
     pmt_buffer[crc_offset] = crc >> 24;
     pmt_buffer[crc_offset + 1] = crc >> 16;
     pmt_buffer[crc_offset + 2] = crc >> 8;
