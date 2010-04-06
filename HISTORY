@@ -1,6 +1,10 @@
 VDR Plugin 'pvrinput' Revision History
 --------------------------------------
 
+current git (mini73)
+- use helper class for protected crc-function of libsi
+- update of italian translations (thanks to Diego Pierotto)
+
 2010-03-27-rc1 (mini73)
 - rework teletext handling so no retuning is needed
 - add script for conversion of plugin-param-patch-channels to
