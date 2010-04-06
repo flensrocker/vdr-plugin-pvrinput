@@ -2,11 +2,6 @@
 #include <linux/dvb/video.h>
 #include <stdlib.h>
 
-#if VDRVERSNUM > 10712
-#define PVR_SOURCEPARAMS
-#include <vdr/sourceparams.h>
-#endif
-
 char DRIVERNAME[][15] = {
   "undef", "ivtv", "cx18", "pvrusb2", "cx88_blackbird", "hdpvr"
 };
@@ -944,15 +939,9 @@ bool cPvrDevice::GetTSPacket(uchar *&Data)
 
 bool cPvrDevice::ProvidesSource(int Source) const
 {
-#ifdef PVR_SOURCEPARAMS
-  if (cPvrSourceParam::IsPvr(Source)) {
-#else
-  if (cSource::IsPlug(Source)) {
-#endif
-    log(pvrDEBUG3, "cPvrDevice::ProvidesSource Source=%s -> true", (const char*)cSource::ToString(Source));
-    return true;
-    }
-  return false;
+  bool isPvr = cPvrSourceParam::IsPvr(Source);
+  log(pvrDEBUG2, "cPvrDevice::ProvidesSource Source=%s (%d) -> %s", (const char*)cSource::ToString(Source), Source, isPvr ? "true" : "false");
+  return isPvr;
 }
 
 bool cPvrDevice::ProvidesTransponder(const cChannel *Channel) const

@@ -27,11 +27,12 @@ public:
 #ifdef PVR_SOURCEPARAMS
   static const char *sPluginId;
   static const char  sSourceID = 'V';
+  static const uint  stPvr = (sSourceID << 24);
 #else
   static const char *sPluginId;
   static const char  sSourceID = 'P';
+  static const uint  stPvr = cSource::stPlug;
 #endif
-  static const uint  stPvr = (sSourceID << 24);
 
   static const int         sNumInputs = 12;
   static const char       *sInputName[];
