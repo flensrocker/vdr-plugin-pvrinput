@@ -500,6 +500,7 @@ void cPvrReadThread::Action(void)
   uint8_t *buffer = new uint8_t[bufferSize];
   int r;
   int retries = 3;
+  int reopen_retries = 5;
   struct timeval selTimeout;
   fd_set selSet;
 
@@ -551,17 +552,24 @@ void cPvrReadThread::Action(void)
     FD_ZERO(&selSet);
     FD_SET(parent->v4l2_fd, &selSet);
     r = select(parent->v4l2_fd + 1, &selSet, 0, 0, &selTimeout);
-    if (r == 0) {
-       log(pvrDEBUG2, "cPvrReadThread::Action():timeout on select from /dev/video%d: %d:%s %s",
+    if ((r == 0) && (errno == 0)) {
+       log(pvrDEBUG1, "cPvrReadThread::Action():timeout on select from /dev/video%d: %d:%s %s",
            parent->number, errno, strerror(errno), (retries > 0) ? " - retrying" : "");
-        }
-    else if (r < 0) {
+       }
+    else if ((r < 0) || (errno != 0)) {
        log(pvrERROR, "cPvrReadThread::Action():error on select from /dev/video%d: %d:%s %s",
            parent->number, errno, strerror(errno), (retries > 0) ? " - retrying" : "");
        retries--;
        if (retries > 0) {
           usleep(100);
           goto retry;
+          }
+       while (reopen_retries > 0) {
+          reopen_retries--;
+          if (parent->ReOpen() > 0) {
+             retries = 3;
+             goto retry;
+             }
           }
        break;
        }
