@@ -55,7 +55,7 @@ DEFINES += -D_GNU_SOURCE -DPLUGIN_NAME_I18N='"$(PLUGIN)"'
 
 ### The object files (add further files here):
 
-OBJS = pvrinput.o common.o device.o reader.o menu.o setup.o filter.o sourceparams.o
+OBJS = pvrinput.o common.o device.o reader.o menu.o setup.o filter.o sourceparams.o submenu.o
 
 ### The main target:
 

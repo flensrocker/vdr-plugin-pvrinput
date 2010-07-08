@@ -1,9 +1,9 @@
 /**
  *  pvrinput plugin for the Video Disk Recorder
  *
- *  menu.h  -  setup menu class
+ *  submenu.h  -  submenu of the plugin configuration
  *
- *  (c) 2005 Andreas Regel <andreas.regel AT powarman.de>
+ *  (c) 2010 Rainer Blickle <rblickle AT gmx.de>
  **/
 
 /***************************************************************************
@@ -25,45 +25,54 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef _PVRINPUT_MENU_H_
-#define _PVRINPUT_MENU_H_
-
 #include "common.h"
+#include <vdr/osdbase.h>
 
-typedef enum {
-  ePicPropBrightness = 0,
-  ePicPropContrast,
-  ePicPropSaturation,
-  ePicPropHue,
-  ePicPropTotalNumber
-} EPicPropety;
 
-class cPvrMenuSetup : public cMenuSetupPage {
+class cPvrMenuGeneral : public cOsdMenu {
 private:
-  cPvrSetup newPvrSetup;
-protected:
-  virtual void Store();
+  /* Reference to the setup data object, mustn't be deleted within this Object */
+  cPvrSetup *setup;
 public:
-  cPvrMenuSetup();
-  virtual eOSState ProcessKey(eKeys Key);
+  cPvrMenuGeneral(cPvrSetup *setupObject);
 };
 
-class cPvrMenuMain : public cOsdObject {
+class cPvrMenuVideo : public cOsdMenu {
 private:
-  cOsd *osd;
-  const cFont *font;
-  int border;
-  int margin;
-  int width;
-  int height;
-  int mode;
-
-  void Draw(void);
+  /* Reference to the setup data object, mustn't be deleted within this Object */
+  cPvrSetup *setup;
 public:
-  cPvrMenuMain(void);
-  virtual ~cPvrMenuMain();
-  virtual void Show(void);
-  virtual eOSState ProcessKey(eKeys Key);
+  cPvrMenuVideo(cPvrSetup *setupObject);
 };
 
-#endif
+class cPvrMenuAudio : public cOsdMenu {
+private:
+  /* Reference to the setup data object, mustn't be deleted within this Object */
+  cPvrSetup *setup;
+public:
+  cPvrMenuAudio(cPvrSetup *setupObject);
+};
+
+class cPvrMenuMpegFilter : public cOsdMenu {
+private:
+  /* Reference to the setup data object, mustn't be deleted within this Object */
+  cPvrSetup *setup;
+public:
+  cPvrMenuMpegFilter(cPvrSetup *setupObject);
+};
+
+class cPvrMenuExperts : public cOsdMenu {
+private:
+  /* Reference to the setup data object, mustn't be deleted within this Object */
+  cPvrSetup *setup;
+public:
+  cPvrMenuExperts(cPvrSetup *setupObject);
+};
+
+class cPvrMenuHdPvr : public cOsdMenu {
+private:
+  /* Reference to the setup data object, mustn't be deleted within this Object */
+  cPvrSetup *setup;
+public:
+  cPvrMenuHdPvr(cPvrSetup *setupObject);
+};

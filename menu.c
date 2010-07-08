@@ -30,133 +30,10 @@ and StreamType.value via OSD menu (see README) */
 #define PVR_DEBUG
 
 #include "common.h"
-
-static const char * audioBitrateValues[] = {
-  "32",
-  "48",
-  "56",
-  "64",
-  "80",
-  "96",
-  "112",
-  "128",
-  "160",
-  "192",
-  "224",
-  "256",
-  "320",
-  "384"
-  };
-
-static const char *bitrateModes[] = {
-  "VBR",
-  "CBR"
-  };
-
-/*  order must match the 'audmode' values in videodev2.h */
-static const char *tunerAudioModes[] = {
-  "mono",
-  "stereo",
-  "lang2",
-  "lang1",
-  "bilingual"
-  };
-
-#ifdef PVR_DEBUG
-static const char *useOnlyCard[] = {
-  "/dev/video0",
-  "/dev/video1",
-  "/dev/video2",
-  "/dev/video3",
-  "/dev/video4",
-  "/dev/video5",
-  "/dev/video6",
-  "/dev/video7",
-  "all",         // 8
-  "PVR150",      // 9
-  "PVR250",      //10
-  "PVR350",      //11
-  "PVR500#1",    //12
-  "PVR500#2",    //13  
-  "HVR1300",     //14
-  "HVR1600",     //15
-  "HVR1900",     //16
-  "HVR1950",     //17
-  "PVRUSB2",     //18
-  "HDPVR"        //19
-  };
-#endif
-
-static const char *aspectRatios[] = {
-  "1:1",
-  "4:3",
-  "16:9",
-  "2.21:1"
-  };
-
-#ifdef PVR_DEBUG
-static const char *streamType[] = {
-  "MPEG2 PS",
-  "MPEG2 DVD"
-  };
-#endif
-
-static const char *exceptionVolumeForCard[] = {
-  "/dev/video0",
-  "/dev/video1",
-  "/dev/video2",
-  "/dev/video3",
-  "/dev/video4",
-  "/dev/video5",
-  "/dev/video6",
-  "/dev/video7",
-  "-",           // 8
-  "PVR150",      // 9
-  "PVR250",      //10
-  "PVR350",      //11
-  "PVR500#1",    //12
-  "PVR500#2",    //13  
-  "HVR1300",     //14
-  "HVR1600",     //15
-  "HVR1900",     //16
-  "HVR1950",     //17
-  "PVRUSB2"      //18
-  };
+#include "submenu.h"
 
 cPvrMenuSetup::cPvrMenuSetup()
 {
-  static const char *FilterModes[2];
-  FilterModes[0] = tr("Setup.pvrinput$manual");
-  FilterModes[1] = tr("Setup.pvrinput$auto");
-
-  static const char *SpatialTypes[5];
-  SpatialTypes[0] = tr("Setup.pvrinput$off");
-  SpatialTypes[1] = tr("Setup.pvrinput$1D horizontal");
-  SpatialTypes[2] = tr("Setup.pvrinput$1D vertical");
-  SpatialTypes[3] = tr("Setup.pvrinput$2D hv separable");
-  SpatialTypes[4] = tr("Setup.pvrinput$2D sym non separable");
-
-  static const char *MedianTypes[5];
-  MedianTypes[0] = tr("Setup.pvrinput$off");
-  MedianTypes[1] = tr("Setup.pvrinput$horizontal");
-  MedianTypes[2] = tr("Setup.pvrinput$vertical");
-  MedianTypes[3] = tr("Setup.pvrinput$horizontal + vertical");
-  MedianTypes[4] = tr("Setup.pvrinput$diagonal");
-
-  static const char *SamplingFreqs[3];
-  SamplingFreqs[0] = tr("Setup.pvrinput$44.1 kHz");
-  SamplingFreqs[1] = tr("Setup.pvrinput$48 kHz");
-  SamplingFreqs[2] = tr("Setup.pvrinput$32 kHz");
-
-  static const char *HDPVR_AudioEncodings[2];
-  HDPVR_AudioEncodings[0] = tr("Setup.pvrinput$AAC");
-  HDPVR_AudioEncodings[1] = tr("Setup.pvrinput$AC3");
-
-  static const char *HDPVR_AudioInputs[3];
-  HDPVR_AudioInputs[0] = tr("Setup.pvrinput$RCA back");
-  HDPVR_AudioInputs[1] = tr("Setup.pvrinput$RCA front");
-  HDPVR_AudioInputs[2] = tr("Setup.pvrinput$SPDIF");
-
   newPvrSetup = PvrSetup;
   // videobitrate in setup.conf is 0..27000, but ivtv 0..27000000
   newPvrSetup.VideoBitrateTV.value = (int)(PvrSetup.VideoBitrateTV.value / 1000);
@@ -191,123 +68,47 @@ cPvrMenuSetup::cPvrMenuSetup()
                                                    PvrSetup.AudioVolumeFM.queryctrl.minimum,
                                                    PvrSetup.AudioVolumeFM.queryctrl.maximum);
 
-  Add(new cMenuEditBoolItem(tr("Setup.pvrinput$Hide main menu entry"), &newPvrSetup.HideMainMenuEntry));
-#ifdef PVR_DEBUG
-  Add(new cMenuEditStraItem(tr("Setup.pvrinput$Use only card"), &newPvrSetup.UseOnlyCard, 20, useOnlyCard));
-#endif
-  Add(new cMenuEditIntItem(tr("Setup.pvrinput$Log level"), &newPvrSetup.LogLevel, 0, 4));
-
-  Add(new cMenuEditBoolItem(tr("Setup.pvrinput$Slice VBI Teletext"), &newPvrSetup.SliceVBI));
-
-  Add(new cMenuEditStraItem(tr("Setup.pvrinput$Tuner Audio Mode"), &newPvrSetup.TunerAudioMode, 5, tunerAudioModes));
-
-  Add(new cMenuEditIntItem(tr("Setup.pvrinput$Brightness"), &newPvrSetup.Brightness.value, 0, 100));
-
-  Add(new cMenuEditIntItem(tr("Setup.pvrinput$Contrast"), &newPvrSetup.Contrast.value, 0, 100));
-
-  Add(new cMenuEditIntItem(tr("Setup.pvrinput$Saturation"), &newPvrSetup.Saturation.value, 0, 100));
-
-  Add(new cMenuEditIntItem(tr("Setup.pvrinput$Hue"), &newPvrSetup.Hue.value, 0, 100));
-
-  Add(new cMenuEditIntItem(tr("Setup.pvrinput$Common Audio volume (TV)"), &newPvrSetup.AudioVolumeTVCommon.value, 0, 100));
-
-  Add(new cMenuEditIntItem(tr("Setup.pvrinput$Exception Audio volume (TV)"), &newPvrSetup.AudioVolumeTVException.value, 0, 100));
-
-  Add(new cMenuEditStraItem(tr("Setup.pvrinput$Exception TV Volume for Card"), &newPvrSetup.AudioVolumeTVExceptionCard, 19, exceptionVolumeForCard));
-
-  Add(new cMenuEditIntItem(tr("Setup.pvrinput$Audio radio volume"), &newPvrSetup.AudioVolumeFM.value, 0, 100));
-
-  Add(new cMenuEditStraItem(tr("Setup.pvrinput$Audio bitrate (kbit/s)"),
-                            &newPvrSetup.AudioBitrate.value,
-                            newPvrSetup.AudioBitrate.queryctrl.maximum + 1,
-                            audioBitrateValues));
-
-  Add(new cMenuEditStraItem(tr("Setup.pvrinput$Audio sampling rate"),
-                            &newPvrSetup.AudioSampling.value,
-                            newPvrSetup.AudioSampling.queryctrl.maximum + 1,
-                            SamplingFreqs));
-
-  Add(new cMenuEditStraItem(tr("Setup.pvrinput$HDPVR audio encoding"), &newPvrSetup.HDPVR_AudioEncoding.value, 2, HDPVR_AudioEncodings));
-
-  Add(new cMenuEditStraItem(tr("Setup.pvrinput$HDPVR audio input"), &newPvrSetup.HDPVR_AudioInput, 3, HDPVR_AudioInputs));
-
-  Add(new cMenuEditIntItem(tr("Setup.pvrinput$Video bitrate TV (kbit/s)"),
-                           &newPvrSetup.VideoBitrateTV.value,
-                           newPvrSetup.VideoBitrateTV.queryctrl.minimum,
-                           newPvrSetup.VideoBitrateTV.queryctrl.maximum));
-
   newPvrSetup.StreamType.value = (newPvrSetup.StreamType.value == 0 ? 0 : 1);
 
-  Add(new cMenuEditStraItem(tr("Setup.pvrinput$Bitrate mode"),
-                            &newPvrSetup.BitrateMode.value,
-                            newPvrSetup.BitrateMode.queryctrl.maximum + 1,
-                            bitrateModes));
+  Add(new cOsdItem(tr("Setup.pvrinput$General Parameters")));
+  Add(new cOsdItem(tr("Setup.pvrinput$Video Parameters")));
+  Add(new cOsdItem(tr("Setup.pvrinput$Audio Parameters")));
+  Add(new cOsdItem(tr("Setup.pvrinput$MPEG Filter Parameters")));
+  Add(new cOsdItem(tr("Setup.pvrinput$Expert Parameters")));
+  Add(new cOsdItem(tr("Setup.pvrinput$HDPVR Parameters")));
 
-  Add(new cMenuEditStraItem(tr("Setup.pvrinput$Aspect ratio"),
-                            &newPvrSetup.AspectRatio.value,
-                            newPvrSetup.AspectRatio.queryctrl.maximum + 1,
-                            aspectRatios));
+}
 
-#ifdef PVR_DEBUG
-  Add(new cMenuEditStraItem(tr("Setup.pvrinput$Stream type"), &newPvrSetup.StreamType.value, 2, streamType));
-#endif
-
-  Add(new cMenuEditStraItem(tr("Setup.pvrinput$Mode Spatial Video Filter"),
-                            &newPvrSetup.FilterSpatialMode.value,
-                            newPvrSetup.FilterSpatialMode.queryctrl.maximum + 1,
-                            FilterModes));
-
-  Add(new cMenuEditIntItem(tr("Setup.pvrinput$Strength Spatial Video Filter"),
-                           &newPvrSetup.FilterSpatial.value,
-                           newPvrSetup.FilterSpatial.queryctrl.minimum,
-                           newPvrSetup.FilterSpatial.queryctrl.maximum));
-
-  Add(new cMenuEditStraItem(tr("Setup.pvrinput$Luma Spatial Filter Type"),
-                            &newPvrSetup.FilterLumaSpatialType.value,
-                            newPvrSetup.FilterLumaSpatialType.queryctrl.maximum + 1,
-                            SpatialTypes));
-
-  Add(new cMenuEditStraItem(tr("Setup.pvrinput$Chroma Spatial Filter Type"),
-                            &newPvrSetup.FilterChromaSpatialType.value,
-                            newPvrSetup.FilterChromaSpatialType.queryctrl.maximum + 1,
-                            SpatialTypes));
-
-  Add(new cMenuEditStraItem(tr("Setup.pvrinput$Mode Temporal Video Filter"),
-                            &newPvrSetup.FilterTemporalMode.value,
-                            newPvrSetup.FilterTemporalMode.queryctrl.maximum + 1,
-                            FilterModes));
-
-  Add(new cMenuEditIntItem(tr("Setup.pvrinput$Strength Temporal Video Filter"),
-                           &newPvrSetup.FilterTemporal.value,
-                           newPvrSetup.FilterTemporal.queryctrl.minimum,
-                           newPvrSetup.FilterTemporal.queryctrl.maximum));
-
-  Add(new cMenuEditStraItem(tr("Setup.pvrinput$Median Filter Type"),
-                            &newPvrSetup.FilterMedianType.value,
-                            newPvrSetup.FilterMedianType.queryctrl.maximum + 1,
-                            MedianTypes));
-
-  Add(new cMenuEditIntItem(tr("Setup.pvrinput$Luma Median Filter Bottom"),
-                           &newPvrSetup.FilterLumaMedianBottom.value,
-                           newPvrSetup.FilterLumaMedianBottom.queryctrl.minimum,
-                           newPvrSetup.FilterLumaMedianBottom.queryctrl.maximum));
-
-  Add(new cMenuEditIntItem(tr("Setup.pvrinput$Luma Median Filter Top"),
-                           &newPvrSetup.FilterLumaMedianTop.value,
-                           newPvrSetup.FilterLumaMedianTop.queryctrl.minimum,
-                           newPvrSetup.FilterLumaMedianTop.queryctrl.maximum));
-
-  Add(new cMenuEditIntItem(tr("Setup.pvrinput$Chroma Median Filter Bottom"),
-                           &newPvrSetup.FilterChromaMedianBottom.value,
-                           newPvrSetup.FilterChromaMedianBottom.queryctrl.minimum,
-                           newPvrSetup.FilterChromaMedianBottom.queryctrl.maximum));
-
-  Add(new cMenuEditIntItem(tr("Setup.pvrinput$Chroma Median Filter Top"),
-                           &newPvrSetup.FilterChromaMedianTop.value,
-                           newPvrSetup.FilterChromaMedianTop.queryctrl.minimum,
-                           newPvrSetup.FilterChromaMedianTop.queryctrl.maximum));
-
-  Add(new cMenuEditBoolItem(tr("Setup.pvrinput$use externchannelswitch.sh"), &newPvrSetup.UseExternChannelSwitchScript));
+eOSState cPvrMenuSetup::ProcessKey(eKeys Key) {
+  eOSState state = osUnknown;
+  if (Key == kOk || Key == kBack) {
+    Store();
+  }
+  if (!HasSubMenu()) {
+    if (Key == kOk) {
+      const char* ItemText = Get(Current())->Text();
+      if (strstr(ItemText, tr(tr("Setup.pvrinput$General Parameters"))) == ItemText) {
+        state = AddSubMenu(new cPvrMenuGeneral(&newPvrSetup));
+      } else if (strstr(ItemText, tr(tr("Setup.pvrinput$Video Parameters"))) == ItemText) {
+        state = AddSubMenu(new cPvrMenuVideo(&newPvrSetup));
+      } else if (strstr(ItemText, tr(tr("Setup.pvrinput$Audio Parameters"))) == ItemText) {
+        state = AddSubMenu(new cPvrMenuAudio(&newPvrSetup));
+      } else if (strstr(ItemText, tr(tr("Setup.pvrinput$MPEG Filter Parameters"))) == ItemText) {
+        state = AddSubMenu(new cPvrMenuMpegFilter(&newPvrSetup));
+      } else if (strstr(ItemText, tr(tr("Setup.pvrinput$Expert Parameters"))) == ItemText) {
+        state = AddSubMenu(new cPvrMenuExperts(&newPvrSetup));
+      } else if (strstr(ItemText, tr(tr("Setup.pvrinput$HDPVR Parameters"))) == ItemText) {
+        state = AddSubMenu(new cPvrMenuHdPvr(&newPvrSetup));
+      } else {
+        state = cOsdMenu::ProcessKey(Key);
+      }
+    } else {
+      state = cOsdMenu::ProcessKey(Key);
+    }
+  } else {
+    state = cOsdMenu::ProcessKey(Key);
+  }
+  return state;
 }
 
 void cPvrMenuSetup::Store()

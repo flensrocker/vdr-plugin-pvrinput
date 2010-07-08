@@ -1,226 +1,212 @@
-# translation of de_DE.po to
-# pvrinput
-# Copyright (C) 2007 Andreas Regel, Martin Dauskardt, Winfried K�hler
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#
-# Andreas Regel, Martin Dauskardt, Winfried K�hler <see README>, 2007.
-# Martin Dauskardt <martin.dauskardt@gmx.de>, 2008.
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: de_DE\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2010-07-08 07:14+0200\n"
-"PO-Revision-Date: 2009-10-11 22:39+0200\n"
-"Last-Translator: root\n"
-"Language-Team:  <de@li.org>\n"
+"POT-Creation-Date: 2010-07-08 07:20+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-15\n"
+"Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
 
 msgid "pvrinput no longer supports old channel syntax!"
-msgstr "pvrinput unterst�tzt alte Kanalsyntax nicht mehr!"
+msgstr ""
 
 msgid "Setup.pvrinput$General Parameters"
-msgstr "Generelle Einstellungen"
+msgstr ""
 
 msgid "Setup.pvrinput$Video Parameters"
-msgstr "Video Einstellungen"
+msgstr ""
 
 msgid "Setup.pvrinput$Audio Parameters"
-msgstr "Audio Einstellungen"
+msgstr ""
 
 msgid "Setup.pvrinput$MPEG Filter Parameters"
-msgstr "MPEG Filter Einstellungen (nur cx2341x)"
+msgstr ""
 
 msgid "Setup.pvrinput$Expert Parameters"
-msgstr "Experteneinstellungen"
+msgstr ""
 
 msgid "Setup.pvrinput$HDPVR Parameters"
-msgstr "HDPVR Einstellungen"
+msgstr ""
 
 msgid "Setup.pvrinput$Brightness"
-msgstr "Helligkeit"
+msgstr ""
 
 msgid "Setup.pvrinput$Contrast"
-msgstr "Kontrast"
+msgstr ""
 
 msgid "Setup.pvrinput$Saturation"
-msgstr "S�ttigung"
+msgstr ""
 
 msgid "Setup.pvrinput$Hue"
-msgstr "Farbton"
+msgstr ""
 
 msgid "use Hauppauge PVR as input device"
-msgstr "Hauppauge PVR als Eingabeger�t "
+msgstr ""
 
 msgid "PVR picture settings"
-msgstr "PVR Bildeinstellungen "
+msgstr ""
 
 msgid "Setup.pvrinput$Not on an analogue channel!"
-msgstr "Kein analog empfangener Sender!"
+msgstr ""
 
 msgid "SourceParam.pvrinput$Input"
-msgstr "Eingang"
+msgstr ""
 
 msgid "SourceParam.pvrinput$Card"
-msgstr "Karte"
+msgstr ""
 
 msgid "SourceParam.pvrinput$Standard"
-msgstr "Standard"
+msgstr ""
 
 msgid "Setup.pvrinput$Log level"
-msgstr "Umfang log"
+msgstr ""
 
 msgid "Setup.pvrinput$Slice VBI Teletext"
-msgstr "Teletext durchschleifen"
+msgstr ""
 
 msgid "Setup.pvrinput$Hide main menu entry"
-msgstr "Hauptmen�-Eintrag verstecken"
+msgstr ""
 
 msgid "Setup.pvrinput$Bitrate mode"
-msgstr "Bitraten Modus"
+msgstr ""
 
 msgid "Setup.pvrinput$Video bitrate TV (kbit/s)"
-msgstr "Video Bitrate TV (kbit/s)"
+msgstr ""
 
 msgid "Setup.pvrinput$Aspect ratio"
-msgstr "Seitenverh�ltnis"
+msgstr ""
 
 msgid "Setup.pvrinput$Common Audio volume (TV)"
-msgstr "allg. TV-Lautst�rke"
+msgstr ""
 
 msgid "Setup.pvrinput$Exception Audio volume (TV)"
-msgstr "abw. TV Lautst�rke"
+msgstr ""
 
 msgid "Setup.pvrinput$Exception TV Volume for Card"
-msgstr "abw. TV-Lautst�rke f�r Karte"
+msgstr ""
 
 msgid "Setup.pvrinput$Tuner Audio Mode"
-msgstr "Tuner Audio Mode"
+msgstr ""
 
 msgid "Setup.pvrinput$Audio radio volume"
-msgstr "FM Radio Lautst�rke"
+msgstr ""
 
 msgid "Setup.pvrinput$Audio bitrate (kbit/s)"
-msgstr "Audio Bitrate (kbit/s)"
+msgstr ""
 
 msgid "Setup.pvrinput$44.1 kHz"
-msgstr "44,1 kHz"
+msgstr ""
 
 msgid "Setup.pvrinput$48 kHz"
-msgstr "48 kHz"
+msgstr ""
 
 msgid "Setup.pvrinput$32 kHz"
-msgstr "32 kHz"
+msgstr ""
 
 msgid "Setup.pvrinput$Audio sampling rate"
-msgstr "Audio Abtastrate"
+msgstr ""
 
 msgid "Setup.pvrinput$manual"
-msgstr "manuell"
+msgstr ""
 
 msgid "Setup.pvrinput$auto"
-msgstr "auto"
+msgstr ""
 
 msgid "Setup.pvrinput$off"
-msgstr "aus"
+msgstr ""
 
 msgid "Setup.pvrinput$1D horizontal"
-msgstr "1D horizontal"
+msgstr ""
 
 msgid "Setup.pvrinput$1D vertical"
-msgstr "1D vertikal"
+msgstr ""
 
 msgid "Setup.pvrinput$2D hv separable"
-msgstr "2D hv separat"
+msgstr ""
 
 msgid "Setup.pvrinput$2D sym non separable"
-msgstr "2D sym kombiniert"
+msgstr ""
 
 msgid "Setup.pvrinput$horizontal"
-msgstr "horizontal"
+msgstr ""
 
 msgid "Setup.pvrinput$vertical"
-msgstr "vertikal"
+msgstr ""
 
 msgid "Setup.pvrinput$horizontal + vertical"
-msgstr "horizontal + vertikal"
+msgstr ""
 
 msgid "Setup.pvrinput$diagonal"
-msgstr "diagonal"
+msgstr ""
 
 msgid "Setup.pvrinput$Mode Spatial Video Filter"
-msgstr "Modus Spatial Video Filter"
+msgstr ""
 
 msgid "Setup.pvrinput$Strength Spatial Video Filter"
-msgstr "St�rke Spatial Video Filter"
+msgstr ""
 
 msgid "Setup.pvrinput$Luma Spatial Filter Type"
-msgstr "Helligkeit Spatial Filter Typ"
+msgstr ""
 
 msgid "Setup.pvrinput$Chroma Spatial Filter Type"
-msgstr "Farben Spatial Filter Typ"
+msgstr ""
 
 msgid "Setup.pvrinput$Mode Temporal Video Filter"
-msgstr "Modus Temporal Video Filter"
+msgstr ""
 
 msgid "Setup.pvrinput$Strength Temporal Video Filter"
-msgstr "St�rke Temporal Video Filter"
+msgstr ""
 
 msgid "Setup.pvrinput$Median Filter Type"
-msgstr "Median Filter Typ"
+msgstr ""
 
 msgid "Setup.pvrinput$Luma Median Filter Bottom"
-msgstr "Luma Median Filter Unten"
+msgstr ""
 
 msgid "Setup.pvrinput$Luma Median Filter Top"
-msgstr "Luma Median Filter Oben"
+msgstr ""
 
 msgid "Setup.pvrinput$Chroma Median Filter Bottom"
-msgstr "Chroma Median Filter Unten"
+msgstr ""
 
 msgid "Setup.pvrinput$Chroma Median Filter Top"
-msgstr "Chroma Median Filter Oben"
+msgstr ""
 
 msgid "Setup.pvrinput$Stream type"
-msgstr "Stream Typ"
+msgstr ""
 
-#, fuzzy
 msgid "Setup.pvrinput$Use only card"
-msgstr "verwende nur Karte"
+msgstr ""
 
 msgid "Setup.pvrinput$use externchannelswitch.sh"
-msgstr "benutze externchannelswitch.sh"
+msgstr ""
 
 msgid "Setup.pvrinput$AAC"
-msgstr "AAC"
+msgstr ""
 
 msgid "Setup.pvrinput$AC3"
-msgstr "AC3"
+msgstr ""
 
 msgid "Setup.pvrinput$RCA back"
-msgstr "Cinch (hinten)"
+msgstr ""
 
 msgid "Setup.pvrinput$RCA front"
-msgstr "Cinch (vorne)"
+msgstr ""
 
 msgid "Setup.pvrinput$SPDIF"
-msgstr "S/PDIF"
+msgstr ""
 
 msgid "Setup.pvrinput$HDPVR audio encoding"
-msgstr "HDPVR Audio Encoding"
+msgstr ""
 
 msgid "Setup.pvrinput$HDPVR audio input"
-msgstr "HDPVR Audioeingang"
-
-#, fuzzy
-#~ msgid "Setup.pvrinput$General Parameter"
-#~ msgstr "verwende nur Karte"
-
-#~ msgid "Setup.pvrinput$PVRUSB2 Stop on Change"
-#~ msgstr "PVRUSB2 Stop bei Kanalwechsel"
-
-#~ msgid "Setup.pvrinput$Video bitrate Radio (kbit/s)"
-#~ msgstr "Video Bitrate Radio (kbit/s)"
+msgstr ""

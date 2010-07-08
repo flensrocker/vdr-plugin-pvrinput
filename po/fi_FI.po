@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fi_FI\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2010-03-21 21:18+0100\n"
+"POT-Creation-Date: 2010-07-08 07:14+0200\n"
 "PO-Revision-Date: 2008-05-24 13:37+0200\n"
 "Last-Translator: root\n"
 "Language-Team:  <de@li.org>\n"
@@ -18,6 +18,102 @@ msgstr ""
 "X-Generator: KBabel 1.11.4\n"
 
 msgid "pvrinput no longer supports old channel syntax!"
+msgstr ""
+
+msgid "Setup.pvrinput$General Parameters"
+msgstr ""
+
+msgid "Setup.pvrinput$Video Parameters"
+msgstr ""
+
+msgid "Setup.pvrinput$Audio Parameters"
+msgstr ""
+
+msgid "Setup.pvrinput$MPEG Filter Parameters"
+msgstr ""
+
+msgid "Setup.pvrinput$Expert Parameters"
+msgstr ""
+
+msgid "Setup.pvrinput$HDPVR Parameters"
+msgstr ""
+
+msgid "Setup.pvrinput$Brightness"
+msgstr ""
+
+msgid "Setup.pvrinput$Contrast"
+msgstr ""
+
+msgid "Setup.pvrinput$Saturation"
+msgstr ""
+
+msgid "Setup.pvrinput$Hue"
+msgstr ""
+
+msgid "use Hauppauge PVR as input device"
+msgstr ""
+
+msgid "PVR picture settings"
+msgstr ""
+
+msgid "Setup.pvrinput$Not on an analogue channel!"
+msgstr ""
+
+msgid "SourceParam.pvrinput$Input"
+msgstr ""
+
+msgid "SourceParam.pvrinput$Card"
+msgstr ""
+
+msgid "SourceParam.pvrinput$Standard"
+msgstr ""
+
+msgid "Setup.pvrinput$Log level"
+msgstr ""
+
+msgid "Setup.pvrinput$Slice VBI Teletext"
+msgstr ""
+
+msgid "Setup.pvrinput$Hide main menu entry"
+msgstr ""
+
+msgid "Setup.pvrinput$Bitrate mode"
+msgstr ""
+
+msgid "Setup.pvrinput$Video bitrate TV (kbit/s)"
+msgstr ""
+
+msgid "Setup.pvrinput$Aspect ratio"
+msgstr ""
+
+msgid "Setup.pvrinput$Common Audio volume (TV)"
+msgstr ""
+
+msgid "Setup.pvrinput$Exception Audio volume (TV)"
+msgstr ""
+
+msgid "Setup.pvrinput$Exception TV Volume for Card"
+msgstr ""
+
+msgid "Setup.pvrinput$Tuner Audio Mode"
+msgstr ""
+
+msgid "Setup.pvrinput$Audio radio volume"
+msgstr ""
+
+msgid "Setup.pvrinput$Audio bitrate (kbit/s)"
+msgstr ""
+
+msgid "Setup.pvrinput$44.1 kHz"
+msgstr ""
+
+msgid "Setup.pvrinput$48 kHz"
+msgstr ""
+
+msgid "Setup.pvrinput$32 kHz"
+msgstr ""
+
+msgid "Setup.pvrinput$Audio sampling rate"
 msgstr ""
 
 msgid "Setup.pvrinput$manual"
@@ -53,93 +149,6 @@ msgstr ""
 msgid "Setup.pvrinput$diagonal"
 msgstr ""
 
-msgid "Setup.pvrinput$44.1 kHz"
-msgstr ""
-
-msgid "Setup.pvrinput$48 kHz"
-msgstr ""
-
-msgid "Setup.pvrinput$32 kHz"
-msgstr ""
-
-msgid "Setup.pvrinput$AAC"
-msgstr ""
-
-msgid "Setup.pvrinput$AC3"
-msgstr ""
-
-msgid "Setup.pvrinput$RCA back"
-msgstr ""
-
-msgid "Setup.pvrinput$RCA front"
-msgstr ""
-
-msgid "Setup.pvrinput$SPDIF"
-msgstr ""
-
-msgid "Setup.pvrinput$Hide main menu entry"
-msgstr ""
-
-msgid "Setup.pvrinput$Use only card"
-msgstr ""
-
-msgid "Setup.pvrinput$Log level"
-msgstr ""
-
-msgid "Setup.pvrinput$Slice VBI Teletext"
-msgstr ""
-
-msgid "Setup.pvrinput$Tuner Audio Mode"
-msgstr ""
-
-msgid "Setup.pvrinput$Brightness"
-msgstr ""
-
-msgid "Setup.pvrinput$Contrast"
-msgstr ""
-
-msgid "Setup.pvrinput$Saturation"
-msgstr ""
-
-msgid "Setup.pvrinput$Hue"
-msgstr ""
-
-msgid "Setup.pvrinput$Common Audio volume (TV)"
-msgstr ""
-
-msgid "Setup.pvrinput$Exception Audio volume (TV)"
-msgstr ""
-
-msgid "Setup.pvrinput$Exception TV Volume for Card"
-msgstr ""
-
-msgid "Setup.pvrinput$Audio radio volume"
-msgstr ""
-
-msgid "Setup.pvrinput$Audio bitrate (kbit/s)"
-msgstr ""
-
-msgid "Setup.pvrinput$Audio sampling rate"
-msgstr ""
-
-msgid "Setup.pvrinput$HDPVR audio encoding"
-msgstr ""
-
-msgid "Setup.pvrinput$HDPVR audio input"
-msgstr ""
-
-msgid "Setup.pvrinput$Video bitrate TV (kbit/s)"
-msgstr ""
-
-msgid "Setup.pvrinput$Bitrate mode"
-msgstr ""
-
-msgid "Setup.pvrinput$Aspect ratio"
-msgstr ""
-
-msgid "Setup.pvrinput$Stream type"
-msgstr ""
-
 msgid "Setup.pvrinput$Mode Spatial Video Filter"
 msgstr ""
 
@@ -173,23 +182,32 @@ msgstr ""
 msgid "Setup.pvrinput$Chroma Median Filter Top"
 msgstr ""
 
+msgid "Setup.pvrinput$Stream type"
+msgstr ""
+
+msgid "Setup.pvrinput$Use only card"
+msgstr ""
+
 msgid "Setup.pvrinput$use externchannelswitch.sh"
 msgstr ""
 
-msgid "use Hauppauge PVR as input device"
+msgid "Setup.pvrinput$AAC"
 msgstr ""
 
-msgid "PVR picture settings"
+msgid "Setup.pvrinput$AC3"
 msgstr ""
 
-msgid "Setup.pvrinput$Not on an analogue channel!"
+msgid "Setup.pvrinput$RCA back"
 msgstr ""
 
-msgid "SourceParam.pvrinput$Input"
+msgid "Setup.pvrinput$RCA front"
 msgstr ""
 
-msgid "SourceParam.pvrinput$Card"
+msgid "Setup.pvrinput$SPDIF"
 msgstr ""
 
-msgid "SourceParam.pvrinput$Standard"
+msgid "Setup.pvrinput$HDPVR audio encoding"
+msgstr ""
+
+msgid "Setup.pvrinput$HDPVR audio input"
 msgstr ""
