@@ -26,7 +26,6 @@
  ***************************************************************************/
 
 #include "submenu.h"
-#define PVR_DEBUG
 
 static const char *aspectRatios[] = {
   "1:1",
@@ -66,7 +65,6 @@ static const char *tunerAudioModes[] = {
   "bilingual"
   };
 
-#ifdef PVR_DEBUG
 static const char *useOnlyCard[] = {
   "/dev/video0",
   "/dev/video1",
@@ -89,14 +87,12 @@ static const char *useOnlyCard[] = {
   "PVRUSB2",     //18
   "HDPVR"        //19
   };
-#endif
 
-#ifdef PVR_DEBUG
 static const char *streamType[] = {
   "MPEG2 PS",
   "MPEG2 DVD"
   };
-#endif
+
 
 static const char *exceptionVolumeForCard[] = {
   "/dev/video0",
@@ -279,11 +275,9 @@ cPvrMenuExperts::cPvrMenuExperts(cPvrSetup *setupObject) :
           33/*same col value as in cMenuSetupPage::cMenuSetupPage*/),
           setup(setupObject)
 {
-#ifdef PVR_DEBUG
   Add(new cMenuEditStraItem(tr("Setup.pvrinput$Stream type"), &setup->StreamType.value, 2, streamType));
 
   Add(new cMenuEditStraItem(tr("Setup.pvrinput$Use only card"), &setup->UseOnlyCard, 20, useOnlyCard));
-#endif
 
   Add(new cMenuEditBoolItem(tr("Setup.pvrinput$use externchannelswitch.sh"), &setup->UseExternChannelSwitchScript));
 }

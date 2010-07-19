@@ -27,7 +27,6 @@
 
 /*uncomment the following line to allow setting of PvrSetup.UseOnlyCard
 and StreamType.value via OSD menu (see README) */
-#define PVR_DEBUG
 
 #include "common.h"
 #include "submenu.h"
@@ -106,7 +105,12 @@ eOSState cPvrMenuSetup::ProcessKey(eKeys Key) {
       state = cOsdMenu::ProcessKey(Key);
     }
   } else {
-    state = cOsdMenu::ProcessKey(Key);
+    if (Key == kOk) {
+      // next menu has to be pvrinput plugin menu, not settings menu
+      CloseSubMenu();
+    } else {
+      state = cOsdMenu::ProcessKey(Key);
+    }
   }
   return state;
 }
