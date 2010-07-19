@@ -105,12 +105,7 @@ eOSState cPvrMenuSetup::ProcessKey(eKeys Key) {
       state = cOsdMenu::ProcessKey(Key);
     }
   } else {
-    if (Key == kOk) {
-      // next menu has to be pvrinput plugin menu, not settings menu
-      CloseSubMenu();
-    } else {
-      state = cOsdMenu::ProcessKey(Key);
-    }
+    state = cOsdMenu::ProcessKey(Key);
   }
   return state;
 }
