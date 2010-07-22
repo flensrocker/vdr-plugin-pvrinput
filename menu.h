@@ -41,6 +41,7 @@ typedef enum {
 class cPvrMenuSetup : public cMenuSetupPage {
 private:
   cPvrSetup newPvrSetup;
+  cPvrSetup cachedPvrSetup;
 protected:
   virtual void Store();
 public:

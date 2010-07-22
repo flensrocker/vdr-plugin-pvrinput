@@ -34,6 +34,7 @@ and StreamType.value via OSD menu (see README) */
 cPvrMenuSetup::cPvrMenuSetup()
 {
   newPvrSetup = PvrSetup;
+
   // videobitrate in setup.conf is 0..27000, but ivtv 0..27000000
   newPvrSetup.VideoBitrateTV.value = (int)(PvrSetup.VideoBitrateTV.value / 1000);
   newPvrSetup.VideoBitrateTV.queryctrl.minimum = (int)(PvrSetup.VideoBitrateTV.queryctrl.minimum / 1000);
@@ -69,6 +70,7 @@ cPvrMenuSetup::cPvrMenuSetup()
 
   newPvrSetup.StreamType.value = (newPvrSetup.StreamType.value == 0 ? 0 : 1);
 
+  cachedPvrSetup = newPvrSetup;
   Add(new cOsdItem(tr("Setup.pvrinput$General Parameters")));
   Add(new cOsdItem(tr("Setup.pvrinput$Video Parameters")));
   Add(new cOsdItem(tr("Setup.pvrinput$Audio Parameters")));
@@ -84,7 +86,7 @@ eOSState cPvrMenuSetup::ProcessKey(eKeys Key) {
     Store();
   }
   if (Key == kBack && HasSubMenu()) {
-    newPvrSetup = PvrSetup;
+    newPvrSetup = cachedPvrSetup;
   }
   if (!HasSubMenu()) {
     if (Key == kOk) {
@@ -115,6 +117,7 @@ eOSState cPvrMenuSetup::ProcessKey(eKeys Key) {
 
 void cPvrMenuSetup::Store()
 {
+  cachedPvrSetup = newPvrSetup;
   SetupStore("HideMainMenuEntry", PvrSetup.HideMainMenuEntry = newPvrSetup.HideMainMenuEntry);
 
   SetupStore("UseOnlyCard", PvrSetup.UseOnlyCard = newPvrSetup.UseOnlyCard);
