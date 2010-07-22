@@ -80,8 +80,11 @@ cPvrMenuSetup::cPvrMenuSetup()
 
 eOSState cPvrMenuSetup::ProcessKey(eKeys Key) {
   eOSState state = osUnknown;
-  if (Key == kOk || Key == kBack) {
+  if (Key == kOk && HasSubMenu()) {
     Store();
+  }
+  if (Key == kBack && HasSubMenu()) {
+    newPvrSetup = PvrSetup;
   }
   if (!HasSubMenu()) {
     if (Key == kOk) {
