@@ -348,42 +348,12 @@ cPvrDevice *cPvrDevice::Get(int index)
 void cPvrDevice::ReInit(void)
 {
   log(pvrDEBUG1, "cPvrDevice::ReInit /dev/video%d = %s (%s)", number, CARDNAME[cardname], DRIVERNAME[driver]);
-  SetTunerAudioMode(PvrSetup.TunerAudioMode);
-  SetInput(CurrentInput);
-  /* begin new v4l2 ivtv controls */
-  if ((driver == cx18) || (driver == hdpvr))
-    streamType = V4L2_MPEG_STREAM_TYPE_MPEG2_TS;
-  else
-    streamType = (PvrSetup.StreamType.value == 0) ? V4L2_MPEG_STREAM_TYPE_MPEG2_PS : V4L2_MPEG_STREAM_TYPE_MPEG2_DVD;
-  SetControlValue(&PvrSetup.StreamType, streamType);
-  SetControlValue(&PvrSetup.AspectRatio, PvrSetup.AspectRatio.value);
-  SetControlValue(&PvrSetup.AudioBitrate, PvrSetup.AudioBitrate.value);
-  SetControlValue(&PvrSetup.AudioSampling, PvrSetup.AudioSampling.value);
-  if (driver == hdpvr) {
-    SetControlValue(&PvrSetup.HDPVR_AudioEncoding, PvrSetup.HDPVR_AudioEncoding.value);
-    SetAudioInput(PvrSetup.HDPVR_AudioInput);
-    }
-  SetControlValue(&PvrSetup.VideoBitrateTV, PvrSetup.VideoBitrateTV.value);
-  SetControlValue(&PvrSetup.BitrateMode, PvrSetup.BitrateMode.value);
-  SetControlValue(&PvrSetup.GopSize, PvrSetup.GopSize.queryctrl.default_value);
-  SetControlValue(&PvrSetup.GopClosure, PvrSetup.GopClosure.queryctrl.default_value);
-  SetControlValue(&PvrSetup.BFrames, PvrSetup.BFrames.queryctrl.default_value);
-  SetControlValue(&PvrSetup.FilterSpatialMode, PvrSetup.FilterSpatialMode.value);
-  SetControlValue(&PvrSetup.FilterSpatial, PvrSetup.FilterSpatial.value);
-  SetControlValue(&PvrSetup.FilterLumaSpatialType, PvrSetup.FilterLumaSpatialType.value);
-  SetControlValue(&PvrSetup.FilterChromaSpatialType, PvrSetup.FilterChromaSpatialType.value);
-  SetControlValue(&PvrSetup.FilterTemporalMode, PvrSetup.FilterTemporalMode.value);
-  SetControlValue(&PvrSetup.FilterTemporal, PvrSetup.FilterTemporal.value);
-  SetControlValue(&PvrSetup.FilterMedianType, PvrSetup.FilterMedianType.value);
-  SetControlValue(&PvrSetup.FilterLumaMedianBottom, PvrSetup.FilterLumaMedianBottom.value);
-  SetControlValue(&PvrSetup.FilterLumaMedianTop, PvrSetup.FilterLumaMedianTop.value);
-  SetControlValue(&PvrSetup.FilterChromaMedianBottom, PvrSetup.FilterChromaMedianBottom.value);
-  SetControlValue(&PvrSetup.FilterChromaMedianTop, PvrSetup.FilterChromaMedianTop.value);
   SetControlValue(&PvrSetup.Brightness, PvrSetup.Brightness.value);
   SetControlValue(&PvrSetup.Contrast, PvrSetup.Contrast.value);
   SetControlValue(&PvrSetup.Saturation, PvrSetup.Saturation.value);
   SetControlValue(&PvrSetup.Hue, PvrSetup.Hue.value);
-  SetControlValue(&PvrSetup.VideoBitrateTV, PvrSetup.VideoBitrateTV.value);
+  SetControlValue(&PvrSetup.AspectRatio, PvrSetup.AspectRatio.value);
+
   if ((radio_fd >= 0) || (driver == pvrusb2 && CurrentInput == inputs[eRadio])) {
     SetControlValue(&PvrSetup.AudioVolumeFM, PvrSetup.AudioVolumeFM.value);
     SetControlValue(&PvrSetup.AudioMute, (int) (PvrSetup.AudioVolumeFM.value == 0));
@@ -391,6 +361,39 @@ void cPvrDevice::ReInit(void)
   else { //no radio
     SetAudioVolumeTV();
     SetControlValue(&PvrSetup.AudioMute, (int) (PvrSetup.AudioVolumeTVCommon.value == 0));
+    }
+
+  if (!dvrOpen) { 
+    SetTunerAudioMode(PvrSetup.TunerAudioMode);
+    SetInput(CurrentInput);
+    if ((driver == cx18) || (driver == hdpvr))
+      streamType = V4L2_MPEG_STREAM_TYPE_MPEG2_TS;
+    else
+      streamType = (PvrSetup.StreamType.value == 0) ? V4L2_MPEG_STREAM_TYPE_MPEG2_PS : V4L2_MPEG_STREAM_TYPE_MPEG2_DVD;
+    SetControlValue(&PvrSetup.StreamType, streamType);
+    SetControlValue(&PvrSetup.AudioBitrate, PvrSetup.AudioBitrate.value);
+    SetControlValue(&PvrSetup.AudioSampling, PvrSetup.AudioSampling.value);
+    if (driver == hdpvr) {
+      SetControlValue(&PvrSetup.HDPVR_AudioEncoding, PvrSetup.HDPVR_AudioEncoding.value);
+      SetAudioInput(PvrSetup.HDPVR_AudioInput);
+      }
+    SetControlValue(&PvrSetup.VideoBitrateTV, PvrSetup.VideoBitrateTV.value);
+    SetControlValue(&PvrSetup.BitrateMode, PvrSetup.BitrateMode.value);
+    SetControlValue(&PvrSetup.GopSize, PvrSetup.GopSize.queryctrl.default_value);
+    SetControlValue(&PvrSetup.GopClosure, PvrSetup.GopClosure.queryctrl.default_value);
+    SetControlValue(&PvrSetup.BFrames, PvrSetup.BFrames.queryctrl.default_value);
+    SetControlValue(&PvrSetup.FilterSpatialMode, PvrSetup.FilterSpatialMode.value);
+    SetControlValue(&PvrSetup.FilterSpatial, PvrSetup.FilterSpatial.value);
+    SetControlValue(&PvrSetup.FilterLumaSpatialType, PvrSetup.FilterLumaSpatialType.value);
+    SetControlValue(&PvrSetup.FilterChromaSpatialType, PvrSetup.FilterChromaSpatialType.value);
+    SetControlValue(&PvrSetup.FilterTemporalMode, PvrSetup.FilterTemporalMode.value);
+    SetControlValue(&PvrSetup.FilterTemporal, PvrSetup.FilterTemporal.value);
+    SetControlValue(&PvrSetup.FilterMedianType, PvrSetup.FilterMedianType.value);
+    SetControlValue(&PvrSetup.FilterLumaMedianBottom, PvrSetup.FilterLumaMedianBottom.value);
+    SetControlValue(&PvrSetup.FilterLumaMedianTop, PvrSetup.FilterLumaMedianTop.value);
+    SetControlValue(&PvrSetup.FilterChromaMedianBottom, PvrSetup.FilterChromaMedianBottom.value);
+    SetControlValue(&PvrSetup.FilterChromaMedianTop, PvrSetup.FilterChromaMedianTop.value);
+    SetControlValue(&PvrSetup.VideoBitrateTV, PvrSetup.VideoBitrateTV.value);
     }
 }
 
@@ -742,12 +745,10 @@ bool cPvrDevice::OpenDvr(void)
   tsBuffer->Clear();
   ResetBuffering();
   if (!dvrOpen) {
-     if (driver == ivtv || driver == cx18) {
-       if (PvrSetup.repeat_ReInitAll_after_next_encoderstop) {
-          ReInitAll(); //some settings require an encoder stop, so we repeat them now
-          PvrSetup.repeat_ReInitAll_after_next_encoderstop = false;
-          }
-       }
+     if (PvrSetup.repeat_ReInitAll_after_next_encoderstop) {
+        ReInitAll(); //some settings require an encoder stop, so we repeat them now
+        PvrSetup.repeat_ReInitAll_after_next_encoderstop = false;
+        }
      if (!ChannelSettingsDone) {
        if (driver == pvrusb2) {
           while (!pvrusb2_ready) { //re-opening pvrusb2 in SetEncoderState might be in progress
