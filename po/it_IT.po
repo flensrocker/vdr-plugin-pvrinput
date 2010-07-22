@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: it_IT\n"
 "Report-Msgid-Bugs-To: <see README>\n"
 "POT-Creation-Date: 2010-07-08 07:14+0200\n"
-"PO-Revision-Date: 2010-04-06 00:26+0100\n"
+"PO-Revision-Date: 2010-07-17 00:28+0100\n"
 "Last-Translator: Diego Pierotto <vdr-italian@tiscali.it>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -23,29 +23,23 @@ msgstr ""
 msgid "pvrinput no longer supports old channel syntax!"
 msgstr "Sintassi vecchi canali non supportata"
 
-#, fuzzy
 msgid "Setup.pvrinput$General Parameters"
-msgstr "Utilizza solo scheda"
+msgstr "Parametri generali"
 
-#, fuzzy
 msgid "Setup.pvrinput$Video Parameters"
-msgstr "Utilizza solo scheda"
+msgstr "Parametri video"
 
-#, fuzzy
 msgid "Setup.pvrinput$Audio Parameters"
-msgstr "Utilizza solo scheda"
+msgstr "Parametri audio"
 
-#, fuzzy
 msgid "Setup.pvrinput$MPEG Filter Parameters"
-msgstr "Utilizza solo scheda"
+msgstr "Parametri filtro MPEG"
 
-#, fuzzy
 msgid "Setup.pvrinput$Expert Parameters"
-msgstr "Utilizza solo scheda"
+msgstr "Parametri avanzati"
 
-#, fuzzy
 msgid "Setup.pvrinput$HDPVR Parameters"
-msgstr "Utilizza solo scheda"
+msgstr "Parametri HDPVR"
 
 msgid "Setup.pvrinput$Brightness"
 msgstr "Luminosità"
@@ -224,9 +218,8 @@ msgstr "Ingresso audio HDPVR"
 #, fuzzy
 #~ msgid "Setup.pvrinput$General Parameter"
 #~ msgstr "Utilizza solo scheda"
-
 #~ msgid "Setup.pvrinput$PVRUSB2 Stop on Change"
 #~ msgstr "Ferma PVRUSB2 al cambio"
-
 #~ msgid "Setup.pvrinput$Video bitrate Radio (kbit/s)"
 #~ msgstr "Codifica video radio (kbit/s)"
+

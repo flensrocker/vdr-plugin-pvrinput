@@ -26,7 +26,6 @@
  ***************************************************************************/
 
 #include "submenu.h"
-#define PVR_DEBUG
 
 static const char *aspectRatios[] = {
   "1:1",
@@ -66,7 +65,6 @@ static const char *tunerAudioModes[] = {
   "bilingual"
   };
 
-#ifdef PVR_DEBUG
 static const char *useOnlyCard[] = {
   "/dev/video0",
   "/dev/video1",
@@ -89,14 +87,12 @@ static const char *useOnlyCard[] = {
   "PVRUSB2",     //18
   "HDPVR"        //19
   };
-#endif
 
-#ifdef PVR_DEBUG
 static const char *streamType[] = {
   "MPEG2 PS",
   "MPEG2 DVD"
   };
-#endif
+
 
 static const char *exceptionVolumeForCard[] = {
   "/dev/video0",
@@ -121,8 +117,7 @@ static const char *exceptionVolumeForCard[] = {
   };
 
 cPvrMenuGeneral::cPvrMenuGeneral(cPvrSetup *setupObject) :
-  cOsdMenu(tr("Setup.pvrinput$General Parameters"),
-      33/*same col value as in cMenuSetupPage::cMenuSetupPage*/),
+    cPvrSubMenu(tr("Setup.pvrinput$General Parameters")),
       setup(setupObject)
 {
   Add(new cMenuEditIntItem(tr("Setup.pvrinput$Log level"), &setup->LogLevel, 0, 4));
@@ -134,8 +129,7 @@ cPvrMenuGeneral::cPvrMenuGeneral(cPvrSetup *setupObject) :
 
 
 cPvrMenuVideo::cPvrMenuVideo(cPvrSetup *setupObject) :
-      cOsdMenu(tr("Setup.pvrinput$Video Parameters"),
-          33/*same col value as in cMenuSetupPage::cMenuSetupPage*/),
+    cPvrSubMenu(tr("Setup.pvrinput$Video Parameters")),
           setup(setupObject)
 {
   Add(new cMenuEditIntItem(tr("Setup.pvrinput$Brightness"), &setup->Brightness.value, 0, 100));
@@ -164,8 +158,7 @@ cPvrMenuVideo::cPvrMenuVideo(cPvrSetup *setupObject) :
 }
 
 cPvrMenuAudio::cPvrMenuAudio(cPvrSetup *setupObject) :
-      cOsdMenu(tr("Setup.pvrinput$Audio Parameters"),
-          33/*same col value as in cMenuSetupPage::cMenuSetupPage*/),
+    cPvrSubMenu(tr("Setup.pvrinput$Audio Parameters")),
           setup(setupObject)
 {
   Add(new cMenuEditIntItem(tr("Setup.pvrinput$Common Audio volume (TV)"), &setup->AudioVolumeTVCommon.value, 0, 100));
@@ -196,8 +189,7 @@ cPvrMenuAudio::cPvrMenuAudio(cPvrSetup *setupObject) :
 }
 
 cPvrMenuMpegFilter::cPvrMenuMpegFilter(cPvrSetup *setupObject) :
-      cOsdMenu(tr("Setup.pvrinput$MPEG Filter Parameters"),
-          33/*same col value as in cMenuSetupPage::cMenuSetupPage*/),
+    cPvrSubMenu(tr("Setup.pvrinput$MPEG Filter Parameters")),
           setup(setupObject)
 {
   static const char *FilterModes[2];
@@ -275,22 +267,18 @@ cPvrMenuMpegFilter::cPvrMenuMpegFilter(cPvrSetup *setupObject) :
 }
 
 cPvrMenuExperts::cPvrMenuExperts(cPvrSetup *setupObject) :
-      cOsdMenu(tr("Setup.pvrinput$Expert Parameters"),
-          33/*same col value as in cMenuSetupPage::cMenuSetupPage*/),
+    cPvrSubMenu(tr("Setup.pvrinput$Expert Parameters")),
           setup(setupObject)
 {
-#ifdef PVR_DEBUG
   Add(new cMenuEditStraItem(tr("Setup.pvrinput$Stream type"), &setup->StreamType.value, 2, streamType));
 
   Add(new cMenuEditStraItem(tr("Setup.pvrinput$Use only card"), &setup->UseOnlyCard, 20, useOnlyCard));
-#endif
 
   Add(new cMenuEditBoolItem(tr("Setup.pvrinput$use externchannelswitch.sh"), &setup->UseExternChannelSwitchScript));
 }
 
 cPvrMenuHdPvr::cPvrMenuHdPvr(cPvrSetup *setupObject) :
-      cOsdMenu(tr("Setup.pvrinput$HDPVR Parameters"),
-      33/*same col value as in cMenuSetupPage::cMenuSetupPage*/),
+    cPvrSubMenu(tr("Setup.pvrinput$HDPVR Parameters")),
       setup(setupObject) {
 
   static const char *HDPVR_AudioEncodings[2];
@@ -305,4 +293,11 @@ cPvrMenuHdPvr::cPvrMenuHdPvr(cPvrSetup *setupObject) :
   Add(new cMenuEditStraItem(tr("Setup.pvrinput$HDPVR audio encoding"), &setup->HDPVR_AudioEncoding.value, 2, HDPVR_AudioEncodings));
 
   Add(new cMenuEditStraItem(tr("Setup.pvrinput$HDPVR audio input"), &setup->HDPVR_AudioInput, 3, HDPVR_AudioInputs));
+}
+
+eOSState cPvrSubMenu::ProcessKey(eKeys Key) {
+  if (Key == kOk) {
+    return osBack;
+  }
+  return cOsdMenu::ProcessKey(Key);
 }

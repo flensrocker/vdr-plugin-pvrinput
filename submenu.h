@@ -28,8 +28,13 @@
 #include "common.h"
 #include <vdr/osdbase.h>
 
+class cPvrSubMenu : public cOsdMenu {
+public:
+  cPvrSubMenu(const char* text) : cOsdMenu(text, 33) { }
+  virtual eOSState ProcessKey(eKeys Key);
+};
 
-class cPvrMenuGeneral : public cOsdMenu {
+class cPvrMenuGeneral : public cPvrSubMenu {
 private:
   /* Reference to the setup data object, mustn't be deleted within this Object */
   cPvrSetup *setup;
@@ -37,7 +42,7 @@ public:
   cPvrMenuGeneral(cPvrSetup *setupObject);
 };
 
-class cPvrMenuVideo : public cOsdMenu {
+class cPvrMenuVideo : public cPvrSubMenu {
 private:
   /* Reference to the setup data object, mustn't be deleted within this Object */
   cPvrSetup *setup;
@@ -45,7 +50,7 @@ public:
   cPvrMenuVideo(cPvrSetup *setupObject);
 };
 
-class cPvrMenuAudio : public cOsdMenu {
+class cPvrMenuAudio : public cPvrSubMenu {
 private:
   /* Reference to the setup data object, mustn't be deleted within this Object */
   cPvrSetup *setup;
@@ -53,7 +58,7 @@ public:
   cPvrMenuAudio(cPvrSetup *setupObject);
 };
 
-class cPvrMenuMpegFilter : public cOsdMenu {
+class cPvrMenuMpegFilter : public cPvrSubMenu {
 private:
   /* Reference to the setup data object, mustn't be deleted within this Object */
   cPvrSetup *setup;
@@ -61,7 +66,7 @@ public:
   cPvrMenuMpegFilter(cPvrSetup *setupObject);
 };
 
-class cPvrMenuExperts : public cOsdMenu {
+class cPvrMenuExperts : public cPvrSubMenu {
 private:
   /* Reference to the setup data object, mustn't be deleted within this Object */
   cPvrSetup *setup;
@@ -69,7 +74,7 @@ public:
   cPvrMenuExperts(cPvrSetup *setupObject);
 };
 
-class cPvrMenuHdPvr : public cOsdMenu {
+class cPvrMenuHdPvr : public cPvrSubMenu {
 private:
   /* Reference to the setup data object, mustn't be deleted within this Object */
   cPvrSetup *setup;

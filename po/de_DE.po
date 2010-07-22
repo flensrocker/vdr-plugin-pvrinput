@@ -1,26 +1,27 @@
 # translation of de_DE.po to
 # pvrinput
-# Copyright (C) 2007 Andreas Regel, Martin Dauskardt, Winfried K�hler
+# Copyright (C) 2007 Andreas Regel, Martin Dauskardt, Winfried Kï¿œhler
 # This file is distributed under the same license as the PACKAGE package.
 #
 #
-# Andreas Regel, Martin Dauskardt, Winfried K�hler <see README>, 2007.
-# Martin Dauskardt <martin.dauskardt@gmx.de>, 2008.
+# Andreas Regel, Martin Dauskardt, Winfried Kï¿œhler <see README>, 2007.
+# Martin Dauskardt <martin.dauskardt@gmx.de>, 2008, 2010.
 msgid ""
 msgstr ""
 "Project-Id-Version: de_DE\n"
 "Report-Msgid-Bugs-To: <see README>\n"
 "POT-Creation-Date: 2010-07-08 07:14+0200\n"
-"PO-Revision-Date: 2009-10-11 22:39+0200\n"
-"Last-Translator: root\n"
-"Language-Team:  <de@li.org>\n"
+"PO-Revision-Date: 2010-07-14 09:32+0200\n"
+"Last-Translator: Martin Dauskardt <martin.dauskardt@gmx.de>\n"
+"Language-Team: Deutsch <kde-i18n-de@kde.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-15\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
+"X-Generator: Lokalize 1.0\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 
 msgid "pvrinput no longer supports old channel syntax!"
-msgstr "pvrinput unterst�tzt alte Kanalsyntax nicht mehr!"
+msgstr "pvrinput unterstützt alte Kanalsyntax nicht mehr!"
 
 msgid "Setup.pvrinput$General Parameters"
 msgstr "Generelle Einstellungen"
@@ -47,13 +48,13 @@ msgid "Setup.pvrinput$Contrast"
 msgstr "Kontrast"
 
 msgid "Setup.pvrinput$Saturation"
-msgstr "S�ttigung"
+msgstr "Sättigung"
 
 msgid "Setup.pvrinput$Hue"
 msgstr "Farbton"
 
 msgid "use Hauppauge PVR as input device"
-msgstr "Hauppauge PVR als Eingabeger�t "
+msgstr "Hauppauge PVR als Eingabegerät "
 
 msgid "PVR picture settings"
 msgstr "PVR Bildeinstellungen "
@@ -77,7 +78,7 @@ msgid "Setup.pvrinput$Slice VBI Teletext"
 msgstr "Teletext durchschleifen"
 
 msgid "Setup.pvrinput$Hide main menu entry"
-msgstr "Hauptmen�-Eintrag verstecken"
+msgstr "Hauptmenü-Eintrag verstecken"
 
 msgid "Setup.pvrinput$Bitrate mode"
 msgstr "Bitraten Modus"
@@ -86,22 +87,22 @@ msgid "Setup.pvrinput$Video bitrate TV (kbit/s)"
 msgstr "Video Bitrate TV (kbit/s)"
 
 msgid "Setup.pvrinput$Aspect ratio"
-msgstr "Seitenverh�ltnis"
+msgstr "Seitenverhältnis"
 
 msgid "Setup.pvrinput$Common Audio volume (TV)"
-msgstr "allg. TV-Lautst�rke"
+msgstr "allg. TV-Lautstärke"
 
 msgid "Setup.pvrinput$Exception Audio volume (TV)"
-msgstr "abw. TV Lautst�rke"
+msgstr "abw. TV Lautstärke"
 
 msgid "Setup.pvrinput$Exception TV Volume for Card"
-msgstr "abw. TV-Lautst�rke f�r Karte"
+msgstr "abw. TV-Lautstärke für Karte"
 
 msgid "Setup.pvrinput$Tuner Audio Mode"
 msgstr "Tuner Audio Mode"
 
 msgid "Setup.pvrinput$Audio radio volume"
-msgstr "FM Radio Lautst�rke"
+msgstr "FM Radio Lautstärke"
 
 msgid "Setup.pvrinput$Audio bitrate (kbit/s)"
 msgstr "Audio Bitrate (kbit/s)"
@@ -155,7 +156,7 @@ msgid "Setup.pvrinput$Mode Spatial Video Filter"
 msgstr "Modus Spatial Video Filter"
 
 msgid "Setup.pvrinput$Strength Spatial Video Filter"
-msgstr "St�rke Spatial Video Filter"
+msgstr "Stärke Spatial Video Filter"
 
 msgid "Setup.pvrinput$Luma Spatial Filter Type"
 msgstr "Helligkeit Spatial Filter Typ"
@@ -167,7 +168,7 @@ msgid "Setup.pvrinput$Mode Temporal Video Filter"
 msgstr "Modus Temporal Video Filter"
 
 msgid "Setup.pvrinput$Strength Temporal Video Filter"
-msgstr "St�rke Temporal Video Filter"
+msgstr "Stärke Temporal Video Filter"
 
 msgid "Setup.pvrinput$Median Filter Type"
 msgstr "Median Filter Typ"
@@ -187,7 +188,6 @@ msgstr "Chroma Median Filter Oben"
 msgid "Setup.pvrinput$Stream type"
 msgstr "Stream Typ"
 
-#, fuzzy
 msgid "Setup.pvrinput$Use only card"
 msgstr "verwende nur Karte"
 
