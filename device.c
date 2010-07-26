@@ -353,6 +353,17 @@ void cPvrDevice::ReInit(void)
   SetControlValue(&PvrSetup.Saturation, PvrSetup.Saturation.value);
   SetControlValue(&PvrSetup.Hue, PvrSetup.Hue.value);
   SetControlValue(&PvrSetup.AspectRatio, PvrSetup.AspectRatio.value);
+  SetControlValue(&PvrSetup.FilterSpatialMode, PvrSetup.FilterSpatialMode.value);
+  SetControlValue(&PvrSetup.FilterSpatial, PvrSetup.FilterSpatial.value);
+  SetControlValue(&PvrSetup.FilterLumaSpatialType, PvrSetup.FilterLumaSpatialType.value);
+  SetControlValue(&PvrSetup.FilterChromaSpatialType, PvrSetup.FilterChromaSpatialType.value);
+  SetControlValue(&PvrSetup.FilterTemporalMode, PvrSetup.FilterTemporalMode.value);
+  SetControlValue(&PvrSetup.FilterTemporal, PvrSetup.FilterTemporal.value);
+  SetControlValue(&PvrSetup.FilterMedianType, PvrSetup.FilterMedianType.value);
+  SetControlValue(&PvrSetup.FilterLumaMedianBottom, PvrSetup.FilterLumaMedianBottom.value);
+  SetControlValue(&PvrSetup.FilterLumaMedianTop, PvrSetup.FilterLumaMedianTop.value);
+  SetControlValue(&PvrSetup.FilterChromaMedianBottom, PvrSetup.FilterChromaMedianBottom.value);
+  SetControlValue(&PvrSetup.FilterChromaMedianTop, PvrSetup.FilterChromaMedianTop.value);
 
   if ((radio_fd >= 0) || (driver == pvrusb2 && CurrentInput == inputs[eRadio])) {
     SetControlValue(&PvrSetup.AudioVolumeFM, PvrSetup.AudioVolumeFM.value);
@@ -382,18 +393,6 @@ void cPvrDevice::ReInit(void)
     SetControlValue(&PvrSetup.GopSize, PvrSetup.GopSize.queryctrl.default_value);
     SetControlValue(&PvrSetup.GopClosure, PvrSetup.GopClosure.queryctrl.default_value);
     SetControlValue(&PvrSetup.BFrames, PvrSetup.BFrames.queryctrl.default_value);
-    SetControlValue(&PvrSetup.FilterSpatialMode, PvrSetup.FilterSpatialMode.value);
-    SetControlValue(&PvrSetup.FilterSpatial, PvrSetup.FilterSpatial.value);
-    SetControlValue(&PvrSetup.FilterLumaSpatialType, PvrSetup.FilterLumaSpatialType.value);
-    SetControlValue(&PvrSetup.FilterChromaSpatialType, PvrSetup.FilterChromaSpatialType.value);
-    SetControlValue(&PvrSetup.FilterTemporalMode, PvrSetup.FilterTemporalMode.value);
-    SetControlValue(&PvrSetup.FilterTemporal, PvrSetup.FilterTemporal.value);
-    SetControlValue(&PvrSetup.FilterMedianType, PvrSetup.FilterMedianType.value);
-    SetControlValue(&PvrSetup.FilterLumaMedianBottom, PvrSetup.FilterLumaMedianBottom.value);
-    SetControlValue(&PvrSetup.FilterLumaMedianTop, PvrSetup.FilterLumaMedianTop.value);
-    SetControlValue(&PvrSetup.FilterChromaMedianBottom, PvrSetup.FilterChromaMedianBottom.value);
-    SetControlValue(&PvrSetup.FilterChromaMedianTop, PvrSetup.FilterChromaMedianTop.value);
-    SetControlValue(&PvrSetup.VideoBitrateTV, PvrSetup.VideoBitrateTV.value);
     }
 }
 
