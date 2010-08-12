@@ -345,6 +345,29 @@ cPvrDevice *cPvrDevice::Get(int index)
   return NULL;
 }
 
+int  cPvrDevice::ReOpen(void)
+{
+  log(pvrDEBUG1, "cPvrDevice::ReOpen /dev/video%d = %s (%s)", number, CARDNAME[cardname], DRIVERNAME[driver]);
+  int retry_count = 5;
+  cString devName = cString::sprintf("/dev/video%d", number);
+  retry:
+  close(v4l2_fd);
+  v4l2_fd = open(devName, O_RDWR);
+  if (v4l2_fd < 0) {
+    log(pvrERROR, "cPvrDevice::ReOpen: error reopening %s (%s): %d:%s",
+        CARDNAME[cardname], *devName, errno, strerror(errno));
+    retry_count--;
+    if (retry_count > 0) {
+      usleep(1000000);
+      goto retry;
+      }
+    }
+  else {
+    log(pvrDEBUG2, "cPvrDevice::ReOpen: %s (%s) successfully re-opened", *devName, CARDNAME[cardname]);
+    }
+  return v4l2_fd;
+}
+
 void cPvrDevice::ReInit(void)
 {
   log(pvrDEBUG1, "cPvrDevice::ReInit /dev/video%d = %s (%s)", number, CARDNAME[cardname], DRIVERNAME[driver]);

@@ -500,6 +500,10 @@ void cPvrReadThread::Action(void)
   uint8_t *buffer = new uint8_t[bufferSize];
   int r;
   int retries = 3;
+  int reopen_retries = 5;
+  struct timeval selTimeout;
+  fd_set selSet;
+
   log(pvrDEBUG1,"cPvrReadThread::Action(): Entering Action()");
   // A derived cThread class must check Running()
   // repeatedly to see whether it's time to stop.
@@ -543,21 +547,50 @@ void cPvrReadThread::Action(void)
     }
   retry:
   while (Running() && parent->readThreadRunning) {
-    r = read(parent->v4l2_fd, buffer, bufferSize);
-    if (r < 0) {
-      log(pvrERROR, "cPvrReadThread::Action():error reading from /dev/video%d: %d:%s %s",
-          parent->number, errno, strerror(errno), (--retries > 0) ? " - retrying" : "");
-      if (retries > 0) {
-         usleep(100);
-         goto retry;
+    selTimeout.tv_sec = 0;
+    selTimeout.tv_usec = 200000;
+    FD_ZERO(&selSet);
+    FD_SET(parent->v4l2_fd, &selSet);
+    r = select(parent->v4l2_fd + 1, &selSet, 0, 0, &selTimeout);
+    if ((r == 0) && (errno == 0)) {
+       log(pvrDEBUG1, "cPvrReadThread::Action():timeout on select from /dev/video%d: %d:%s %s",
+           parent->number, errno, strerror(errno), (retries > 0) ? " - retrying" : "");
+       }
+    else if ((r < 0) || (errno != 0)) {
+       log(pvrERROR, "cPvrReadThread::Action():error on select from /dev/video%d: %d:%s %s",
+           parent->number, errno, strerror(errno), (retries > 0) ? " - retrying" : "");
+       retries--;
+       if (retries > 0) {
+          usleep(100);
+          goto retry;
+          }
+       while (reopen_retries > 0) {
+          reopen_retries--;
+          if (parent->ReOpen() > 0) {
+             retries = 3;
+             goto retry;
+             }
+          }
+       break;
+       }
+    else if (FD_ISSET(parent->v4l2_fd, &selSet)) {
+       r = read(parent->v4l2_fd, buffer, bufferSize);
+       if (r < 0) {
+         log(pvrERROR, "cPvrReadThread::Action():error reading from /dev/video%d: %d:%s %s",
+             parent->number, errno, strerror(errno), (retries > 0) ? " - retrying" : "");
+         retries--;
+         if (retries > 0) {
+            usleep(100);
+            goto retry;
+            }
+         break;
          }
-      break;
-      }
-    if (r > 0) {
-      if (parent->streamType == V4L2_MPEG_STREAM_TYPE_MPEG2_TS)
-        PutData(buffer, r);
-      else
-        ParseProgramStream(buffer, r);
+       if (r > 0) {
+         if (parent->streamType == V4L2_MPEG_STREAM_TYPE_MPEG2_TS)
+           PutData(buffer, r);
+         else
+           ParseProgramStream(buffer, r);
+         }
       }
     }
   delete [] buffer;
