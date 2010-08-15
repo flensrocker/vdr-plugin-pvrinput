@@ -302,15 +302,15 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
 
       payload_length = Length - 9 - Data[8];
       payload_data = Data + 9 + Data[8];
-      if (memcmp(payload_data, "itv0", 4) == 0)
+      if (memcmp(payload_data, V4L2_MPEG_VBI_IVTV_MAGIC0, 4) == 0)
         pos = 12;
-      else if (memcmp(payload_data, "ITV0", 4) == 0)
+      else if (memcmp(payload_data, V4L2_MPEG_VBI_IVTV_MAGIC1, 4) == 0)
         pos = 4;
       else
         return;
 
       while (pos + 43 <= payload_length) {
-        if ((payload_data[pos] & 0x0F) == 0x01)  { //VBI_TYPE_TELETEXT
+        if ((payload_data[pos] & 0x0F) == V4L2_MPEG_VBI_IVTV_TELETEXT_B) {
           ts_buffer[4 + ts_pos * 46] = 0x02; // data_unit_id
           ts_buffer[5 + ts_pos * 46] = 0x2C; // data_unit_length
           ts_buffer[6 + ts_pos * 46] = 0x00; // field_parity, line_offset
