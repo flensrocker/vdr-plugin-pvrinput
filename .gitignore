@@ -1,0 +1,5 @@
+.dependencies
+*.[oa]
+*.so
+po/*.mo
+po/pvrinput.pot

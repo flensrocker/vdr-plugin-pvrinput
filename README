@@ -370,17 +370,14 @@ devices will be used.
 Note: Don't change vdr's setup.conf while vdr is running, it won't take effect
 and will be overwritten by vdr when vdr terminates.
 There is also an OSD menu entry to allow setting PvrSetup.UseOnlyCard while
-vdr is running. By default it is not visible to avoid confusion of a common
-user. To use this feature just uncomment "//#define PVR_DEBUG" in the top of
-menu.c before compiling the plugin. (Note: will be uncommented by default in
-development snapshots)
+vdr is running. Have a look in the 'Expert Parameters' submenu.
 
 Using Stream type V4L2_MPEG_STREAM_TYPE_MPEG2_DVD (not possible for HD PVR)
 ---------------------------------------------------------------------------
 Some users have reported that recordings which were done using this stream type
 work better with the burn plugin or mplex. 
 If you want to use this stream, you can use PvrSetup.StreamType=1 by editing
-the setup.conf. There is also a menu entry when compiling as described above.
+the setup.conf. There is also a menu entry in the 'Expert Parameters' submenu.
 
 Adjust different Audio volume levels (not possible for HD PVR)
 --------------------------------------------------------------
@@ -414,3 +411,6 @@ an external input, pvrinput will call this script with three arguments:
 
 It is up to you what you want to do in this script. For example, you could
 use the lirc irsend command. The scripts contains an exampe for usage of dct6200.  
+
+Note: You need to activate 'use externchannelswitch.sh' in the
+'Expert Parameters' submenu.

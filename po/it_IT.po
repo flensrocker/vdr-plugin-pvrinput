@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: it_IT\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2010-03-21 21:18+0100\n"
-"PO-Revision-Date: 2010-04-06 00:26+0100\n"
+"POT-Creation-Date: 2010-07-08 07:14+0200\n"
+"PO-Revision-Date: 2010-07-17 00:28+0100\n"
 "Last-Translator: Diego Pierotto <vdr-italian@tiscali.it>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -22,6 +22,102 @@ msgstr ""
 
 msgid "pvrinput no longer supports old channel syntax!"
 msgstr "Sintassi vecchi canali non supportata"
+
+msgid "Setup.pvrinput$General Parameters"
+msgstr "Parametri generali"
+
+msgid "Setup.pvrinput$Video Parameters"
+msgstr "Parametri video"
+
+msgid "Setup.pvrinput$Audio Parameters"
+msgstr "Parametri audio"
+
+msgid "Setup.pvrinput$MPEG Filter Parameters"
+msgstr "Parametri filtro MPEG"
+
+msgid "Setup.pvrinput$Expert Parameters"
+msgstr "Parametri avanzati"
+
+msgid "Setup.pvrinput$HDPVR Parameters"
+msgstr "Parametri HDPVR"
+
+msgid "Setup.pvrinput$Brightness"
+msgstr "Luminosità"
+
+msgid "Setup.pvrinput$Contrast"
+msgstr "Contrasto"
+
+msgid "Setup.pvrinput$Saturation"
+msgstr "Saturazione"
+
+msgid "Setup.pvrinput$Hue"
+msgstr "Tonalità"
+
+msgid "use Hauppauge PVR as input device"
+msgstr "utilizza Hauppauge PVR come periferica ingresso"
+
+msgid "PVR picture settings"
+msgstr "Impostazioni immagine PVR"
+
+msgid "Setup.pvrinput$Not on an analogue channel!"
+msgstr "Non è un canale analogico!"
+
+msgid "SourceParam.pvrinput$Input"
+msgstr "Ingresso"
+
+msgid "SourceParam.pvrinput$Card"
+msgstr "Scheda"
+
+msgid "SourceParam.pvrinput$Standard"
+msgstr "Standard"
+
+msgid "Setup.pvrinput$Log level"
+msgstr "Livello log"
+
+msgid "Setup.pvrinput$Slice VBI Teletext"
+msgstr "Sezione televideo VBI"
+
+msgid "Setup.pvrinput$Hide main menu entry"
+msgstr "Nascondi voce menu principale"
+
+msgid "Setup.pvrinput$Bitrate mode"
+msgstr "Modalità codifica"
+
+msgid "Setup.pvrinput$Video bitrate TV (kbit/s)"
+msgstr "Codifica video TV (kbit/s)"
+
+msgid "Setup.pvrinput$Aspect ratio"
+msgstr "Formato video"
+
+msgid "Setup.pvrinput$Common Audio volume (TV)"
+msgstr "Volume audio TV generale"
+
+msgid "Setup.pvrinput$Exception Audio volume (TV)"
+msgstr "Volume audio TV specifico"
+
+msgid "Setup.pvrinput$Exception TV Volume for Card"
+msgstr "Volume audio TV specifico per scheda"
+
+msgid "Setup.pvrinput$Tuner Audio Mode"
+msgstr "Modalità sintonizzatore audio"
+
+msgid "Setup.pvrinput$Audio radio volume"
+msgstr "Volume audio radio"
+
+msgid "Setup.pvrinput$Audio bitrate (kbit/s)"
+msgstr "Codifica audio (kbit/s)"
+
+msgid "Setup.pvrinput$44.1 kHz"
+msgstr "44.1 kHz"
+
+msgid "Setup.pvrinput$48 kHz"
+msgstr "48 kHz"
+
+msgid "Setup.pvrinput$32 kHz"
+msgstr "32 kHz"
+
+msgid "Setup.pvrinput$Audio sampling rate"
+msgstr "Codifica campione audio"
 
 msgid "Setup.pvrinput$manual"
 msgstr "manuale"
@@ -56,93 +152,6 @@ msgstr "orizzontale e verticale"
 msgid "Setup.pvrinput$diagonal"
 msgstr "diagonale"
 
-msgid "Setup.pvrinput$44.1 kHz"
-msgstr "44.1 kHz"
-
-msgid "Setup.pvrinput$48 kHz"
-msgstr "48 kHz"
-
-msgid "Setup.pvrinput$32 kHz"
-msgstr "32 kHz"
-
-msgid "Setup.pvrinput$AAC"
-msgstr "AAC"
-
-msgid "Setup.pvrinput$AC3"
-msgstr "AC3"
-
-msgid "Setup.pvrinput$RCA back"
-msgstr "RCA dietro"
-
-msgid "Setup.pvrinput$RCA front"
-msgstr "RCA davanti"
-
-msgid "Setup.pvrinput$SPDIF"
-msgstr "SPDIF"
-
-msgid "Setup.pvrinput$Hide main menu entry"
-msgstr "Nascondi voce menu principale"
-
-msgid "Setup.pvrinput$Use only card"
-msgstr "Utilizza solo scheda"
-
-msgid "Setup.pvrinput$Log level"
-msgstr "Livello log"
-
-msgid "Setup.pvrinput$Slice VBI Teletext"
-msgstr "Sezione televideo VBI"
-
-msgid "Setup.pvrinput$Tuner Audio Mode"
-msgstr "Modalità sintonizzatore audio"
-
-msgid "Setup.pvrinput$Brightness"
-msgstr "Luminosità"
-
-msgid "Setup.pvrinput$Contrast"
-msgstr "Contrasto"
-
-msgid "Setup.pvrinput$Saturation"
-msgstr "Saturazione"
-
-msgid "Setup.pvrinput$Hue"
-msgstr "Tonalità"
-
-msgid "Setup.pvrinput$Common Audio volume (TV)"
-msgstr "Volume audio TV generale"
-
-msgid "Setup.pvrinput$Exception Audio volume (TV)"
-msgstr "Volume audio TV specifico"
-
-msgid "Setup.pvrinput$Exception TV Volume for Card"
-msgstr "Volume audio TV specifico per scheda"
-
-msgid "Setup.pvrinput$Audio radio volume"
-msgstr "Volume audio radio"
-
-msgid "Setup.pvrinput$Audio bitrate (kbit/s)"
-msgstr "Codifica audio (kbit/s)"
-
-msgid "Setup.pvrinput$Audio sampling rate"
-msgstr "Codifica campione audio"
-
-msgid "Setup.pvrinput$HDPVR audio encoding"
-msgstr "Codifica audio HDPVR"
-
-msgid "Setup.pvrinput$HDPVR audio input"
-msgstr "Ingresso audio HDPVR"
-
-msgid "Setup.pvrinput$Video bitrate TV (kbit/s)"
-msgstr "Codifica video TV (kbit/s)"
-
-msgid "Setup.pvrinput$Bitrate mode"
-msgstr "Modalità codifica"
-
-msgid "Setup.pvrinput$Aspect ratio"
-msgstr "Formato video"
-
-msgid "Setup.pvrinput$Stream type"
-msgstr "Stream Tipo"
-
 msgid "Setup.pvrinput$Mode Spatial Video Filter"
 msgstr "Filtro video modalità spaziale"
 
@@ -176,27 +185,39 @@ msgstr "Filtro inferiore croma mediana"
 msgid "Setup.pvrinput$Chroma Median Filter Top"
 msgstr "Filtro superiore croma mediana"
 
+msgid "Setup.pvrinput$Stream type"
+msgstr "Stream Tipo"
+
+msgid "Setup.pvrinput$Use only card"
+msgstr "Utilizza solo scheda"
+
 msgid "Setup.pvrinput$use externchannelswitch.sh"
 msgstr "usa externchannelswitch.sh"
 
-msgid "use Hauppauge PVR as input device"
-msgstr "utilizza Hauppauge PVR come periferica ingresso"
+msgid "Setup.pvrinput$AAC"
+msgstr "AAC"
 
-msgid "PVR picture settings"
-msgstr "Impostazioni immagine PVR"
+msgid "Setup.pvrinput$AC3"
+msgstr "AC3"
 
-msgid "Setup.pvrinput$Not on an analogue channel!"
-msgstr "Non è un canale analogico!"
+msgid "Setup.pvrinput$RCA back"
+msgstr "RCA dietro"
 
-msgid "SourceParam.pvrinput$Input"
-msgstr "Ingresso"
+msgid "Setup.pvrinput$RCA front"
+msgstr "RCA davanti"
 
-msgid "SourceParam.pvrinput$Card"
-msgstr "Scheda"
+msgid "Setup.pvrinput$SPDIF"
+msgstr "SPDIF"
 
-msgid "SourceParam.pvrinput$Standard"
-msgstr "Standard"
+msgid "Setup.pvrinput$HDPVR audio encoding"
+msgstr "Codifica audio HDPVR"
 
+msgid "Setup.pvrinput$HDPVR audio input"
+msgstr "Ingresso audio HDPVR"
+
+#, fuzzy
+#~ msgid "Setup.pvrinput$General Parameter"
+#~ msgstr "Utilizza solo scheda"
 #~ msgid "Setup.pvrinput$PVRUSB2 Stop on Change"
 #~ msgstr "Ferma PVRUSB2 al cambio"
 #~ msgid "Setup.pvrinput$Video bitrate Radio (kbit/s)"
