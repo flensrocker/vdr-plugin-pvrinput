@@ -8,6 +8,7 @@ const short kVideoPid    = 301;
 const short kAudioPid    = 300;
 const short kTeletextPid = 305;
 const short kPCRPid      = 101;
+enum eVbiFormat { vbifmt_itv0, vbifmt_ITV0 };
 
 const unsigned char kPAT[TS_SIZE] = {
   0x47, 0x40, 0x00, 0x10, 0x00, 0x00, 0xb0, 0x0d,
@@ -290,55 +291,175 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
         } // end: if (Payload_Rest > 0)
       break; // end: case 0xE0..0xEF:
     case 0xBD: {
-      uint8_t *payload_data;
-      uint16_t payload_length;
-      uint32_t pos = 0;
-      uint32_t ts_pos = 0;
-      memset(ts_buffer, 0, TS_SIZE);
+      v4l2_mpeg_vbi_fmt_ivtv *vbi_fmt = (v4l2_mpeg_vbi_fmt_ivtv*)(Data + 9 + Data[8]);
+      eVbiFormat fmt;
+      if (memcmp(vbi_fmt->magic, V4L2_MPEG_VBI_IVTV_MAGIC0, 4) == 0)
+         fmt = vbifmt_itv0;
+      else if (memcmp(vbi_fmt->magic, V4L2_MPEG_VBI_IVTV_MAGIC1, 4) == 0)
+         fmt = vbifmt_ITV0;
+      else
+         return; // no known format
+      
+      uint16_t needed_size = 0;
+      switch (fmt) {
+        case vbifmt_itv0: {
+          uint32_t bit = 1;
+          int line_nr = 0;
+          while (bit != 0) {
+                if (vbi_fmt->itv0.linemask[0] & bit) {
+                   if ((line_nr < 35) && ((vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_TELETEXT_B)
+                      //|| (vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_WSS_625) // implement in the future
+                      //|| (vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_VPS)     // for now only teletext
+                      ))
+                      needed_size += 46;
+                   line_nr++;
+                   }
+                bit <<= 1;
+                }
+          bit = 1;
+          while (bit != 0x10) {
+                if (vbi_fmt->itv0.linemask[1] & bit) {
+                   if ((line_nr < 35) && ((vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_TELETEXT_B)
+                      //|| (vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_WSS_625) // implement in the future
+                      //|| (vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_VPS)     // for now only teletext
+                      ))
+                      needed_size += 46;
+                   line_nr++;
+                   }
+                bit <<= 1;
+                }
+          break;
+          }
+        case vbifmt_ITV0: {
+          if ((36 * sizeof(v4l2_mpeg_vbi_itv0_line) + 9 + Data[8] + 4) > Length)
+             return; // not enough data
+          for (int vbiNr = 0; vbiNr < 36; vbiNr++) {
+              if ((vbi_fmt->ITV0.line[vbiNr].id == V4L2_MPEG_VBI_IVTV_TELETEXT_B)
+                  //|| (vbi_fmt->ITV0.line[vbiNr].id == V4L2_MPEG_VBI_IVTV_WSS_625) // implement in the future
+                  //|| (vbi_fmt->ITV0.line[vbiNr].id == V4L2_MPEG_VBI_IVTV_VPS)     // for now only teletext
+                 )
+                 needed_size += 46;
+              }
+          break;
+          }
+        }
+      if (needed_size == 0)
+         return; // no lines for translation
+      needed_size += 46; // for PES header
+      uint16_t mod = needed_size % 184;
+      if (mod > 0)
+         needed_size += 184 - mod; // fill the last packet with stuffing
+      memset(ts_buffer, 0xFF, TS_SIZE);
       ts_buffer[0] = TS_SYNC_BYTE;
       ts_buffer[1] = (first ? 0x40 : 0x00) | (kTeletextPid >> 8);
       ts_buffer[2] = kTeletextPid & 0xFF;
       ts_buffer[3] = 0x10 | text_counter;
-
-      payload_length = Length - 9 - Data[8];
-      payload_data = Data + 9 + Data[8];
-      if (memcmp(payload_data, V4L2_MPEG_VBI_IVTV_MAGIC0, 4) == 0)
-        pos = 12;
-      else if (memcmp(payload_data, V4L2_MPEG_VBI_IVTV_MAGIC1, 4) == 0)
-        pos = 4;
-      else
-        return;
-
-      while (pos + 43 <= payload_length) {
-        if ((payload_data[pos] & 0x0F) == V4L2_MPEG_VBI_IVTV_TELETEXT_B) {
-          ts_buffer[4 + ts_pos * 46] = 0x02; // data_unit_id
-          ts_buffer[5 + ts_pos * 46] = 0x2C; // data_unit_length
-          ts_buffer[6 + ts_pos * 46] = 0x00; // field_parity, line_offset
-          ts_buffer[7 + ts_pos * 46] = 0xE4; // framing_code
-          for (int j = 0; j < 42; j++)
-            ts_buffer[8 + ts_pos * 46 + j] = kInvTab[payload_data[pos + 1 + j]];
-          ts_pos++;
-          if (ts_pos == 4) {
-            ts_pos = 0;
-            PutData(ts_buffer, TS_SIZE);
-            first = false;
-            packet_counter--;
-            text_counter = (text_counter + 1) & 15;
-            memset(ts_buffer, 0, TS_SIZE);
-            ts_buffer[0] = TS_SYNC_BYTE;
-            ts_buffer[1] = (first ? 0x40 : 0x00) | (kTeletextPid >> 8);
-            ts_buffer[2] = kTeletextPid & 0xFF;
-            ts_buffer[3] = 0x10 | text_counter;
+      memcpy(ts_buffer + 4, Data, 9 + Data[8]);
+      ts_buffer[8] = ((needed_size - 6) >> 8) & 0xFF; // decrease by length of "00 00 01 bd xx xx"
+      ts_buffer[9] = (needed_size - 6) & 0xFF;
+      ts_buffer[12] = 0x24;
+      ts_buffer[49] = 0x10; // data identifier for EBU data
+      uint8_t  ts_line_nr = 1;
+      uint8_t  ITV0_vbiLineNr = 0;
+      uint8_t  itv0_vbiLineNr = 0;
+      uint32_t itv0_bit = 1;
+      uint8_t  itv0_linemaskNr = 0;
+      uint8_t  itv0_field_parity = 1;
+      uint8_t  itv0_line_offset = 6;
+      while (true) {
+            v4l2_mpeg_vbi_itv0_line *vbi_line = 0;
+            uint8_t data_unit_id = 0;
+            uint8_t framing_code = 0;
+            uint8_t field_parity = 0;
+            uint8_t line_offset = 0;
+            switch (fmt) {
+              case vbifmt_itv0: {
+                if ((itv0_vbiLineNr < 35) && (vbi_fmt->itv0.linemask[itv0_linemaskNr] & itv0_bit)) {
+                   switch (vbi_fmt->itv0.line[itv0_vbiLineNr].id) {
+                     case V4L2_MPEG_VBI_IVTV_TELETEXT_B: {
+                       data_unit_id = 0x02;
+                       framing_code = 0xE4;
+                       break;
+                       }
+                     case V4L2_MPEG_VBI_IVTV_WSS_625: {
+                       break;
+                       }
+                     case V4L2_MPEG_VBI_IVTV_VPS: {
+                       break;
+                       }
+                     }
+                   if (data_unit_id != 0) {
+                      vbi_line = &vbi_fmt->itv0.line[itv0_vbiLineNr];
+                      field_parity = itv0_field_parity;
+                      line_offset = itv0_line_offset;
+                      }
+                   itv0_vbiLineNr++;
+                   }
+                itv0_bit <<= 1;
+                if ((itv0_linemaskNr == 0) && (itv0_bit == 0)) {
+                   itv0_bit = 1;
+                   itv0_linemaskNr++;
+                   }
+                itv0_line_offset++;
+                if (itv0_line_offset == 24) {
+                   itv0_field_parity = 0;
+                   itv0_line_offset = 6;
+                   }
+                break;
+                }
+              case vbifmt_ITV0: {
+                switch (vbi_fmt->ITV0.line[ITV0_vbiLineNr].id) {
+                  case V4L2_MPEG_VBI_IVTV_TELETEXT_B: {
+                    data_unit_id = 0x02;
+                    framing_code = 0xE4;
+                    break;
+                    }
+                  case V4L2_MPEG_VBI_IVTV_WSS_625: {
+                    break;
+                    }
+                  case V4L2_MPEG_VBI_IVTV_VPS: {
+                    break;
+                    }
+                  }
+                if (data_unit_id != 0) {
+                   vbi_line = &vbi_fmt->ITV0.line[ITV0_vbiLineNr];
+                   field_parity = (ITV0_vbiLineNr < 18) ? 1 : 0;
+                   line_offset = (ITV0_vbiLineNr < 18) ? (ITV0_vbiLineNr + 6) : (ITV0_vbiLineNr - 12);
+                   }
+                ITV0_vbiLineNr++;
+                break;
+                }
+              }
+            
+            if (vbi_line != 0) {
+                if (ts_line_nr == 0) { // send current packet and prepare next one
+                   first = false;
+                   packet_counter--;
+                   text_counter = (text_counter + 1) & 15;
+                   memset(ts_buffer, 0xFF, TS_SIZE);
+                   ts_buffer[0] = TS_SYNC_BYTE;
+                   ts_buffer[1] = (first ? 0x40 : 0x00) | (kTeletextPid >> 8);
+                   ts_buffer[2] = kTeletextPid & 0xFF;
+                   ts_buffer[3] = 0x10 | text_counter;
+                   }
+                ts_buffer[4 + ts_line_nr * 46 + 0] = data_unit_id;
+                ts_buffer[4 + ts_line_nr * 46 + 1] = 0x2C;
+                ts_buffer[4 + ts_line_nr * 46 + 2] = 0xC0 | (field_parity << 5) | (line_offset & 0x1f);
+                ts_buffer[4 + ts_line_nr * 46 + 3] = framing_code;
+                for (int datNr = 0; datNr < 42; datNr++)
+                    ts_buffer[4 + ts_line_nr * 46 + 4 + datNr] = kInvTab[vbi_line->data[datNr]];
+                ts_line_nr++;
+                if (ts_line_nr == 4)
+                   ts_line_nr = 0;
+               }
+            if (((fmt == vbifmt_itv0) && (itv0_bit == 0x10) && (itv0_linemaskNr == 1))
+               || ((fmt == vbifmt_ITV0) && (ITV0_vbiLineNr == 36)))
+               break;
             }
-          }
-        pos += 43;
-        }
-      if (ts_pos > 0) {
-        PutData(ts_buffer, TS_SIZE);
-        first = false;
-        packet_counter--;
-        text_counter = (text_counter + 1) & 15;
-        }
+      while ((ts_line_nr > 0) && (ts_line_nr < 4)) { // ts_buffer is initialized with 0xFF, so just set the data unit length for the stuffing lines
+            ts_buffer[4 + ts_line_nr * 46 + 1] = 0x2C;
+            ts_line_nr++;
+            }
       break; // end: case 0xBD:
       }
     } // end: switch (stream_id)
