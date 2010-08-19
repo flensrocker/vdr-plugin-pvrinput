@@ -864,8 +864,8 @@ bool cPvrDevice::OpenDvr(void)
                   return false;
                if (!SetVideoNorm(newNorm))
                   return false;
-               if (!SetVBImode(newLinesPerFrame, PvrSetup.SliceVBI))
-                  return false;
+               //if (!SetVBImode(newLinesPerFrame, PvrSetup.SliceVBI))
+               //   return false;
                if (!Tune(newFrequency))
                   return false;
                }
@@ -874,6 +874,8 @@ bool cPvrDevice::OpenDvr(void)
        ChannelSettingsDone = true;
        FirstChannelSwitch = false;
        } //end: if ((!ChannelSettingsDone)
+     if (CurrentInputType == eTelevision)
+        SetVBImode(newLinesPerFrame, PvrSetup.SliceVBI);
      SetEncoderState(eStart);
      if (!readThreadRunning) {
         log(pvrDEBUG2, "cPvrDevice::OpenDvr: create new readThread on /dev/video%d (%s)", number, CARDNAME[cardname]);

@@ -433,6 +433,7 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
             
             if (vbi_line != 0) {
                 if (ts_line_nr == 0) { // send current packet and prepare next one
+                   PutData(ts_buffer, TS_SIZE);
                    first = false;
                    packet_counter--;
                    text_counter = (text_counter + 1) & 15;
@@ -460,6 +461,7 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
             ts_buffer[4 + ts_line_nr * 46 + 1] = 0x2C;
             ts_line_nr++;
             }
+      PutData(ts_buffer, TS_SIZE);
       break; // end: case 0xBD:
       }
     } // end: switch (stream_id)
