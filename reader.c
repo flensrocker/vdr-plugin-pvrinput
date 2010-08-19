@@ -233,7 +233,7 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
      packet_counter = SENDPATPMT_PACKETINTERVAL;
      }
 
-  if (pes_scr_isvalid) { // send PCR packet
+  if (pes_scr_isvalid && (stream_id != 0xBD)) { // send PCR packet but not PCR of vbi data
      ts_buffer[0] = TS_SYNC_BYTE;
      ts_buffer[1] = kPCRPid >> 8;
      ts_buffer[2] = kPCRPid & 0xFF;
