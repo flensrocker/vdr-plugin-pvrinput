@@ -277,7 +277,7 @@ void cPvrDevice::Stop(void)
         log(pvrDEBUG2,"cPvrDevice::Stop() for Device %i", i);
         PvrDevices[i]->StopReadThread();
         PvrDevices[i]->SetEncoderState(eStop);
-        PvrDevices[i]->SetVBImode(PvrDevices[i]->CurrentLinesPerFrame, 0);
+        PvrDevices[i]->SetVBImode(PvrDevices[i]->CurrentLinesPerFrame, V4L2_MPEG_STREAM_VBI_FMT_NONE);
         }
       }
     }
@@ -638,8 +638,6 @@ bool cPvrDevice::SetVBImode(int vbiLinesPerFrame, int vbistatus)
     memset(&ctrl,   0, sizeof(ctrl));
     ctrl.id    = V4L2_CID_MPEG_STREAM_VBI_FMT;
     ctrl.value = vbistatus; 
-    /*  0 = V4L2_MPEG_STREAM_VBI_FMT_NONE,  No VBI in the MPEG stream
-        1 = V4L2_MPEG_STREAM_VBI_FMT_IVTV,  VBI in private packets, IVTV format */
     ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG;
     ctrls.controls = &ctrl;
     ctrls.count = 1;
@@ -648,7 +646,7 @@ bool cPvrDevice::SetVBImode(int vbiLinesPerFrame, int vbistatus)
           number, CARDNAME[cardname], errno, strerror(errno));
       return false; 
       }
-    if (ctrl.value == V4L2_MPEG_STREAM_VBI_FMT_IVTV && vbiLinesPerFrame == 625) {
+    if ((ctrl.value == V4L2_MPEG_STREAM_VBI_FMT_IVTV) && (vbiLinesPerFrame == 625)) {
         vbifmt.fmt.sliced.service_set = V4L2_SLICED_TELETEXT_B;
         vbifmt.type = V4L2_BUF_TYPE_SLICED_VBI_CAPTURE;
         vbifmt.fmt.sliced.reserved[0] = 0;
@@ -873,7 +871,7 @@ bool cPvrDevice::OpenDvr(void)
        FirstChannelSwitch = false;
        } //end: if ((!ChannelSettingsDone)
      if (CurrentInputType == eTelevision)
-        SetVBImode(newLinesPerFrame, PvrSetup.SliceVBI);
+        SetVBImode(newLinesPerFrame, PvrSetup.SliceVBI ? V4L2_MPEG_STREAM_VBI_FMT_IVTV : V4L2_MPEG_STREAM_VBI_FMT_NONE);
      SetEncoderState(eStart);
      if (!readThreadRunning) {
         log(pvrDEBUG2, "cPvrDevice::OpenDvr: create new readThread on /dev/video%d (%s)", number, CARDNAME[cardname]);
@@ -894,7 +892,7 @@ void cPvrDevice::CloseDvr(void)
   if (dvrOpen) {
      StopReadThread();
      SetEncoderState(eStop);
-     SetVBImode(CurrentLinesPerFrame, 0);
+     SetVBImode(CurrentLinesPerFrame, V4L2_MPEG_STREAM_VBI_FMT_NONE);
      }
   dvrOpen = false;
   isClosing = false;
