@@ -304,29 +304,22 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
       switch (fmt) {
         case vbifmt_itv0: {
           uint32_t bit = 1;
+          int lm_nr = 0;
           int line_nr = 0;
-          while (bit != 0) {
-                if (vbi_fmt->itv0.linemask[0] & bit) {
+          while ((lm_nr != 1) || (bit != 0x10)) {
+                if (vbi_fmt->itv0.linemask[lm_nr] & bit) {
                    if ((line_nr < 35) && ((vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_TELETEXT_B)
-                      //|| (vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_WSS_625) // implement in the future
-                      //|| (vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_VPS)     // for now only teletext
-                      ))
+                       || (vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_WSS_625)
+                       //|| (vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_VPS)
+                       ))
                       needed_size += 46;
                    line_nr++;
                    }
                 bit <<= 1;
-                }
-          bit = 1;
-          while (bit != 0x10) {
-                if (vbi_fmt->itv0.linemask[1] & bit) {
-                   if ((line_nr < 35) && ((vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_TELETEXT_B)
-                      //|| (vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_WSS_625) // implement in the future
-                      //|| (vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_VPS)     // for now only teletext
-                      ))
-                      needed_size += 46;
-                   line_nr++;
+                if (bit == 0) {
+                   lm_nr++;
+                   bit = 1;
                    }
-                bit <<= 1;
                 }
           break;
           }
@@ -335,9 +328,9 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
              return; // not enough data
           for (int vbiNr = 0; vbiNr < 36; vbiNr++) {
               if ((vbi_fmt->ITV0.line[vbiNr].id == V4L2_MPEG_VBI_IVTV_TELETEXT_B)
-                  //|| (vbi_fmt->ITV0.line[vbiNr].id == V4L2_MPEG_VBI_IVTV_WSS_625) // implement in the future
-                  //|| (vbi_fmt->ITV0.line[vbiNr].id == V4L2_MPEG_VBI_IVTV_VPS)     // for now only teletext
-                 )
+                  || (vbi_fmt->ITV0.line[vbiNr].id == V4L2_MPEG_VBI_IVTV_WSS_625)
+                  //|| (vbi_fmt->ITV0.line[vbiNr].id == V4L2_MPEG_VBI_IVTV_VPS)
+                  )
                  needed_size += 46;
               }
           break;
@@ -366,12 +359,23 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
       uint8_t  itv0_linemaskNr = 0;
       uint8_t  itv0_field_parity = 1;
       uint8_t  itv0_line_offset = 6;
+
+      uint8_t data_unit_id = 0;
+      uint8_t framing_code = 0;
+      uint8_t field_parity = 0;
+      uint8_t line_offset = 0;
+      uint8_t copy_vbi_bytes = 0;
+      uint8_t vbi_bytes[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+      bool    copy_vbi_line = false;
+      v4l2_mpeg_vbi_itv0_line *vbi_line = 0;
       while (true) {
-            v4l2_mpeg_vbi_itv0_line *vbi_line = 0;
-            uint8_t data_unit_id = 0;
-            uint8_t framing_code = 0;
-            uint8_t field_parity = 0;
-            uint8_t line_offset = 0;
+            data_unit_id = 0;
+            framing_code = 0;
+            field_parity = 0;
+            line_offset = 0;
+            copy_vbi_bytes = 0;
+            copy_vbi_line = false;
+            vbi_line = 0;
             switch (fmt) {
               case vbifmt_itv0: {
                 if ((itv0_vbiLineNr < 35) && (vbi_fmt->itv0.linemask[itv0_linemaskNr] & itv0_bit)) {
@@ -379,9 +383,14 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
                      case V4L2_MPEG_VBI_IVTV_TELETEXT_B: {
                        data_unit_id = 0x02;
                        framing_code = 0xE4;
+                       copy_vbi_line = true;
                        break;
                        }
                      case V4L2_MPEG_VBI_IVTV_WSS_625: {
+                       data_unit_id = 0xC4;
+                       framing_code = kInvTab[vbi_fmt->itv0.line[itv0_vbiLineNr].data[0]];
+                       vbi_bytes[0] = kInvTab[vbi_fmt->itv0.line[itv0_vbiLineNr].data[1]];
+                       copy_vbi_bytes = 1;
                        break;
                        }
                      case V4L2_MPEG_VBI_IVTV_VPS: {
@@ -412,9 +421,14 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
                   case V4L2_MPEG_VBI_IVTV_TELETEXT_B: {
                     data_unit_id = 0x02;
                     framing_code = 0xE4;
+                    copy_vbi_line = true;
                     break;
                     }
                   case V4L2_MPEG_VBI_IVTV_WSS_625: {
+                    data_unit_id = 0xC4;
+                    framing_code = kInvTab[vbi_fmt->ITV0.line[ITV0_vbiLineNr].data[0]];
+                    vbi_bytes[0] = kInvTab[vbi_fmt->ITV0.line[ITV0_vbiLineNr].data[1]];
+                    copy_vbi_bytes = 1;
                     break;
                     }
                   case V4L2_MPEG_VBI_IVTV_VPS: {
@@ -431,7 +445,7 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
                 }
               }
             
-            if (vbi_line != 0) {
+            if ((vbi_line != 0) && (copy_vbi_line || copy_vbi_bytes)) {
                 if (ts_line_nr == 0) { // send current packet and prepare next one
                    PutData(ts_buffer, TS_SIZE);
                    first = false;
@@ -447,8 +461,14 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
                 ts_buffer[4 + ts_line_nr * 46 + 1] = 0x2C;
                 ts_buffer[4 + ts_line_nr * 46 + 2] = 0xC0 | (field_parity << 5) | (line_offset & 0x1f);
                 ts_buffer[4 + ts_line_nr * 46 + 3] = framing_code;
-                for (int datNr = 0; datNr < 42; datNr++)
-                    ts_buffer[4 + ts_line_nr * 46 + 4 + datNr] = kInvTab[vbi_line->data[datNr]];
+                if (copy_vbi_line) {
+                   for (int datNr = 0; datNr < 42; datNr++)
+                       ts_buffer[4 + ts_line_nr * 46 + 4 + datNr] = kInvTab[vbi_line->data[datNr]];
+                   }
+                else if (copy_vbi_bytes > 0) {
+                   for (int datNr = 0; datNr < copy_vbi_bytes; datNr++)
+                       ts_buffer[4 + ts_line_nr * 46 + 4 + datNr] = vbi_bytes[datNr];
+                   }
                 ts_line_nr++;
                 if (ts_line_nr == 4)
                    ts_line_nr = 0;

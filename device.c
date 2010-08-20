@@ -647,7 +647,7 @@ bool cPvrDevice::SetVBImode(int vbiLinesPerFrame, int vbistatus)
       return false; 
       }
     if ((ctrl.value == V4L2_MPEG_STREAM_VBI_FMT_IVTV) && (vbiLinesPerFrame == 625)) {
-        vbifmt.fmt.sliced.service_set = V4L2_SLICED_TELETEXT_B;
+        vbifmt.fmt.sliced.service_set = V4L2_SLICED_TELETEXT_B | V4L2_SLICED_WSS_625;
         vbifmt.type = V4L2_BUF_TYPE_SLICED_VBI_CAPTURE;
         vbifmt.fmt.sliced.reserved[0] = 0;
         vbifmt.fmt.sliced.reserved[1] = 0;
