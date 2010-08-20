@@ -864,8 +864,6 @@ bool cPvrDevice::OpenDvr(void)
                   return false;
                if (!SetVideoNorm(newNorm))
                   return false;
-               //if (!SetVBImode(newLinesPerFrame, PvrSetup.SliceVBI))
-               //   return false;
                if (!Tune(newFrequency))
                   return false;
                }
