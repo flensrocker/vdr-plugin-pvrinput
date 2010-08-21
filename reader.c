@@ -342,9 +342,10 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
       uint16_t mod = needed_size % 184;
       if (mod > 0)
          needed_size += 184 - mod; // fill the last packet with stuffing
+      text_counter = (text_counter + 1) & 15;
       memset(ts_buffer, 0xFF, TS_SIZE);
       ts_buffer[0] = TS_SYNC_BYTE;
-      ts_buffer[1] = (first ? 0x40 : 0x00) | (kTeletextPid >> 8);
+      ts_buffer[1] = 0x40 | (kTeletextPid >> 8);
       ts_buffer[2] = kTeletextPid & 0xFF;
       ts_buffer[3] = 0x10 | text_counter;
       memcpy(ts_buffer + 4, Data, 9 + Data[8]);
@@ -448,12 +449,11 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
             if ((vbi_line != 0) && (copy_vbi_line || copy_vbi_bytes)) {
                 if (ts_line_nr == 0) { // send current packet and prepare next one
                    PutData(ts_buffer, TS_SIZE);
-                   first = false;
                    packet_counter--;
                    text_counter = (text_counter + 1) & 15;
                    memset(ts_buffer, 0xFF, TS_SIZE);
                    ts_buffer[0] = TS_SYNC_BYTE;
-                   ts_buffer[1] = (first ? 0x40 : 0x00) | (kTeletextPid >> 8);
+                   ts_buffer[1] = (kTeletextPid >> 8);
                    ts_buffer[2] = kTeletextPid & 0xFF;
                    ts_buffer[3] = 0x10 | text_counter;
                    }
