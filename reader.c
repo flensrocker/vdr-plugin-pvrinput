@@ -310,7 +310,7 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
                 if (vbi_fmt->itv0.linemask[lm_nr] & bit) {
                    if ((line_nr < 35) && ((vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_TELETEXT_B)
                        || (vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_WSS_625)
-                       //|| (vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_VPS)
+                       || (vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_VPS)
                        ))
                       needed_size += 46;
                    line_nr++;
@@ -329,7 +329,7 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
           for (int vbiNr = 0; vbiNr < 36; vbiNr++) {
               if ((vbi_fmt->ITV0.line[vbiNr].id == V4L2_MPEG_VBI_IVTV_TELETEXT_B)
                   || (vbi_fmt->ITV0.line[vbiNr].id == V4L2_MPEG_VBI_IVTV_WSS_625)
-                  //|| (vbi_fmt->ITV0.line[vbiNr].id == V4L2_MPEG_VBI_IVTV_VPS)
+                  || (vbi_fmt->ITV0.line[vbiNr].id == V4L2_MPEG_VBI_IVTV_VPS)
                   )
                  needed_size += 46;
               }
@@ -366,7 +366,7 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
       uint8_t field_parity = 0;
       uint8_t line_offset = 0;
       uint8_t copy_vbi_bytes = 0;
-      uint8_t vbi_bytes[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+      uint8_t vbi_bytes[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
       bool    copy_vbi_line = false;
       v4l2_mpeg_vbi_itv0_line *vbi_line = 0;
       while (true) {
@@ -395,6 +395,11 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
                        break;
                        }
                      case V4L2_MPEG_VBI_IVTV_VPS: {
+                       data_unit_id = 0xC3;
+                       framing_code = kInvTab[vbi_fmt->itv0.line[itv0_vbiLineNr].data[0]];
+                       for (int i = 0; i < 12; i++)
+                           vbi_bytes[i] = kInvTab[vbi_fmt->itv0.line[itv0_vbiLineNr].data[i + 1]];
+                       copy_vbi_bytes = 12;
                        break;
                        }
                      }
@@ -433,6 +438,11 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
                     break;
                     }
                   case V4L2_MPEG_VBI_IVTV_VPS: {
+                    data_unit_id = 0xC3;
+                    framing_code = kInvTab[vbi_fmt->ITV0.line[ITV0_vbiLineNr].data[0]];
+                    for (int i = 0; i < 12; i++)
+                        vbi_bytes[i] = kInvTab[vbi_fmt->ITV0.line[ITV0_vbiLineNr].data[i + 1]];
+                    copy_vbi_bytes = 12;
                     break;
                     }
                   }
