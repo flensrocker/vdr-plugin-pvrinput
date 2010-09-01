@@ -1,14 +1,25 @@
 #include "common.h"
 #include <libsi/si.h>
 
+#define _fourcc(p) (uint32_t) v4l2_fourcc(*(p), *(p+1), *(p+2), *(p+3))
+
+#define TS_HEADER(_PID, _PES_HDR, _COUNTER, _ADAPTATION_CTRL) ts_buffer[0] = TS_SYNC_BYTE; \
+           ts_buffer[1] = (_PES_HDR ? 0x40:0) | (_PID >> 8); \
+           ts_buffer[2] = _PID & 0xFF; \
+           ts_buffer[3] = _ADAPTATION_CTRL << 4 | (_COUNTER & 0xf)
+
+#define TS_PAYLOAD        0x1
+#define TS_ADAPTATION_FIELD 0x2
+
 #define SENDPATPMT_PACKETINTERVAL 500
 
+static const short kVideoPid    = 301;
+static const short kAudioPid    = 300;
+static const short kTeletextPid = 305;
+static const short kPCRPid      = 101;
+static const uint32_t itv0 = v4l2_fourcc('i','t','v','0');
+static const uint32_t ITV0 = v4l2_fourcc('I','T','V','0');
 
-const short kVideoPid    = 301;
-const short kAudioPid    = 300;
-const short kTeletextPid = 305;
-const short kPCRPid      = 101;
-enum eVbiFormat { vbifmt_itv0, vbifmt_ITV0 };
 
 const unsigned char kPAT[TS_SIZE] = {
   0x47, 0x40, 0x00, 0x10, 0x00, 0x00, 0xb0, 0x0d,
@@ -215,7 +226,7 @@ int cPvrReadThread::PutData(const unsigned char *Data, int Count)
 void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
 {
   uint8_t stream_id;
-  bool first = true;
+  bool write_PES_hdr = true;
   uint32_t i;
   const short *pid = &kVideoPid;
   uint8_t *counter = &video_counter;
@@ -234,10 +245,7 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
      }
 
   if (pes_scr_isvalid && (stream_id != 0xBD)) { // send PCR packet but not PCR of vbi data
-     ts_buffer[0] = TS_SYNC_BYTE;
-     ts_buffer[1] = kPCRPid >> 8;
-     ts_buffer[2] = kPCRPid & 0xFF;
-     ts_buffer[3] = 0x20 | pcr_counter;
+     TS_HEADER(kPCRPid, 0, pcr_counter, TS_ADAPTATION_FIELD);
      ts_buffer[4] = 0xB7;
      ts_buffer[5] = 0x10;
      ts_buffer[6] = (pes_scr & 0x01FE000000ull) >> 25; // 33 bits SCR base
@@ -255,29 +263,25 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
      }
 
   switch (stream_id) {
-    case 0xC0 ... 0xEF:
-      if (stream_id < 0xE0) {
+    case 0xC0 ... 0xDF: // ISO/IEC 13818-3 or ISO/IEC 11172-3 audio.
          pid = &kAudioPid;
          counter = &audio_counter;
-         }
-      else if (parent->CurrentInputType == eRadio)
-         return;
+         // fall through to video stream
+
+    case 0xE0 ... 0xEF: // ITU-T Rec. H.262 | ISO/IEC 13818-2 or ISO/IEC 11172-2 video
+      if (parent->CurrentInputType == eRadio && stream_id >= 0xE0)      
+         return;   // skip video in case of "FM radio only" 
+
       for (i = 0; i < Payload_Count; i++) {
-        ts_buffer[0] = TS_SYNC_BYTE;
-        ts_buffer[1] = (first ? 0x40 : 0x00) | (*pid >> 8);
-        ts_buffer[2] = *pid & 0xFF;
-        ts_buffer[3] = 0x10 | *counter;
+        TS_HEADER(*pid, write_PES_hdr, *counter, TS_PAYLOAD);
         memcpy(ts_buffer + 4, Data + i * PayloadSize, PayloadSize);
         PutData(ts_buffer, TS_SIZE);
         packet_counter--;
         *counter = (*counter + 1) & 15; //uint8_t
-        first = false;
+        write_PES_hdr = false;
         } // end: for (i = 0; i < Payload_Count; i++)
       if (Payload_Rest > 0) {
-        ts_buffer[0] = TS_SYNC_BYTE;
-        ts_buffer[1] = (first ? 0x40 : 0x00) | (*pid >> 8);
-        ts_buffer[2] = *pid & 0xFF;
-        ts_buffer[3] = 0x30 | *counter;
+        TS_HEADER(*pid, write_PES_hdr, *counter, (TS_PAYLOAD | TS_ADAPTATION_FIELD));
         ts_buffer[4] = PayloadSize - Payload_Rest - 1;
         if (ts_buffer[4] > 0) {
           ts_buffer[5] = 0x00;
@@ -287,213 +291,194 @@ void cPvrReadThread::PesToTs(uint8_t *Data, uint32_t Length)
         PutData(ts_buffer, TS_SIZE);
         packet_counter--;
         *counter = (*counter + 1) & 15;
-        first = false;
+        write_PES_hdr = false;
         } // end: if (Payload_Rest > 0)
       break; // end: case 0xE0..0xEF:
-    case 0xBD: {
-      v4l2_mpeg_vbi_fmt_ivtv *vbi_fmt = (v4l2_mpeg_vbi_fmt_ivtv*)(Data + 9 + Data[8]);
-      eVbiFormat fmt;
-      if (memcmp(vbi_fmt->magic, V4L2_MPEG_VBI_IVTV_MAGIC0, 4) == 0)
-         fmt = vbifmt_itv0;
-      else if (memcmp(vbi_fmt->magic, V4L2_MPEG_VBI_IVTV_MAGIC1, 4) == 0)
-         fmt = vbifmt_ITV0;
-      else
-         return; // no known format
-      
-      uint16_t needed_size = 0;
-      switch (fmt) {
-        case vbifmt_itv0: {
-          uint32_t bit = 1;
-          int lm_nr = 0;
-          int line_nr = 0;
-          while ((lm_nr != 1) || (bit != 0x10)) {
-                if (vbi_fmt->itv0.linemask[lm_nr] & bit) {
-                   if ((line_nr < 35) && ((vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_TELETEXT_B)
-                       || (vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_WSS_625)
-                       || (vbi_fmt->itv0.line[line_nr].id == V4L2_MPEG_VBI_IVTV_VPS)
-                       ))
-                      needed_size += 46;
-                   line_nr++;
-                   }
-                bit <<= 1;
-                if (bit == 0) {
-                   lm_nr++;
-                   bit = 1;
-                   }
-                }
-          break;
-          }
-        case vbifmt_ITV0: {
-          if ((36 * sizeof(v4l2_mpeg_vbi_itv0_line) + 9 + Data[8] + 4) > Length)
-             return; // not enough data
-          for (int vbiNr = 0; vbiNr < 36; vbiNr++) {
-              if ((vbi_fmt->ITV0.line[vbiNr].id == V4L2_MPEG_VBI_IVTV_TELETEXT_B)
-                  || (vbi_fmt->ITV0.line[vbiNr].id == V4L2_MPEG_VBI_IVTV_WSS_625)
-                  || (vbi_fmt->ITV0.line[vbiNr].id == V4L2_MPEG_VBI_IVTV_VPS)
-                  )
-                 needed_size += 46;
-              }
-          break;
-          }
-        }
-      if (needed_size == 0)
-         return; // no lines for translation
-      needed_size += 46; // for PES header
-      uint16_t mod = needed_size % 184;
-      if (mod > 0)
-         needed_size += 184 - mod; // fill the last packet with stuffing
-      text_counter = (text_counter + 1) & 15;
-      memset(ts_buffer, 0xFF, TS_SIZE);
-      ts_buffer[0] = TS_SYNC_BYTE;
-      ts_buffer[1] = 0x40 | (kTeletextPid >> 8);
-      ts_buffer[2] = kTeletextPid & 0xFF;
-      ts_buffer[3] = 0x10 | text_counter;
-      memcpy(ts_buffer + 4, Data, 9 + Data[8]);
-      ts_buffer[8] = ((needed_size - 6) >> 8) & 0xFF; // decrease by length of "00 00 01 bd xx xx"
-      ts_buffer[9] = (needed_size - 6) & 0xFF;
-      ts_buffer[12] = 0x24;
-      ts_buffer[49] = 0x10; // data identifier for EBU data
-      uint8_t  ts_line_nr = 1;
-      uint8_t  ITV0_vbiLineNr = 0;
-      uint8_t  itv0_vbiLineNr = 0;
-      uint32_t itv0_bit = 1;
-      uint8_t  itv0_linemaskNr = 0;
-      uint8_t  itv0_field_parity = 1;
-      uint8_t  itv0_line_offset = 6;
 
-      uint8_t data_unit_id = 0;
-      uint8_t framing_code = 0;
+    case 0xBD: { // private_stream_1 (teletext, vps, wss and closed_caption)
+      uint16_t pes_bytes = 46;    // (9+36)byte PES header + 1byte data_identifier
+      uint16_t pes_mod;           // number of pes bytes in last TS packet
+      uint8_t  ts_bytes = 0;      // number of bytes of current TS packet
+      v4l2_mpeg_vbi_fmt_ivtv *vbi_fmt = (v4l2_mpeg_vbi_fmt_ivtv*)(Data + 9 + Data[8]);
+      v4l2_mpeg_vbi_itv0_line *vbi_line = 0;
+      uint32_t magic = _fourcc(vbi_fmt->magic);
+      uint32_t bitmask = 0;       // itv0 bitmask 
+      uint32_t *linemask = NULL;  // pointer to current itv0 32bit linemask.
       uint8_t field_parity = 0;
       uint8_t line_offset = 0;
-      uint8_t copy_vbi_bytes = 0;
-      uint8_t vbi_bytes[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-      bool    copy_vbi_line = false;
-      v4l2_mpeg_vbi_itv0_line *vbi_line = 0;
-      while (true) {
-            data_unit_id = 0;
-            framing_code = 0;
-            field_parity = 0;
-            line_offset = 0;
-            copy_vbi_bytes = 0;
-            copy_vbi_line = false;
-            vbi_line = 0;
-            switch (fmt) {
-              case vbifmt_itv0: {
-                if ((itv0_vbiLineNr < 35) && (vbi_fmt->itv0.linemask[itv0_linemaskNr] & itv0_bit)) {
-                   switch (vbi_fmt->itv0.line[itv0_vbiLineNr].id) {
-                     case V4L2_MPEG_VBI_IVTV_TELETEXT_B: {
-                       data_unit_id = 0x02;
-                       framing_code = 0xE4;
-                       copy_vbi_line = true;
-                       break;
-                       }
-                     case V4L2_MPEG_VBI_IVTV_WSS_625: {
-                       data_unit_id = 0xC4;
-                       framing_code = kInvTab[vbi_fmt->itv0.line[itv0_vbiLineNr].data[0]];
-                       vbi_bytes[0] = kInvTab[vbi_fmt->itv0.line[itv0_vbiLineNr].data[1]];
-                       copy_vbi_bytes = 1;
-                       break;
-                       }
-                     case V4L2_MPEG_VBI_IVTV_VPS: {
-                       data_unit_id = 0xC3;
-                       framing_code = kInvTab[vbi_fmt->itv0.line[itv0_vbiLineNr].data[0]];
-                       for (int i = 0; i < 12; i++)
-                           vbi_bytes[i] = kInvTab[vbi_fmt->itv0.line[itv0_vbiLineNr].data[i + 1]];
-                       copy_vbi_bytes = 12;
-                       break;
-                       }
-                     }
-                   if (data_unit_id != 0) {
-                      vbi_line = &vbi_fmt->itv0.line[itv0_vbiLineNr];
-                      field_parity = itv0_field_parity;
-                      line_offset = itv0_line_offset;
-                      }
-                   itv0_vbiLineNr++;
-                   }
-                itv0_bit <<= 1;
-                if ((itv0_linemaskNr == 0) && (itv0_bit == 0)) {
-                   itv0_bit = 1;
-                   itv0_linemaskNr++;
-                   }
-                itv0_line_offset++;
-                if (itv0_line_offset == 24) {
-                   itv0_field_parity = 0;
-                   itv0_line_offset = 6;
-                   }
+      uint8_t *dp = NULL;
+      uint8_t itv0_index = 0;     // index 0 corresponds to the first valid bit in linemask
+
+      if ((magic != itv0) && (magic != ITV0)) {
+          log(pvrERROR,"%s %d: skipping garbage teletext data.", __FUNCTION__, __LINE__);
+          return; 
+          }
+  
+      // count number of valid vbi lines to calculate length of pes packet
+      itv0_index = 0;
+      bitmask = 1;
+      linemask = &vbi_fmt->itv0.linemask[0];
+      for (int line = 0; line < 36; line++) {
+          if (magic == itv0) {
+             if (line > 34)  // only up to 35 lines in itv0.
                 break;
-                }
-              case vbifmt_ITV0: {
-                switch (vbi_fmt->ITV0.line[ITV0_vbiLineNr].id) {
-                  case V4L2_MPEG_VBI_IVTV_TELETEXT_B: {
-                    data_unit_id = 0x02;
-                    framing_code = 0xE4;
-                    copy_vbi_line = true;
+             if (line == 32) {
+                linemask++;  // linemask[0] -> linemask[1]
+                bitmask = 1; // reinit bitmask
+                } 
+             if (*linemask & bitmask)  // this line found in dynamic itv0 array?
+                vbi_line = &vbi_fmt->itv0.line[itv0_index++];
+             else
+                vbi_line = NULL;
+             bitmask <<= 1;
+             }
+          else // magic == ITV0; static 36 line array of sliced vbi
+             vbi_line = &vbi_fmt->ITV0.line[line];
+
+          if (!vbi_line) continue; // itv0 and not in linemask
+
+          switch (vbi_line->id) {
+                 case V4L2_MPEG_VBI_IVTV_TELETEXT_B:
+                 case V4L2_MPEG_VBI_IVTV_WSS_625:
+                 case V4L2_MPEG_VBI_IVTV_VPS:
+              // case V4L2_MPEG_VBI_IVTV_CAPTION_525:
+                    pes_bytes += 46; // aligned to (TS_SIZE - 4)/4
                     break;
-                    }
-                  case V4L2_MPEG_VBI_IVTV_WSS_625: {
-                    data_unit_id = 0xC4;
-                    framing_code = kInvTab[vbi_fmt->ITV0.line[ITV0_vbiLineNr].data[0]];
-                    vbi_bytes[0] = kInvTab[vbi_fmt->ITV0.line[ITV0_vbiLineNr].data[1]];
-                    copy_vbi_bytes = 1;
-                    break;
-                    }
-                  case V4L2_MPEG_VBI_IVTV_VPS: {
-                    data_unit_id = 0xC3;
-                    framing_code = kInvTab[vbi_fmt->ITV0.line[ITV0_vbiLineNr].data[0]];
-                    for (int i = 0; i < 12; i++)
-                        vbi_bytes[i] = kInvTab[vbi_fmt->ITV0.line[ITV0_vbiLineNr].data[i + 1]];
-                    copy_vbi_bytes = 12;
-                    break;
-                    }
-                  }
-                if (data_unit_id != 0) {
-                   vbi_line = &vbi_fmt->ITV0.line[ITV0_vbiLineNr];
-                   field_parity = (ITV0_vbiLineNr < 18) ? 1 : 0;
-                   line_offset = (ITV0_vbiLineNr < 18) ? (ITV0_vbiLineNr + 6) : (ITV0_vbiLineNr - 12);
-                   }
-                ITV0_vbiLineNr++;
+                 default:;
+                 }
+          } // end for loop
+
+      if (pes_bytes < 47)
+         return; // no payload found.
+
+      // we need to fill up n-times 184bytes. if something is left over,
+      // fill up the last packet with stuffing bytes 0xFF
+      pes_mod = pes_bytes % 184;
+      if (pes_mod > 0)
+         pes_bytes += 184 - pes_mod;
+
+      // begin of teletext PES packet. set payload start and increase counter after new TS hdr
+      TS_HEADER(kTeletextPid, 1, text_counter++, TS_PAYLOAD);
+      memcpy(&ts_buffer[4], Data, 9 + Data[8]);
+      ts_buffer[8] = (pes_bytes - 6) >> 8;    // PES hdr byte 5. pes_bytes - 6 byte ('00 00 01 BD xx xx')
+      ts_buffer[9] = (pes_bytes - 6) & 0xFF;  // PES hdr byte 6. pes_bytes - 6 byte ('00 00 01 BD xx xx')
+      ts_buffer[12] = 0x24;                   // PES hdr byte 9. PES hdr len, 0x24 -> 36 bytes PES hdr following
+      ts_buffer[49] = 0x10;                   // beginn payload after PES hdr, data identifier for EBU data 0x10
+      ts_bytes = 50;                          // 4byte hdr + 1/4 of 184 bytes payload per TS packet.
+      memset(&ts_buffer[ts_bytes], 0xFF, TS_SIZE - ts_bytes);
+
+      // prepare for copy loop
+      itv0_index = 0;
+      bitmask = 1;
+      linemask = &vbi_fmt->itv0.linemask[0];
+
+      for (int line = 0; line < 36; line++) {
+          if (magic == itv0) {             
+             if (line > 34)  // up to 35 lines in itv0.
                 break;
-                }
+             if (line == 32) {
+                linemask++;  // linemask[0] -> linemask[1]
+                bitmask = 1; // reinit bitmask
+                } 
+             if (*linemask & bitmask)  // this line found in dynamic itv0 array?
+                vbi_line = &vbi_fmt->itv0.line[itv0_index++];
+             else
+                vbi_line = NULL;
+             bitmask <<= 1;
+             }
+          else // magic == ITV0; static 36 line array of sliced vbi
+             vbi_line = &vbi_fmt->ITV0.line[line];
+
+          if (!vbi_line) continue; // itv0 and not in linemask
+
+          // itv0 is a variable length array that holds from 1 to 35 lines of sliced VBI data. The sliced VBI
+          // data lines present correspond to the bits set in the linemask array, starting from b0 of linemask[0]
+          // up through b31 of linemask[0], and from b0 of linemask[1] up through b 3 of linemask[1].
+          // line[0] corresponds to the first bit found set in the linemask array, line[1] corresponds to the
+          // second bit found set in the linemask array, etc. If no linemask array bits are set, then line[0]
+          // may contain one line of unspecified data that should be ignored by applications.
+          // NOTE: variable 'line' corresponds, if valid, to the same line_offset as in case of ITV0.
+          //
+          // v4l2 api: ITV0 line[0] through line [17] correspond to lines 6 through 23 of the first field.
+          //           line[18] through line[35] corresponds to lines 6 through 23 of the second field.
+          // en301775: field_parity: "The value '1' indicates the first field of a frame; the value '0' indicates 
+          //           the second field of a frame."
+          // en301775  Table 5: line_offset for EBU and Inverted Teletext
+          if (line < 18) {
+             field_parity = 1;
+             line_offset = line + 6;
+             }
+          else {
+             field_parity = 0;
+             line_offset = line - 12;
+             }
+
+          dp = &ts_buffer[ts_bytes];
+
+          switch (vbi_line->id) {
+            case V4L2_MPEG_VBI_IVTV_TELETEXT_B: {
+              *(dp++) = 0x02;  // data_unit_id
+              *(dp++) = 0x2C;  // data_unit_length (0x2C -> 44bytes still following)
+              *(dp++) = 0xC0 | (field_parity << 5) | (line_offset & 0x1f);
+              *(dp++) = 0xE4;  // framing_code 11100100 for EBU teletext, en300706
+              for (int i = 0; i < 42; i++) // 42 byte payload per line (inverse bit order); starting after Clock run-in
+                 *(dp++) = kInvTab[vbi_line->data[i]];
+              ts_bytes += 46;
+              break;
               }
-            
-            if ((vbi_line != 0) && (copy_vbi_line || copy_vbi_bytes)) {
-                if (ts_line_nr == 0) { // send current packet and prepare next one
-                   PutData(ts_buffer, TS_SIZE);
-                   packet_counter--;
-                   text_counter = (text_counter + 1) & 15;
-                   memset(ts_buffer, 0xFF, TS_SIZE);
-                   ts_buffer[0] = TS_SYNC_BYTE;
-                   ts_buffer[1] = (kTeletextPid >> 8);
-                   ts_buffer[2] = kTeletextPid & 0xFF;
-                   ts_buffer[3] = 0x10 | text_counter;
-                   }
-                ts_buffer[4 + ts_line_nr * 46 + 0] = data_unit_id;
-                ts_buffer[4 + ts_line_nr * 46 + 1] = 0x2C;
-                ts_buffer[4 + ts_line_nr * 46 + 2] = 0xC0 | (field_parity << 5) | (line_offset & 0x1f);
-                ts_buffer[4 + ts_line_nr * 46 + 3] = framing_code;
-                if (copy_vbi_line) {
-                   for (int datNr = 0; datNr < 42; datNr++)
-                       ts_buffer[4 + ts_line_nr * 46 + 4 + datNr] = kInvTab[vbi_line->data[datNr]];
-                   }
-                else if (copy_vbi_bytes > 0) {
-                   for (int datNr = 0; datNr < copy_vbi_bytes; datNr++)
-                       ts_buffer[4 + ts_line_nr * 46 + 4 + datNr] = vbi_bytes[datNr];
-                   }
-                ts_line_nr++;
-                if (ts_line_nr == 4)
-                   ts_line_nr = 0;
-               }
-            if (((fmt == vbifmt_itv0) && (itv0_bit == 0x10) && (itv0_linemaskNr == 1))
-               || ((fmt == vbifmt_ITV0) && (ITV0_vbiLineNr == 36)))
-               break;
+            case V4L2_MPEG_VBI_IVTV_WSS_625: {
+              *(dp++) = 0xC4;  // data_unit_id
+              *(dp++) = 0x2C;  // data_unit_length: 1byte 0xF7 + 14bit data + 0b11 reserved + 40bytes filling.
+              *(dp++) = 0xF7;  // 0b11 + 1bit parity = 1 + 5bit fixed line 23
+              for (int i = 0; i < 2; i++)
+                  *(dp++) = kInvTab[vbi_line->data[i]]; // 14bit data
+              ts_bytes += 46;
+              break;
+              }
+            case V4L2_MPEG_VBI_IVTV_VPS: {
+              *(dp++) = 0xC3;  // data_unit_id
+              *(dp++) = 0x2C;  // data_unit_length: 1byte 0xF0 + 13byte data (after Start Code) + 29bytes filling.
+              *(dp++) = 0xF0;  // 0b11 + 1bit parity = 1 + 5bit fixed line 16
+              for (int i = 0; i < 13; i++)
+                  *(dp++) = kInvTab[vbi_line->data[i]]; // 13bytes in inverse bit order. en300231
+              ts_bytes += 46;
+              break;
+              }
+          //case V4L2_MPEG_VBI_IVTV_CAPTION_525: {
+          //  *(dp++) = 0xC5;  // data_unit_id
+          //  *(dp++) = 0x2C;  // data_unit_length: aligned to 46bytes
+          //                   // what structure here?
+          //  ts_bytes += 46; 
+          //  break;
+          //  }
+            default:;
             }
-      while ((ts_line_nr > 0) && (ts_line_nr < 4)) { // ts_buffer is initialized with 0xFF, so just set the data unit length for the stuffing lines
-            ts_buffer[4 + ts_line_nr * 46 + 1] = 0x2C;
-            ts_line_nr++;
-            }
-      PutData(ts_buffer, TS_SIZE);
+
+          if (ts_bytes >= TS_SIZE) {
+             PutData(ts_buffer, TS_SIZE);  // next (4 + 4*46) byte for TS packet reached. send packet
+             TS_HEADER(kTeletextPid, 0, text_counter++, TS_PAYLOAD);
+             ts_bytes = 4;                 // 4bytes TS hdr size
+             memset(&ts_buffer[ts_bytes], 0xFF, TS_SIZE - ts_bytes);
+             }
+
+          } // end copy for loop
+
+      if (ts_bytes > 4) {
+         // need bit stuffing last TS packet.
+         // ts_buffer is set to 0xFF, so just set the data_unit_length for stuffing
+         for (;ts_bytes < TS_SIZE; ts_bytes += 46)
+             ts_buffer[1 + ts_bytes] = 0x2C;
+
+         PutData(ts_buffer, TS_SIZE);
+         }
       break; // end: case 0xBD:
       }
+
+    case 0xBE: // padding_stream
+      return;
+
+    default:  // unexpected stream_id.
+      log(pvrDEBUG1,"%s: unhandled stream_id 0x%.2x", __FUNCTION__, stream_id); 
     } // end: switch (stream_id)
 }
 
