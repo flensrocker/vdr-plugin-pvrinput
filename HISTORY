@@ -1,13 +1,14 @@
 VDR Plugin 'pvrinput' Revision History
 --------------------------------------
 
-current git (mini73)
+2010-09-01 (mini73)
 - use helper class for protected crc-function of libsi
 - update of italian translations (thanks to Diego Pierotto)
 - use select with timeout on reader so a hanging device doesn't
   crash the vdr
 - integrate submenu-patches of rblickle
 - send right PES header on teletext packets
+- fix vbi-mode handling on opening the device
 
 2010-03-27-rc1 (mini73)
 - rework teletext handling so no retuning is needed
