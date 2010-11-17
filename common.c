@@ -41,7 +41,7 @@ improves stability if device/driver is actually busy
 int IOCTL(int fd, int cmd, void *data)
 {
   if (fd < 0) {
-     log(pvrERROR, "Error IOCTL %s: %s is not open", cmd, fd);
+     log(pvrERROR, "Error IOCTL: %s is not open", fd);
      return -1;
      }
   for (int retry = 5; retry >= 0; ) {
