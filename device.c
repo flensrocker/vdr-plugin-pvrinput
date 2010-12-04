@@ -216,14 +216,13 @@ cPvrDevice::~cPvrDevice()
 
 bool cPvrDevice::Probe(int DeviceNumber)
 {
-  char device[256];
   struct v4l2_capability vcap;
   struct v4l2_format vfmt;
   int v4l2_fd;
   bool found = false;
   memset(&vcap, 0, sizeof(vcap));
   memset(&vfmt, 0, sizeof(vfmt));
-  sprintf(device, "/dev/video%d", DeviceNumber);
+  cString device = cString::sprintf("/dev/video%d", DeviceNumber);
   v4l2_fd = open(device, O_RDONLY);
   if (v4l2_fd >= 0) {
     IOCTL(v4l2_fd, VIDIOC_QUERYCAP, &vcap);
@@ -606,22 +605,19 @@ void cPvrDevice::SetEncoderState(eEncState state)
     log(pvrDEBUG2, "cPvrDevice::SetEncoderState (eStop): /dev/video%d (%s) is closed",
         number, CARDNAME[cardname]);
     pvrusb2_ready = false;
-    char *devName;
-    if (asprintf(&devName, "/dev/video%d", number) != -1)
-      v4l2_fd = open(devName, O_RDWR);  //reopen for tuning
+    cString devName = cString::sprintf("/dev/video%d", number);
+    v4l2_fd = open(devName, O_RDWR);  //reopen for tuning
     if (v4l2_fd < 0) {
       log(pvrERROR, "cPvrDevice::SetEncoderState(eStop): error reopening %s (%s): %d:%s",
-          CARDNAME[cardname], devName, errno, strerror(errno));
-      free(devName);
+          CARDNAME[cardname], *devName, errno, strerror(errno));
       retry_count--;
       if (retry_count > 0)
         goto retry;
       }
     else {
       log(pvrDEBUG2, "cPvrDevice::SetEncoderState (eStop): %s (%s) successfully re-opened",
-          devName, CARDNAME[cardname]);
+          *devName, CARDNAME[cardname]);
       pvrusb2_ready = true;
-      free(devName);
       }
    }
 }
@@ -822,14 +818,12 @@ bool cPvrDevice::OpenDvr(void)
                    if (radio_dev < 0)
                       return false; //no hardware support.
                    if (radio_fd < 0) {
-                     char *devName;
-                     if (asprintf(&devName, "/dev/radio%d", radio_dev) != -1)
-                       radio_fd = open(devName, O_RDONLY);
+                     cString devName = cString::sprintf("/dev/radio%d", radio_dev);
+                     radio_fd = open(devName, O_RDONLY);
                      if (radio_fd < 0) {
-                       log(pvrERROR, "Error opening FM radio device %s: %s", devName, strerror(errno));
+                       log(pvrERROR, "Error opening FM radio device %s: %s", *devName, strerror(errno));
                        return false;
                        }
-                     free(devName);
                      usleep(100000); /* 100msec */
                      SetControlValue(&PvrSetup.AudioVolumeFM, PvrSetup.AudioVolumeFM.value);
                      }

@@ -304,8 +304,7 @@ void cPvrMenuMain::Draw(void)
   osd->DrawRectangle(0, titleHeight, border - 1, height - 1, clrWhite);
   osd->DrawRectangle(0, height - border, width - 1, height - 1, clrWhite);
   osd->DrawRectangle(width - border, titleHeight, width - 1, height - 1, clrWhite);
-  char strpercentvalue[4];
-  sprintf(strpercentvalue, "%d%%", IntVal2Percent(localvalue, localminimum, localmaximum));
+  cString strpercentvalue = cString::sprintf("%d%%", IntVal2Percent(localvalue, localminimum, localmaximum));
   osd->DrawText(width - font->Width("100%") - border - margin - 1,
                 border + margin + titleHeight,
                 strpercentvalue,
