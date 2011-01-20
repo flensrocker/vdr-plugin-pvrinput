@@ -6,7 +6,7 @@
 #endif
 #endif
 
-static const char *VERSION        = "2010-09-02";
+static const char *VERSION        = "2011-01-20";
 static const char *DESCRIPTION    = tr("use Hauppauge PVR as input device");
 static const char *MAINMENUENTRY  = tr("PVR picture settings");
 
@@ -16,10 +16,16 @@ cPluginPvrInput *PluginPvrInput;
 cPluginPvrInput::cPluginPvrInput(void)
 {
   PluginPvrInput = this;
+#ifdef __DYNAMIC_DEVICE_PROBE
+  cPvrDeviceProbe::Init();
+#endif
 }
 
 cPluginPvrInput::~cPluginPvrInput()
 {
+#ifdef __DYNAMIC_DEVICE_PROBE
+  cPvrDeviceProbe::Shutdown();
+#endif
   PluginPvrInput = NULL;
 }
 
@@ -48,6 +54,7 @@ bool cPluginPvrInput::Initialize(void)
 #if VDRVERSNUM < 10507
   RegisterI18n(pvrinput_Phrases); 
 #endif //VDRVERSNUM < 10507
+  cPvrDevice::Initialize();
   return true;
 }
 
@@ -56,7 +63,6 @@ bool cPluginPvrInput::Start(void)
 /* Start() is called after the primary device and user interface has
    been set up, but before the main program loop is entered. Is called
    after Initialize(). */
-  cPvrDevice::Initialize();
   return true;
 }
 
@@ -64,7 +70,7 @@ void cPluginPvrInput::Stop(void)
 {
 /* Any threads the plugin may have created shall be stopped
    in the Stop() function. See VDR/PLUGINS.html */
-  cPvrDevice::Stop();
+  cPvrDevice::StopAll();
 };
 
 void cPluginPvrInput::Housekeeping(void)

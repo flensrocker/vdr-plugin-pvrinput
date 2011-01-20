@@ -52,6 +52,9 @@ class cPvrReadThread;
 
 class cPvrDevice : public cDevice {
   friend class cPvrReadThread;
+#ifdef __DYNAMIC_DEVICE_PROBE
+  friend class cPvrDeviceProbe;
+#endif
 private:
   static bool Probe(int DeviceNumber);
   static cString externChannelSwitchScript;
@@ -59,12 +62,13 @@ private:
 
 public:
   static bool Initialize(void);
-  static void Stop(void);
+  static void StopAll(void);
   static void ReInitAll(void);
   static int Count();
   static cPvrDevice * Get(int index);
 
 private:
+  int index;
   int number;
   int v4l2_fd;
   int mpeg_fd;
@@ -125,7 +129,7 @@ protected:
   bool         IsBuffering();
   virtual bool GetTSPacket(uchar *&Data);
 public:
-  cPvrDevice(int DeviceNumber);
+  cPvrDevice(int DeviceNumber, cDevice *ParentDevice = NULL);
   virtual ~cPvrDevice(void);
   virtual bool ProvidesSource(int Source) const;
   virtual bool ProvidesTransponder(const cChannel *Channel) const;
@@ -135,6 +139,7 @@ public:
                     eInputType *inputType, int *apid, int *vpid, int *tpid) const;
   int  ReOpen(void);
   void ReInit(void);
+  void Stop(void);
   void StopReadThread(void);
   void GetStandard(void);
   void TurnOffSlicedVBI(void);
@@ -155,5 +160,16 @@ public:
   int  QueryControl(struct valSet *vs);
   bool QueryAllControls(void);
 };
+
+#ifdef __DYNAMIC_DEVICE_PROBE
+class cPvrDeviceProbe : public cDynamicDeviceProbe {
+private:
+  static cPvrDeviceProbe *probe;
+public:
+  static void Init(void);
+  static void Shutdown(void);
+  virtual cDevice *Attach(cDevice *ParentDevice, const char *DevPath);
+};
+#endif
 
 #endif

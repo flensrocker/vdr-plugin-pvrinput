@@ -15,8 +15,12 @@ cPvrDevice *PvrDevices[kMaxPvrDevices];
 cString cPvrDevice::externChannelSwitchScript;
 int     cPvrDevice::VBIDeviceCount = 0;
 
-cPvrDevice::cPvrDevice(int DeviceNumber)
-: number(DeviceNumber),
+cPvrDevice::cPvrDevice(int DeviceNumber, cDevice *ParentDevice)
+:
+#ifdef __DYNAMIC_DEVICE_PROBE
+  cDevice(ParentDevice),
+#endif
+  number(DeviceNumber),
   CurrentNorm(0), //uint64_t can't be negative
   CurrentLinesPerFrame(-1),
   CurrentFrequency(-1),
@@ -199,13 +203,26 @@ cPvrDevice::cPvrDevice(int DeviceNumber)
     }
   ReInit();
   StartSectionHandler();
+  index = 0;
+  while ((index < kMaxPvrDevices) && (PvrDevices[index] != NULL))
+    index++;
+  if (index < kMaxPvrDevices)
+     PvrDevices[index] = this;
+  else {
+     index = -1;
+     esyslog("ERROR: too many cPvrDevices!");
+     }
 }
 
 cPvrDevice::~cPvrDevice()
 {
+  if ((index >= 0) && (index < kMaxPvrDevices) && (PvrDevices[index] == this))
+     PvrDevices[index] = NULL;
 #if VDRVERSNUM >= 10600
   StopSectionHandler();
 #endif
+  DetachAllReceivers();
+  Stop();
   cRingBufferLinear *tsBuffer_tmp = tsBuffer;
   log(pvrDEBUG2, "~cPvrDevice()");
   tsBuffer = NULL;
@@ -255,7 +272,13 @@ bool cPvrDevice::Initialize(void)
   for (int i = 0; i < kMaxPvrDevices; i++) {
     PvrDevices[i] = NULL;
     if (Probe(i)) {
-      PvrDevices[i] = new cPvrDevice(i);
+#ifdef __DYNAMIC_DEVICE_PROBE
+      if (cPluginManager::GetPlugin("dynamite"))
+         cDynamicDeviceProbe::QueueDynamicDeviceCommand(ddpcAttach, *cString::sprintf("/dev/video%d", i));
+      else
+#else
+      new cPvrDevice(i);
+#endif
       found++;
       }
     }
@@ -267,19 +290,23 @@ bool cPvrDevice::Initialize(void)
   return found > 0;
 }
 
-void cPvrDevice::Stop(void)
+void cPvrDevice::StopAll(void)
 {
   /* recursively stop all threads inside pvrinputs devices */
   for (int i = 0; i < kMaxPvrDevices; i++) {
-    if (PvrDevices[i]) {
-      if (PvrDevices[i]->readThread) {
-        log(pvrDEBUG2,"cPvrDevice::Stop() for Device %i", i);
-        PvrDevices[i]->StopReadThread();
-        PvrDevices[i]->SetEncoderState(eStop);
-        PvrDevices[i]->SetVBImode(PvrDevices[i]->CurrentLinesPerFrame, V4L2_MPEG_STREAM_VBI_FMT_NONE);
-        }
+      if (PvrDevices[i])
+         PvrDevices[i]->Stop();
       }
-    }
+}
+
+void cPvrDevice::Stop(void)
+{
+  if (readThread) {
+     log(pvrDEBUG2,"cPvrDevice::Stop() for Device %i", index);
+     StopReadThread();
+     SetEncoderState(eStop);
+     SetVBImode(CurrentLinesPerFrame, V4L2_MPEG_STREAM_VBI_FMT_NONE);
+     }
 }
 
 void cPvrDevice::GetStandard(void)
@@ -1437,3 +1464,29 @@ bool cPvrDevice::QueryAllControls(void)
   INIT(PvrSetup.FilterChromaMedianTop);
   return true;
 }
+
+
+#ifdef __DYNAMIC_DEVICE_PROBE
+cPvrDeviceProbe *cPvrDeviceProbe::probe = NULL;
+
+void cPvrDeviceProbe::Init(void)
+{
+  if (!probe)
+     probe = new cPvrDeviceProbe();
+}
+
+void cPvrDeviceProbe::Shutdown(void)
+{
+  if (probe)
+     delete probe;
+  probe = NULL;
+}
+
+cDevice *cPvrDeviceProbe::Attach(cDevice *ParentDevice, const char *DevPath)
+{
+  int nr = -1;
+  if ((sscanf(DevPath, "/dev/video%d", &nr) == 1) && cPvrDevice::Probe(nr))
+     return new cPvrDevice(nr, ParentDevice);
+  return NULL;
+}
+#endif
