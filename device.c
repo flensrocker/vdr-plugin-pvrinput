@@ -264,6 +264,7 @@ bool cPvrDevice::Probe(int DeviceNumber)
 
 bool cPvrDevice::Initialize(void)
 {
+  cPlugin *dynamite = cPluginManager::GetPlugin("dynamite");
   int found = 0;
   VBIDeviceCount = 0;
 #ifdef PVR_SOURCEPARAMS
@@ -273,7 +274,7 @@ bool cPvrDevice::Initialize(void)
     PvrDevices[i] = NULL;
     if (Probe(i)) {
 #ifdef __DYNAMIC_DEVICE_PROBE
-      if (cPluginManager::GetPlugin("dynamite"))
+      if (dynamite)
          cDynamicDeviceProbe::QueueDynamicDeviceCommand(ddpcAttach, *cString::sprintf("/dev/video%d", i));
       else
 #else
@@ -287,6 +288,8 @@ bool cPvrDevice::Initialize(void)
   else
     log(pvrINFO, "cPvrDevice::Initialize(): no PVR device found");
   externChannelSwitchScript = AddDirectory(cPlugin::ConfigDirectory(PLUGIN_NAME_I18N), "externchannelswitch.sh");
+  if (dynamite)
+     dynamite->Service("dynamite-AddUdevMonitor-v0.1", (void*)("video4linux /dev/video"));
   return found > 0;
 }
 
