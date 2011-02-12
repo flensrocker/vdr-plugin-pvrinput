@@ -233,6 +233,11 @@ cPvrDevice::~cPvrDevice()
 
 bool cPvrDevice::Probe(int DeviceNumber)
 {
+  // DIRTY HACK:
+  // some ivtv devices create more than one /dev/video-node
+  // so we have to be sure to grab only the right ones...
+  if (DeviceNumber >= kMaxPvrDevices)
+     return false;
   struct v4l2_capability vcap;
   struct v4l2_format vfmt;
   int v4l2_fd;
@@ -277,9 +282,8 @@ bool cPvrDevice::Initialize(void)
       if (dynamite)
          cDynamicDeviceProbe::QueueDynamicDeviceCommand(ddpcAttach, *cString::sprintf("/dev/video%d", i));
       else
-#else
-      new cPvrDevice(i);
 #endif
+      new cPvrDevice(i);
       found++;
       }
     }
