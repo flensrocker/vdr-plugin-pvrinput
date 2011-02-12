@@ -1,8 +1,6 @@
 #ifndef _PVRINPUT_READER_H_
 #define _PVRINPUT_READER_H_
 
-#include "common.h"
-
 class cPvrReadThread : public cThread {
 private:
   cPvrDevice *parent;

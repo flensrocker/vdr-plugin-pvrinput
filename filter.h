@@ -1,9 +1,6 @@
 #ifndef _PVRINPUT_FILTER_H_
 #define _PVRINPUT_FILTER_H_
 
-#include <vdr/filter.h>
-
-
 class cPvrSectionFilter : public cListObject {
   friend class cPvrSectionHandler;
 private:

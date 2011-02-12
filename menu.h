@@ -28,8 +28,6 @@
 #ifndef _PVRINPUT_MENU_H_
 #define _PVRINPUT_MENU_H_
 
-#include "common.h"
-
 typedef enum {
   ePicPropBrightness = 0,
   ePicPropContrast,

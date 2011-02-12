@@ -1,8 +1,6 @@
 #ifndef _PVRINPUT_SOURCEPARAMS_H
 #define _PVRINPUT_SOURCEPARAMS_H
 
-#include "common.h"
-
 class cPvrSourceParam
 #ifdef __SOURCEPARAMS_H
  : public cSourceParam

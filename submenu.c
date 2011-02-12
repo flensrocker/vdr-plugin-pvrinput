@@ -25,7 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "submenu.h"
+#include "common.h"
 
 static const char *aspectRatios[] = {
   "1:1",

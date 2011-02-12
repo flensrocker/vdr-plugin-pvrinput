@@ -1,8 +1,6 @@
 #ifndef _PVRINPUT_DEVICE_H_
 #define _PVRINPUT_DEVICE_H_
 
-#include "common.h"
-
 typedef enum { /* enumeration with encoder states */
   eStop,
   eStart,

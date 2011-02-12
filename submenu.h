@@ -25,9 +25,6 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "common.h"
-#include <vdr/osdbase.h>
-
 class cPvrSubMenu : public cOsdMenu {
 public:
   cPvrSubMenu(const char* text) : cOsdMenu(text, 33) { }

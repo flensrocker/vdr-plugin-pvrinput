@@ -3,31 +3,15 @@
 
 enum eLogLevel { pvrUNUSED, pvrERROR, pvrINFO, pvrDEBUG1, pvrDEBUG2, pvrDEBUG3 };
 
-#include <string>
-#include <strings.h>
-#include <linux/types.h>
-#include <linux/videodev.h>
 #include <linux/videodev2.h>
-
 #include <sys/ioctl.h>
-#include <sys/time.h>
-
 #include <stdarg.h>
-#include <time.h>
-#include <stdio.h>
 
-#include <vdr/osd.h>
-#include <vdr/plugin.h>
-#include <vdr/channels.h>
-#include <vdr/sources.h>
-#include <vdr/device.h>
 #include <vdr/plugin.h>
 #if VDRVERSNUM > 10712
 #include <vdr/sourceparams.h>
 #define PVR_SOURCEPARAMS
 #endif
-
-
 
 #include "setup.h"
 #include "filter.h"
@@ -36,6 +20,7 @@ enum eLogLevel { pvrUNUSED, pvrERROR, pvrINFO, pvrDEBUG1, pvrDEBUG2, pvrDEBUG3 }
 #include "reader.h"
 #include "pvrinput.h"
 #include "menu.h"
+#include "submenu.h"
 #include "sourceparams.h"
 
 #if VDRVERSNUM < 10507

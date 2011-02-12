@@ -1,8 +1,6 @@
 #ifndef _PVRINPUT_SETUP_H_
 #define _PVRINPUT_SETUP_H_
 
-#include "common.h"
-
 struct valSet {
   v4l2_queryctrl queryctrl;
   int value;

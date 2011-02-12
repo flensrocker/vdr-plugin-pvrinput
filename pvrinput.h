@@ -1,8 +1,6 @@
 #ifndef _PVRINPUT_PLUGIN_H_
 #define _PVRINPUT_PLUGIN_H_
 
-#include "common.h"
-
 class cPluginPvrInput : public cPlugin {
 private:
 public:

@@ -25,11 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 
-/*uncomment the following line to allow setting of PvrSetup.UseOnlyCard
-and StreamType.value via OSD menu (see README) */
-
 #include "common.h"
-#include "submenu.h"
 
 cPvrMenuSetup::cPvrMenuSetup()
 {

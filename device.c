@@ -1,6 +1,5 @@
 #include "common.h"
 #include <linux/dvb/video.h>
-#include <stdlib.h>
 
 char DRIVERNAME[][15] = {
   "undef", "ivtv", "cx18", "pvrusb2", "cx88_blackbird", "hdpvr"
