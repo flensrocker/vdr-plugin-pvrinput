@@ -133,6 +133,8 @@ public:
   virtual bool ProvidesTransponder(const cChannel *Channel) const;
   virtual bool ProvidesChannel(const cChannel *Channel, int Priority = -1, bool *NeedsDetachReceivers = NULL) const;
   virtual int NumProvidedSystems(void) const;
+  virtual int SignalStrength(void) const;
+  virtual int SignalQuality(void) const;
   bool ParseChannel(const cChannel *Channel, int *input, uint64_t *norm, int *LinesPerFrame, int *card,
                     eInputType *inputType, int *apid, int *vpid, int *tpid) const;
   int  ReOpen(void);

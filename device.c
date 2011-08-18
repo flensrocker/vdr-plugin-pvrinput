@@ -1002,6 +1002,20 @@ int cPvrDevice::NumProvidedSystems(void) const
   return 1;
 }
 
+int cPvrDevice::SignalStrength(void) const
+{
+  struct v4l2_tuner tuner;
+  memset(&tuner, 0, sizeof(tuner));
+  if ((IOCTL(v4l2_fd, VIDIOC_G_TUNER, &tuner) == 0) && (tuner.signal >= 0) && (tuner.signal <= 65535))
+     return (tuner.signal * 100) / 65535;
+  return -1;
+}
+
+int cPvrDevice::SignalQuality(void) const
+{
+  return -1;
+}
+
 bool cPvrDevice::ProvidesChannel(const cChannel *Channel, int Priority, bool *NeedsDetachReceivers) const
 {
   bool result = false;
