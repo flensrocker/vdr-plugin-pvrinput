@@ -1,6 +1,12 @@
 VDR Plugin 'pvrinput' Revision History
 --------------------------------------
 
+2011-08-18 (mini73)
+- support SignalStrength of cDevice in vdr 1.7.19
+
+2011-02-12 (mini73)
+- add support for hotplug with the dynamite plugin
+
 2010-09-01 (mini73)
 - use helper class for protected crc-function of libsi
 - update of italian translations (thanks to Diego Pierotto)
