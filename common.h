@@ -7,6 +7,7 @@ enum eLogLevel { pvrUNUSED, pvrERROR, pvrINFO, pvrDEBUG1, pvrDEBUG2, pvrDEBUG3 }
 #include <sys/ioctl.h>
 #include <stdarg.h>
 
+#include <vdr/device.h>
 #include <vdr/plugin.h>
 #if VDRVERSNUM > 10712
 #include <vdr/sourceparams.h>
