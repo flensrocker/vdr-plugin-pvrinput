@@ -6,7 +6,7 @@
 #endif
 #endif
 
-static const char *VERSION        = "2011-08-18";
+static const char *VERSION        = "2012-04-25";
 static const char *DESCRIPTION    = tr("use Hauppauge PVR as input device");
 static const char *MAINMENUENTRY  = tr("PVR picture settings");
 
