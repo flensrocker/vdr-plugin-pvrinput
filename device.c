@@ -455,24 +455,29 @@ bool cPvrDevice::Tune(int freq)
 {
   double fac = 16;
   int freqaux = freq;
+  int tune_dev;
   struct v4l2_frequency vf;
   if (CurrentFrequency == freq)
     return true;
   memset(&vf, 0, sizeof(vf));
   struct v4l2_tuner tuner;
   memset(&tuner, 0, sizeof(tuner));
-  if (IOCTL(v4l2_fd, VIDIOC_G_TUNER, &tuner) == 0)
+  if (radio_fd >=0)
+     tune_dev = radio_fd;
+  else
+     tune_dev = v4l2_fd;
+  if (IOCTL(tune_dev, VIDIOC_G_TUNER, &tuner) == 0)
      fac = (tuner.capability & V4L2_TUNER_CAP_LOW) ? 16000 : 16;
   vf.tuner = 0;
   vf.type = tuner.type;
   vf.frequency = (int)((double)freqaux * fac / 1000.0);
-  if (IOCTL(v4l2_fd, VIDIOC_S_FREQUENCY, &vf) == 0) {
-    log(pvrDEBUG1, "cPvrDevice::Tune(): set Frequency on /dev/video%d (%s) to %.2f MHz (%d)",
-        number, CARDNAME[cardname], vf.frequency / fac, vf.frequency);
+  if (IOCTL(tune_dev, VIDIOC_S_FREQUENCY, &vf) == 0) {
+    log(pvrDEBUG1, "cPvrDevice::Tune(): set Frequency on %s to %.2f MHz (%d)",
+        CARDNAME[cardname], vf.frequency / fac, vf.frequency);
     }
   else {
-    log(pvrERROR, "cPvrDevice::Tune(): error on /dev/video%d (%s) tuning to %.2f MHz (%d): %d:%s",
-        number, CARDNAME[cardname], vf.frequency / fac, vf.frequency, errno, strerror(errno));
+    log(pvrERROR, "cPvrDevice::Tune(): error on %s tuning to %.2f MHz (%d): %d:%s",
+        CARDNAME[cardname], vf.frequency / fac, vf.frequency, errno, strerror(errno));
     return false;
     }
   CurrentFrequency = freq;
@@ -848,6 +853,7 @@ bool cPvrDevice::OpenDvr(void)
                switch (driver) {
                  case ivtv:
                  case cx18:
+                 case pvrusb2:
                    if (radio_dev < 0)
                       return false; //no hardware support.
                    if (radio_fd < 0) {
@@ -857,13 +863,12 @@ bool cPvrDevice::OpenDvr(void)
                        log(pvrERROR, "Error opening FM radio device %s: %s", *devName, strerror(errno));
                        return false;
                        }
+                     if (driver == pvrusb2)
+                        CurrentInput = inputs[eRadio]; //opening the radio_fd automatically switched the input
                      usleep(100000); /* 100msec */
                      SetControlValue(&PvrSetup.AudioVolumeFM, PvrSetup.AudioVolumeFM.value);
                      }
                    break;
-                 case pvrusb2:
-                   if (!SetInput(inputs[eRadio]))
-                      return false;
                  case cx88_blackbird:
                  case hdpvr:
                    break;
@@ -878,7 +883,7 @@ bool cPvrDevice::OpenDvr(void)
          case eTelevision:
                {
                log(pvrDEBUG2, "channel is television.");
-               if ((driver == ivtv) && (radio_fd >= 0)) {
+               if (radio_fd >= 0) {
                  close(radio_fd);
                  radio_fd = -1;
                  usleep(100000); /* 100msec */
