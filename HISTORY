@@ -1,6 +1,9 @@
 VDR Plugin 'pvrinput' Revision History
 --------------------------------------
 
+2012-12-01 (Dr. Seltsam)
+- use radiofd for control the radio device
+
 2011-08-18 (mini73)
 - support SignalStrength of cDevice in vdr 1.7.19
 
