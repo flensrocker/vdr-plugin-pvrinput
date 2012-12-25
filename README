@@ -27,6 +27,8 @@ This plugin uses a Hauppauge PVR card as an input device. All cards
 supported by the ivtv or pvrusb2 driver should work. This version of the plugin
 requires ivtv driver version 1.0 or higher. You need current versions of
 videodev2.h in /usr/include/linux to get the plugin compiled 
+Because of huge changes to the Makefile with vdr 1.7.34 old stuff is removed
+from it. For older versions please use Makefile-1.6.
 
 Supported devices
 -----------------
