@@ -2,59 +2,64 @@
 # Makefile for a Video Disk Recorder plugin
 #
 # -- v20071028, Winfried Koehler --
-# -- v20121225, Lars Hanisch --
-#               drop support for vdr 1.6, please use Makefile-1.6
 
 # The official name of this plugin.
 # This name will be used in the '-P...' option of VDR to load the plugin.
 # By default the main source file also carries this name.
-
+# IMPORTANT: the presence of this macro is important for the Make.config
+# file. So it must be defined, even if it is not used here!
+#
 PLUGIN = pvrinput
 
 ### The version number of this plugin (taken from the main source file):
 
-VERSION = $(shell grep 'static const char \*VERSION *=' $(PLUGIN).c | awk '{ print $$6 }' | sed -e 's/[";]//g')
+VERSION = $(shell grep 'static const char \*VERSION *=' pvrinput.c | awk '{ print $$6 }' | sed -e 's/[";]//g')
+
+### The C++ compiler and options:
+
+CXX      ?= g++
+CXXFLAGS ?= -fPIC -g -O2 -Wall -Woverloaded-virtual -Wno-parentheses
 
 ### The directory environment:
 
-# Use package data if installed...otherwise assume we're under the VDR source directory:
-PKGCFG = $(if $(VDRDIR),$(shell pkg-config --variable=$(1) $(VDRDIR)/vdr.pc),$(shell pkg-config --variable=$(1) vdr || pkg-config --variable=$(1) ../../../vdr.pc))
-LIBDIR = $(DESTDIR)$(call PKGCFG,libdir)
-LOCDIR = $(DESTDIR)$(call PKGCFG,locdir)
-#
-TMPDIR ?= /tmp
+DVBDIR = ../../../../DVB
+VDRDIR = ../../..
+LIBDIR = ../../lib
+TMPDIR = /tmp
 
-### The compiler options:
+### Test whether VDR has locale support
+VDRLOCALE = $(shell grep 'I18N_DEFAULT_LOCALE' $(VDRDIR)/i18n.h)
 
-export CFLAGS   = $(call PKGCFG,cflags)
-export CXXFLAGS = $(call PKGCFG,cxxflags)
+### Make sure that necessary options are included:
 
-### The version number of VDR's plugin API:
+-include $(VDRDIR)/Make.global
 
-APIVERSION = $(call PKGCFG,apiversion)
+### Allow user defined options to overwrite defaults:
+
+-include $(VDRDIR)/Make.config
+
+### The version number of VDR's plugin API (taken from VDR's "config.h"):
+
+APIVERSION = $(shell sed -ne '/define APIVERSION/s/^.*"\(.*\)".*$$/\1/p' $(VDRDIR)/config.h)
 
 ### The name of the distribution archive:
 
 ARCHIVE = $(PLUGIN)-$(VERSION)
 PACKAGE = vdr-$(ARCHIVE)
 
-### The name of the shared object file:
-
-SOFILE = libvdr-$(PLUGIN).so
-
 ### Includes and Defines (add further entries here):
 
-INCLUDES +=
+INCLUDES += -I$(VDRDIR)/include -I$(DVBDIR)/include
 
-DEFINES += -DPLUGIN_NAME_I18N='"$(PLUGIN)"'
+DEFINES += -D_GNU_SOURCE -DPLUGIN_NAME_I18N='"$(PLUGIN)"'
 
 ### The object files (add further files here):
 
-OBJS = $(PLUGIN).o common.o device.o reader.o menu.o setup.o filter.o sourceparams.o submenu.o
+OBJS = pvrinput.o common.o device.o reader.o menu.o setup.o filter.o sourceparams.o submenu.o
 
 ### The main target:
 
-all: $(SOFILE) i18n
+all:  i18n libvdr-$(PLUGIN).so
 
 ### Implicit rules:
 
@@ -66,47 +71,69 @@ all: $(SOFILE) i18n
 MAKEDEP = $(CXX) -MM -MG
 DEPFILE = .dependencies
 $(DEPFILE): Makefile
-	@$(MAKEDEP) $(DEFINES) $(INCLUDES) $(OBJS:%.o=%.c) > $@
+	@$(MAKEDEP) $(DEFINES) $(INCLUDES) $(subst i18n.c,,$(OBJS:%.o=%.c)) > $@
 
 -include $(DEPFILE)
 
 ### Internationalization (I18N):
 
 PODIR     = po
+LOCALEDIR = $(VDRDIR)/locale
 I18Npo    = $(wildcard $(PODIR)/*.po)
 I18Nmo    = $(addsuffix .mo, $(foreach file, $(I18Npo), $(basename $(file))))
-I18Nmsgs  = $(addprefix $(LOCDIR)/, $(addsuffix /LC_MESSAGES/vdr-$(PLUGIN).mo, $(notdir $(foreach file, $(I18Npo), $(basename $(file))))))
+I18Ndirs  = $(notdir $(foreach file, $(I18Npo), $(basename $(file))))
 I18Npot   = $(PODIR)/$(PLUGIN).pot
+I18Nvdrmo = vdr-$(PLUGIN).mo
+ifeq ($(strip $(APIVERSION)),1.5.7)
+  I18Nvdrmo = $(PLUGIN).mo
+endif
+
+ifneq ($(strip $(VDRLOCALE)),)
+### do gettext based i18n stuff
 
 %.mo: %.po
 	msgfmt -c -o $@ $<
 
-$(I18Npot): $(wildcard *.c)
-	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --package-name=vdr-$(PLUGIN) --package-version=$(VERSION) --msgid-bugs-address='<see README>' -o $@ `ls $^`
+$(I18Npot): $(subst i18n.c,,$(wildcard *.c))
+	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --msgid-bugs-address='<see README>' -o $@ $(subst i18n.c,,$(wildcard *.c))
 
-%.po: $(I18Npot)
-	msgmerge -U --no-wrap --no-location --backup=none -q -N $@ $<
-	@touch $@
+$(I18Npo): $(I18Npot)
+	msgmerge -U --no-wrap --no-location --backup=none -q $@ $<
 
-$(I18Nmsgs): $(LOCDIR)/%/LC_MESSAGES/vdr-$(PLUGIN).mo: $(PODIR)/%.mo
-	install -D -m644 $< $@
+i18n: $(I18Nmo)
+	@mkdir -p $(LOCALEDIR)
+	for i in $(I18Ndirs); do\
+	    mkdir -p $(LOCALEDIR)/$$i/LC_MESSAGES;\
+	    cp $(PODIR)/$$i.mo $(LOCALEDIR)/$$i/LC_MESSAGES/$(I18Nvdrmo);\
+	    done
 
-.PHONY: i18n
-i18n: $(I18Nmo) $(I18Npot)
+i18n.c: ### nothing to do
 
-install-i18n: $(I18Nmsgs)
+else ### do i18n.c based i18n stuff
+
+OBJS += i18n.o
+
+i18n:   $(@cp $(PODIR)/i18n.h i18n.h)
+	@### nothing to do
+
+i18n.h: i18n.c
+
+### i18n compatibility generator:
+
+i18n.c: $(PODIR)/i18n-template.c po2i18n.pl $(I18Npo)
+	./po2i18n.pl < $(PODIR)/i18n-template.c > i18n.c
+	@cp $(PODIR)/i18n.h i18n.h
+
+endif
+
 
 ### Targets:
 
-$(SOFILE): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared $(OBJS) -o $@
+libvdr-$(PLUGIN).so: $(OBJS)
+	$(CXX) $(CXXFLAGS) -shared $(OBJS) -o $@
+	@cp --remove-destination $@ $(LIBDIR)/$@.$(APIVERSION)
 
-install-lib: $(SOFILE)
-	install -D $^ $(LIBDIR)/$^.$(APIVERSION)
-
-install: install-lib install-i18n
-
-dist: $(I18Npo) clean
+dist: clean
 	@-rm -rf $(TMPDIR)/$(ARCHIVE)
 	@mkdir $(TMPDIR)/$(ARCHIVE)
 	@cp -a * $(TMPDIR)/$(ARCHIVE)
@@ -115,5 +142,4 @@ dist: $(I18Npo) clean
 	@echo Distribution package created as $(PACKAGE).tgz
 
 clean:
-	@-rm -f $(PODIR)/*.mo $(PODIR)/*.pot
-	@-rm -f $(OBJS) $(DEPFILE) *.so *.tgz core* *~
+	@-rm -f $(OBJS) $(DEPFILE) i18n.c  i18n.h *.so *.tgz core* *~ $(PODIR)/*.mo $(PODIR)/*.pot
