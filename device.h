@@ -97,6 +97,7 @@ private:
   eEncState EncoderState;
   int driver_apiversion;
   bool SupportsSlicedVBI;
+  cString vbi_dev;
   bool hasDecoder;
   bool hasTuner;
   int  streamType;

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "udev.h"
 #include <linux/dvb/video.h>
 
 char DRIVERNAME[][15] = {
@@ -89,6 +90,25 @@ cPvrDevice::cPvrDevice(int DeviceNumber, cDevice *ParentDevice)
     SupportsSlicedVBI = true;
     VBIDeviceCount++;
     log(pvrDEBUG1, "%s supports sliced VBI Capture, total number of VBI capable devices is now %d", *devName, VBIDeviceCount);
+
+    cUdev::Init();
+    cUdevDevice *v4ldev = cUdev::GetDeviceFromDevName(*devName);
+    if (v4ldev != NULL) {
+       static const char *propertyName = "ID_PATH";
+       static const char *vbi_dev_name = "/dev/vbi";
+       const char *id_path = v4ldev->GetPropertyValue(propertyName);
+       if (id_path != NULL) {
+          cList<cUdevDevice> *v4ldevices = cUdev::EnumDevices("video4linux", propertyName, id_path);
+          for (cUdevDevice *dev = v4ldevices->First(); dev; dev = v4ldevices->Next(dev)) {
+              log(pvrDEBUG1, "pvrinput: %s is related to %s", *devName, dev->GetDevnode());
+              if (strncmp(dev->GetDevnode(), vbi_dev_name, strlen(vbi_dev_name)) == 0)
+                 vbi_dev = dev->GetDevnode();
+              }
+          delete v4ldevices;
+          }
+       delete v4ldev;
+       }
+    cUdev::Free();
     }
   if (video_vcap.capabilities & V4L2_CAP_VIDEO_OUTPUT_OVERLAY)
      hasDecoder = true; //can only be a PVR350
@@ -662,37 +682,48 @@ void cPvrDevice::SetEncoderState(eEncState state)
 
 bool cPvrDevice::SetVBImode(int vbiLinesPerFrame, int vbistatus)
 {
-  if (v4l2_fd >= 0 && SupportsSlicedVBI) {
-    log(pvrDEBUG1, "SetVBImode(%d, %d) on /dev/video%d (%s)", vbiLinesPerFrame, vbistatus, number, CARDNAME[cardname]);
-    struct v4l2_format vbifmt;
-    struct v4l2_ext_controls ctrls;
-    struct v4l2_ext_control  ctrl;
-    memset(&vbifmt, 0, sizeof(vbifmt));
-    memset(&ctrls,  0, sizeof(ctrls));
-    memset(&ctrl,   0, sizeof(ctrl));
-    ctrl.id    = V4L2_CID_MPEG_STREAM_VBI_FMT;
-    ctrl.value = vbistatus; 
-    ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG;
-    ctrls.controls = &ctrl;
-    ctrls.count = 1;
-    if (IOCTL(v4l2_fd, VIDIOC_S_EXT_CTRLS, &ctrls) != 0) {
-      log(pvrERROR, "cPvrDevice::SetVBImode(): error setting vbi mode (ctrls) on /dev/video%d (%s), %d:%s",
-          number, CARDNAME[cardname], errno, strerror(errno));
-      return false; 
-      }
-    if ((ctrl.value == V4L2_MPEG_STREAM_VBI_FMT_IVTV) && (vbiLinesPerFrame == 625)) {
+  if (*vbi_dev && SupportsSlicedVBI) {
+     log(pvrDEBUG1, "SetVBImode(%d, %d) on %s (%s)", vbiLinesPerFrame, vbistatus, *vbi_dev, CARDNAME[cardname]);
+
+     int vbi_fd = open(*vbi_dev, O_RDWR);
+     if (vbi_fd < 0) {
+        log(pvrERROR, "cPvrDevice::SetVBImode(): error opening %s (%s), %d:%s",
+            *vbi_dev, CARDNAME[cardname], errno, strerror(errno));
+        return false;
+        }
+
+     struct v4l2_format vbifmt;
+     struct v4l2_ext_controls ctrls;
+     struct v4l2_ext_control  ctrl;
+     memset(&vbifmt, 0, sizeof(vbifmt));
+     memset(&ctrls,  0, sizeof(ctrls));
+     memset(&ctrl,   0, sizeof(ctrl));
+     ctrl.id    = V4L2_CID_MPEG_STREAM_VBI_FMT;
+     ctrl.value = vbistatus; 
+     ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG;
+     ctrls.controls = &ctrl;
+     ctrls.count = 1;
+     if (IOCTL(vbi_fd, VIDIOC_S_EXT_CTRLS, &ctrls) != 0) {
+        log(pvrERROR, "cPvrDevice::SetVBImode(): error setting vbi mode (ctrls) on %s (%s), %d:%s",
+            *vbi_dev, CARDNAME[cardname], errno, strerror(errno));
+        close(vbi_fd);
+        return false; 
+        }
+     if ((ctrl.value == V4L2_MPEG_STREAM_VBI_FMT_IVTV) && (vbiLinesPerFrame == 625)) {
         vbifmt.fmt.sliced.service_set = V4L2_SLICED_VBI_625;
         vbifmt.type = V4L2_BUF_TYPE_SLICED_VBI_CAPTURE;
         vbifmt.fmt.sliced.reserved[0] = 0;
         vbifmt.fmt.sliced.reserved[1] = 0;
 
-        if (IOCTL(v4l2_fd, VIDIOC_S_FMT, &vbifmt) < 0) {
-          log(pvrERROR, "cPvrDevice::SetVBImode():error setting vbi mode (fmt) on /dev/video%d (%s), %d:%s",
-              number, CARDNAME[cardname], errno, strerror(errno));
-          return false;
-          }
+        if (IOCTL(vbi_fd, VIDIOC_S_FMT, &vbifmt) < 0) {
+           log(pvrERROR, "cPvrDevice::SetVBImode():error setting vbi mode (fmt) on %s (%s), %d:%s",
+               *vbi_dev, CARDNAME[cardname], errno, strerror(errno));
+           close(vbi_fd);
+           return false;
+           }
         }
-    }
+     close(vbi_fd);
+     }
   return true;
 }
 
