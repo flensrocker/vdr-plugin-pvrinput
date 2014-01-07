@@ -749,7 +749,7 @@ bool cPvrDevice::SetChannelDevice(const cChannel * Channel, bool LiveView)
   if (!ParseChannel(Channel, &input, &norm, &LinesPerFrame, &card, &inputType, &apid, &vpid, &tpid))
      return false;
 
-  if ((Channel->Number() == CurrentChannel.Number()) && (Channel->Frequency() == CurrentFrequency) && (input == CurrentInput) && (norm == CurrentNorm))
+  if ((Channel->GetChannelID() == CurrentChannel.GetChannelID()) && (Channel->Frequency() == CurrentFrequency) && (input == CurrentInput) && (norm == CurrentNorm))
     return true;
   log(pvrDEBUG1, "cPvrDevice::SetChannelDevice prepare switch to %d (%s) %3.2fMHz (/dev/video%d = %s)",
     Channel->Number(), Channel->Name(), (double)Channel->Frequency() / 1000,  number, CARDNAME[cardname]);
@@ -1019,6 +1019,21 @@ int cPvrDevice::SignalStrength(void) const
 int cPvrDevice::SignalQuality(void) const
 {
   return -1;
+}
+
+const cChannel *cPvrDevice::GetCurrentlyTunedTransponder(void) const
+{
+  return &CurrentChannel;
+}
+
+bool cPvrDevice::IsTunedToTransponder(const cChannel *Channel) const
+{
+  return CurrentChannel.GetChannelID() == Channel->GetChannelID();
+}
+
+bool cPvrDevice::MaySwitchTransponder(const cChannel *Channel) const
+{
+  return CurrentChannel.GetChannelID() == Channel->GetChannelID();
 }
 
 bool cPvrDevice::ProvidesChannel(const cChannel *Channel, int Priority, bool *NeedsDetachReceivers) const
