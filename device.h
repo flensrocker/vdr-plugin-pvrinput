@@ -73,7 +73,7 @@ private:
   int radio_fd;
   int v4l2_dev;
   int mpeg_dev;
-  int radio_dev;
+  cString radio_devname;
   int inputs[12];
   int numInputs;
   int vpid;
@@ -97,7 +97,7 @@ private:
   eEncState EncoderState;
   int driver_apiversion;
   bool SupportsSlicedVBI;
-  cString vbi_dev;
+  cString vbi_devname;
   bool hasDecoder;
   bool hasTuner;
   int  streamType;
