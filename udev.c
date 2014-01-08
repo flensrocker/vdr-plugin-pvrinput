@@ -3,16 +3,16 @@
 
 // --- cUdevListEntry --------------------------------------------------------
 
-cUdevListEntry::cUdevListEntry(struct udev_list_entry *ListEntry)
+pvrinput::cUdevListEntry::cUdevListEntry(struct udev_list_entry *ListEntry)
 :listEntry(ListEntry)
 {
 }
 
-cUdevListEntry::~cUdevListEntry(void)
+pvrinput::cUdevListEntry::~cUdevListEntry(void)
 {
 }
 
-cUdevListEntry *cUdevListEntry::GetNext(void) const
+pvrinput::cUdevListEntry *pvrinput::cUdevListEntry::GetNext(void) const
 {
   if (listEntry == NULL)
      return NULL;
@@ -22,14 +22,14 @@ cUdevListEntry *cUdevListEntry::GetNext(void) const
   return new cUdevListEntry(next);
 }
 
-const char *cUdevListEntry::GetName(void) const
+const char *pvrinput::cUdevListEntry::GetName(void) const
 {
  if (listEntry == NULL)
      return NULL;
   return udev_list_entry_get_name(listEntry);
 }
 
-const char *cUdevListEntry::GetValue(void) const
+const char *pvrinput::cUdevListEntry::GetValue(void) const
 {
  if (listEntry == NULL)
      return NULL;
@@ -38,19 +38,19 @@ const char *cUdevListEntry::GetValue(void) const
 
 // --- cUdevDevice -----------------------------------------------------------
 
-cUdevDevice::cUdevDevice(udev_device *Device, bool DoUnref)
+pvrinput::cUdevDevice::cUdevDevice(udev_device *Device, bool DoUnref)
 :device(Device)
 ,doUnref(DoUnref)
 {
 }
 
-cUdevDevice::~cUdevDevice(void)
+pvrinput::cUdevDevice::~cUdevDevice(void)
 {
   if (doUnref && device)
      udev_device_unref(device);
 }
 
-int cUdevDevice::Compare(const cListObject &ListObject) const
+int pvrinput::cUdevDevice::Compare(const cListObject &ListObject) const
 {
   const char *n1 = GetDevnode();
   const char *n2 = ((cUdevDevice*)&ListObject)->GetDevnode();
@@ -59,14 +59,14 @@ int cUdevDevice::Compare(const cListObject &ListObject) const
   return 0;
 }
 
-const char  *cUdevDevice::GetAction(void) const
+const char  *pvrinput::cUdevDevice::GetAction(void) const
 {
   if (device == NULL)
      return NULL;
   return udev_device_get_action(device);
 }
 
-cUdevListEntry *cUdevDevice::GetDevlinksList(void) const
+pvrinput::cUdevListEntry *pvrinput::cUdevDevice::GetDevlinksList(void) const
 {
   if (device == NULL)
      return NULL;
@@ -76,21 +76,21 @@ cUdevListEntry *cUdevDevice::GetDevlinksList(void) const
   return new cUdevListEntry(listEntry);
 }
 
-const char  *cUdevDevice::GetDevnode(void) const
+const char  *pvrinput::cUdevDevice::GetDevnode(void) const
 {
   if (device == NULL)
      return false;
   return udev_device_get_devnode(device);
 }
 
-const char  *cUdevDevice::GetDevpath(void) const
+const char  *pvrinput::cUdevDevice::GetDevpath(void) const
 {
   if (device == NULL)
      return false;
   return udev_device_get_devpath(device);
 }
 
-cUdevDevice *cUdevDevice::GetParent(void) const
+pvrinput::cUdevDevice *pvrinput::cUdevDevice::GetParent(void) const
 {
   if (device == NULL)
      return NULL;
@@ -100,28 +100,28 @@ cUdevDevice *cUdevDevice::GetParent(void) const
   return new cUdevDevice(parent, false);
 }
 
-const char *cUdevDevice::GetPropertyValue(const char *Key) const
+const char *pvrinput::cUdevDevice::GetPropertyValue(const char *Key) const
 {
   if (device == NULL)
      return false;
   return udev_device_get_property_value(device, Key);
 }
 
-const char *cUdevDevice::GetSubsystem(void) const
+const char *pvrinput::cUdevDevice::GetSubsystem(void) const
 {
   if (device == NULL)
      return false;
   return udev_device_get_subsystem(device);
 }
 
-const char *cUdevDevice::GetSysname(void) const
+const char *pvrinput::cUdevDevice::GetSysname(void) const
 {
   if (device == NULL)
      return false;
   return udev_device_get_sysname(device);
 }
 
-const char *cUdevDevice::GetSyspath(void) const
+const char *pvrinput::cUdevDevice::GetSyspath(void) const
 {
   if (device == NULL)
      return false;
@@ -130,23 +130,37 @@ const char *cUdevDevice::GetSyspath(void) const
 
 // --- cUdev -----------------------------------------------------------------
 
-struct udev  *cUdev::udev = NULL;
+cMutex pvrinput::cUdev::udev_mutex;
+int    pvrinput::cUdev::udev_refcount = 0;
+struct udev  *pvrinput::cUdev::udev = NULL;
 
-struct udev *cUdev::Init(void)
+struct udev *pvrinput::cUdev::Init(void)
 {
+  udev_mutex.Lock();
   if (udev == NULL)
      udev = udev_new();
+  else
+     udev_ref(udev);
+  udev_refcount++;
+  udev_mutex.Unlock();
   return udev;
 }
 
-void cUdev::Free(void)
+void pvrinput::cUdev::Free(void)
 {
-  if (udev)
+  udev_mutex.Lock();
+  if (udev_refcount <= 0)
+     esyslog("udev: don't call cUdev::Free before cUdev::Init!");
+  else {
+     udev_refcount--;
      udev_unref(udev);
-  udev = NULL;
+     if (udev_refcount <= 0)
+        udev = NULL;
+     }
+  udev_mutex.Unlock();
 }
 
-cUdevDevice *cUdev::GetDeviceFromDevName(const char *DevName)
+pvrinput::cUdevDevice *pvrinput::cUdev::GetDeviceFromDevName(const char *DevName)
 {
   if (DevName == NULL)
      return NULL;
@@ -166,7 +180,7 @@ cUdevDevice *cUdev::GetDeviceFromDevName(const char *DevName)
   return new cUdevDevice(dev);
 }
 
-cUdevDevice *cUdev::GetDeviceFromSysPath(const char *SysPath)
+pvrinput::cUdevDevice *pvrinput::cUdev::GetDeviceFromSysPath(const char *SysPath)
 {
   if (SysPath == NULL)
      return NULL;
@@ -176,7 +190,7 @@ cUdevDevice *cUdev::GetDeviceFromSysPath(const char *SysPath)
   return new cUdevDevice(dev);
 }
 
-cList<cUdevDevice> *cUdev::EnumDevices(const char *Subsystem, const char *Property, const char *Value)
+cList<pvrinput::cUdevDevice> *pvrinput::cUdev::EnumDevices(const char *Subsystem, const char *Property, const char *Value)
 {
   cList<cUdevDevice> *devices = new cList<cUdevDevice>;
   struct udev_enumerate *e = udev_enumerate_new(udev);
@@ -187,20 +201,20 @@ cList<cUdevDevice> *cUdev::EnumDevices(const char *Subsystem, const char *Proper
   if (e != NULL) {
      int rc = 0;
      if (Subsystem && ((rc = udev_enumerate_add_match_subsystem(e, Subsystem)) < 0)) {
-        esyslog("pvrinput: can't add subsystem %s to enum-filter: %d", Subsystem, rc);
+        esyslog("udev: can't add subsystem %s to enum-filter: %d", Subsystem, rc);
         goto unref;
         }
      if (Property && Value && ((rc = udev_enumerate_add_match_property(e, Property, Value)) < 0)) {
-        esyslog("pvrinput: can't add property %s value %s to enum-filter: %d", Property, Value, rc);
+        esyslog("udev: can't add property %s value %s to enum-filter: %d", Property, Value, rc);
         goto unref;
         }
      if ((rc = udev_enumerate_scan_devices(e)) < 0) {
-        esyslog("pvrinput: can't scan for devices: %d", rc);
+        esyslog("udev: can't scan for devices: %d", rc);
         goto unref;
         }
      l = udev_enumerate_get_list_entry(e);
      if (l == NULL) {
-        isyslog("pvrinput: no devices found for %s/%s=%s", Subsystem, Property, Value);
+        isyslog("udev: no devices found for %s/%s=%s", Subsystem, Property, Value);
         goto unref;
         }
      listEntry = new cUdevListEntry(l);

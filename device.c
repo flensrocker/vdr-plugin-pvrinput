@@ -95,16 +95,16 @@ cPvrDevice::cPvrDevice(int DeviceNumber, cDevice *ParentDevice)
   if (video_vcap.capabilities & V4L2_CAP_RADIO)
      supports_radio = true;
 
-  cUdev::Init();
-  cUdevDevice *v4ldev = cUdev::GetDeviceFromDevName(*devName);
+  pvrinput::cUdev::Init();
+  pvrinput::cUdevDevice *v4ldev = pvrinput::cUdev::GetDeviceFromDevName(*devName);
   if (v4ldev != NULL) {
      static const char *propertyName = "ID_PATH";
      static const char *vbi_dev_node = "/dev/vbi";
      static const char *radio_dev_node = "/dev/radio";
      const char *id_path = v4ldev->GetPropertyValue(propertyName);
      if (id_path != NULL) {
-        cList<cUdevDevice> *v4ldevices = cUdev::EnumDevices("video4linux", propertyName, id_path);
-        for (cUdevDevice *dev = v4ldevices->First(); dev; dev = v4ldevices->Next(dev)) {
+        cList<pvrinput::cUdevDevice> *v4ldevices = pvrinput::cUdev::EnumDevices("video4linux", propertyName, id_path);
+        for (pvrinput::cUdevDevice *dev = v4ldevices->First(); dev; dev = v4ldevices->Next(dev)) {
             log(pvrDEBUG1, "pvrinput: %s is related to %s", *devName, dev->GetDevnode());
             if (SupportsSlicedVBI && (*vbi_devname == NULL) && (strncmp(dev->GetDevnode(), vbi_dev_node, strlen(vbi_dev_node)) == 0))
                vbi_devname = dev->GetDevnode();
@@ -115,7 +115,7 @@ cPvrDevice::cPvrDevice(int DeviceNumber, cDevice *ParentDevice)
         }
      delete v4ldev;
      }
-  cUdev::Free();
+  pvrinput::cUdev::Free();
 
   if (video_vcap.capabilities & V4L2_CAP_VIDEO_OUTPUT_OVERLAY)
      hasDecoder = true; //can only be a PVR350
