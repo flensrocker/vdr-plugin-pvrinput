@@ -106,7 +106,6 @@ private:
   bool isClosing;
   bool readThreadRunning;
   bool ChannelSettingsDone;
-  bool FirstChannelSwitch;
   bool pvrusb2_ready;
   eV4l2Driver driver;
   eV4l2CardName cardname;

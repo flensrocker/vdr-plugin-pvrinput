@@ -34,7 +34,6 @@ cPvrDevice::cPvrDevice(int DeviceNumber, cDevice *ParentDevice)
   isClosing(false),
   readThreadRunning(false),
   ChannelSettingsDone(false),
-  FirstChannelSwitch(true),
   pvrusb2_ready(true),
   driver(undef),
   cardname(UNDEF),
@@ -502,7 +501,7 @@ bool cPvrDevice::Tune(int freq)
 
 bool cPvrDevice::SetInput(int input)
 {
-  if (input == CurrentInput && !FirstChannelSwitch)
+  if (input == CurrentInput)
      return true;
   log(pvrDEBUG1, "cPvrDevice::SetInput on /dev/video%d (%s) to %d", number, CARDNAME[cardname], input);
   if (IOCTL(v4l2_fd, VIDIOC_S_INPUT, &input) != 0) {
@@ -926,7 +925,6 @@ bool cPvrDevice::OpenDvr(void)
          } //end: switch (newInputType)
        CurrentInputType = newInputType;
        ChannelSettingsDone = true;
-       FirstChannelSwitch = false;
        } //end: if ((!ChannelSettingsDone)
      if (CurrentInputType == eTelevision)
         SetVBImode(newLinesPerFrame, PvrSetup.SliceVBI ? V4L2_MPEG_STREAM_VBI_FMT_IVTV : V4L2_MPEG_STREAM_VBI_FMT_NONE);
