@@ -6,7 +6,7 @@
 #endif
 #endif
 
-static const char *VERSION        = "2014-01-11";
+static const char *VERSION        = "2015-11-07";
 static const char *DESCRIPTION    = tr("use Hauppauge PVR as input device");
 static const char *MAINMENUENTRY  = tr("PVR picture settings");
 
@@ -86,7 +86,13 @@ const char *cPluginPvrInput::MainMenuEntry(void)
 
 cOsdObject *cPluginPvrInput::MainMenuAction(void)
 {
-  cChannel *channel = Channels.GetByNumber(cDevice::CurrentChannel());
+#if VDRVERSNUM > 20300
+  LOCK_CHANNELS_READ
+  const cChannels *vdrchannels = Channels;
+#else
+  cChannels *vdrchannels = &Channels;
+#endif 
+  const cChannel *channel = vdrchannels->GetByNumber(cDevice::CurrentChannel());
 #if VDRVERSNUM < 10713
   if (channel && channel->IsPlug())
      return new cPvrMenuMain();

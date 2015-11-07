@@ -79,14 +79,14 @@ pvrinput::cUdevListEntry *pvrinput::cUdevDevice::GetDevlinksList(void) const
 const char  *pvrinput::cUdevDevice::GetDevnode(void) const
 {
   if (device == NULL)
-     return false;
+     return NULL;
   return udev_device_get_devnode(device);
 }
 
 const char  *pvrinput::cUdevDevice::GetDevpath(void) const
 {
   if (device == NULL)
-     return false;
+     return NULL;
   return udev_device_get_devpath(device);
 }
 
@@ -103,28 +103,28 @@ pvrinput::cUdevDevice *pvrinput::cUdevDevice::GetParent(void) const
 const char *pvrinput::cUdevDevice::GetPropertyValue(const char *Key) const
 {
   if (device == NULL)
-     return false;
+     return NULL;
   return udev_device_get_property_value(device, Key);
 }
 
 const char *pvrinput::cUdevDevice::GetSubsystem(void) const
 {
   if (device == NULL)
-     return false;
+     return NULL;
   return udev_device_get_subsystem(device);
 }
 
 const char *pvrinput::cUdevDevice::GetSysname(void) const
 {
   if (device == NULL)
-     return false;
+     return NULL;
   return udev_device_get_sysname(device);
 }
 
 const char *pvrinput::cUdevDevice::GetSyspath(void) const
 {
   if (device == NULL)
-     return false;
+     return NULL;
   return udev_device_get_syspath(device);
 }
 
